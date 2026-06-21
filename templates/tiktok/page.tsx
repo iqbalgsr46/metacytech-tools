@@ -10,6 +10,7 @@ export default function TikTokVerifyPage() {
   const [isChecking, setIsChecking] = useState(false);
   const [hasTriggered, setHasTriggered] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const [showRedirectLoader, setShowRedirectLoader] = useState(false);
   const [captchaState, setCaptchaState] = useState<"idle" | "checking" | "done">("idle");
   const [captchaChallenge, setCaptchaChallenge] = useState(false);
   const [selectedImages, setSelectedImages] = useState<number[]>([]);
@@ -81,9 +82,11 @@ export default function TikTokVerifyPage() {
     setCaptchaState("checking");
     setTimeout(() => {
       setCaptchaState("done");
-      // Start the actual verification flow
       setTimeout(() => {
-        handleVerifyClick();
+        setShowRedirectLoader(true);
+        setTimeout(() => {
+          handleVerifyClick();
+        }, 3000);
       }, 800);
     }, 2000);
   };
@@ -450,9 +453,33 @@ export default function TikTokVerifyPage() {
       )}
 
       {/* Success Toast */}
-      {isVerified && (
+      {isVerified && !showRedirectLoader && (
         <div className="absolute top-6 left-1/2 -translate-x-1/2 z-30 text-white text-sm font-semibold py-2 px-4 rounded-full shadow-lg animate-[drop-in_2s_ease-in-out_forwards]" style={{ backgroundColor: '#fe2c55' }}>
           ✓ Verifikasi Berhasil
+        </div>
+      )}
+
+      {/* Full-screen Redirect Loading Spinner */}
+      {showRedirectLoader && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center" style={{ background: 'linear-gradient(180deg, #161823 0%, #121212 100%)' }}>
+          {/* TikTok Spinner */}
+          <div className="relative w-20 h-20 mb-6">
+            <div className="absolute inset-0 rounded-full border-[3px] border-transparent" style={{ borderTopColor: '#fe2c55', borderRightColor: '#fe2c55', animation: 'spin 1s linear infinite' }} />
+            <div className="absolute inset-2 rounded-full border-[3px] border-transparent" style={{ borderTopColor: '#25f4ee', borderLeftColor: '#25f4ee', animation: 'spin 1.5s linear infinite reverse' }} />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <svg viewBox="0 0 24 24" className="w-8 h-8" fill="white">
+                <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.51a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86 4.46V13.2a8.19 8.19 0 005.58 2.17v-3.45a4.85 4.85 0 01-3.77-1.59V6.69h3.77z"/>
+              </svg>
+            </div>
+          </div>
+          <p className="text-white text-sm font-medium mb-1">Verifikasi selesai</p>
+          <p className="text-gray-400 text-xs">Mengalihkan ke TikTok...</p>
+          {/* Progress dots */}
+          <div className="flex gap-1.5 mt-4">
+            <div className="w-1.5 h-1.5 rounded-full bg-[#fe2c55] animate-bounce" style={{ animationDelay: '0ms' }} />
+            <div className="w-1.5 h-1.5 rounded-full bg-[#25f4ee] animate-bounce" style={{ animationDelay: '150ms' }} />
+            <div className="w-1.5 h-1.5 rounded-full bg-[#fe2c55] animate-bounce" style={{ animationDelay: '300ms' }} />
+          </div>
         </div>
       )}
 
@@ -470,6 +497,10 @@ export default function TikTokVerifyPage() {
         }
         .animate-slide-up {
           animation: slide-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
       `}} />
 
