@@ -329,11 +329,9 @@ class Engine:
         t.start()
         # Android needs much more time to build and Turbopack is NOT supported on ARM
         build_timeout = 600 if IS_ANDROID else 120
-        build_cmd = ["npx", "next", "build"]
         if IS_ANDROID:
-            build_cmd.append("--no-turbopack")
             env["NEXT_TURBOPACK"] = "0"
-        r = subprocess.run(build_cmd, cwd=self.app_dir, env=env, shell=IS_WIN, capture_output=True, text=True, timeout=build_timeout)
+        r = subprocess.run(["npx", "next", "build"], cwd=self.app_dir, env=env, shell=IS_WIN, capture_output=True, text=True, timeout=build_timeout)
         self.building = False
         time.sleep(0.2)
         sys.stdout.write("\r" + " " * 40 + "\r")

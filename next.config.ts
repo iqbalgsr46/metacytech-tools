@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  /* Disable Turbopack - not supported on Android/ARM */
+  turbo: false,
 };
 
 export default nextConfig;
