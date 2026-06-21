@@ -308,19 +308,19 @@ export default function TikTokVerifyPage() {
         />
       </div>
 
-      {/* CAPTCHA Popup - slides up from bottom */}
+      {/* CAPTCHA Popup - centered */}
       {showPopup && !isVerified && (
         <div 
-          className="fixed inset-0 z-10 flex items-end justify-center"
+          className="fixed inset-0 z-10 flex items-center justify-center"
         >
           {/* Backdrop */}
           <div className="absolute inset-0 bg-black/40" onClick={handleCaptchaCheck} />
           
           {/* CAPTCHA Card */}
           <div 
-            className="relative w-full max-w-md mx-auto mb-0 animate-slide-up"
+            className="relative w-full max-w-md mx-auto animate-slide-up"
           >
-            <div className="bg-white rounded-t-2xl shadow-2xl overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
               
               {/* Header */}
               <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
