@@ -183,21 +183,26 @@ def banner():
         r"   ╚═╝     ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝",
     ]
     print()
-    # ASCII art already has colors embedded, print as-is
+    # Hacker-style colors: bright green, cyan, red alternating
+    hacker_colors = ['\033[92m', '\033[96m', '\033[92m', '\033[91m', '\033[96m', '\033[92m']
+    idx = 0
     for line in hacker_art:
-        sys.stdout.write(f"\033[90m{line}\033[0m\n")
-        time.sleep(0.02)
+        color = hacker_colors[idx % len(hacker_colors)]
+        sys.stdout.write(f"{color}{line}\033[0m\n")
+        time.sleep(0.015)
+        idx += 1
     print()
-    cols = [C.CYN, C.WHT, C.CYN, C.CYN, C.WHT, C.CYN]
+    # Title with bright green and cyan
+    title_cols = ['\033[92m', '\033[96m', '\033[92m']
     for line in title:
         for i, ch in enumerate(line):
-            sys.stdout.write(f"{cols[i % 3]}{ch}")
-        sys.stdout.write(C.RST + "\n")
-        time.sleep(0.03)
+            sys.stdout.write(f"{title_cols[i % 3]}{ch}")
+        sys.stdout.write("\033[0m\n")
+        time.sleep(0.025)
     print()
-    print(f"{C.CYN}  {'=' * 64}{C.RST}")
-    print(f"{C.B}{C.WHT}  METACYTECH  *  Cloudflare Tunnel  *  Telegram{C.RST}")
-    print(f"{C.CYN}  {'=' * 64}{C.RST}")
+    print(f"\033[92m  {'=' * 64}\033[0m")
+    print(f"\033[1m\033[97m  METACYTECH  *  Cloudflare Tunnel  *  Telegram\033[0m")
+    print(f"\033[92m  {'=' * 64}\033[0m")
     print()
 
 
