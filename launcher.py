@@ -183,20 +183,34 @@ def banner():
         r"   ╚═╝     ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝",
     ]
     print()
-    # Hacker-style colors: bright green, cyan, red alternating
-    hacker_colors = ['\033[92m', '\033[96m', '\033[92m', '\033[91m', '\033[96m', '\033[92m']
-    idx = 0
-    for line in hacker_art:
-        color = hacker_colors[idx % len(hacker_colors)]
+    # Dynamic gradient colors - smooth transitions dari hijau gelap ke cyan terang
+    gradient_colors = [
+        '\033[32m',   # Green
+        '\033[92m',   # Bright Green
+        '\033[36m',   # Cyan
+        '\033[96m',   # Bright Cyan
+        '\033[92m',   # Bright Green
+        '\033[32m',   # Green
+        '\033[96m',   # Bright Cyan
+        '\033[92m',   # Bright Green
+        '\033[36m',   # Cyan
+        '\033[91m',   # Red accent
+        '\033[96m',   # Bright Cyan
+        '\033[92m',   # Bright Green
+    ]
+    for idx, line in enumerate(hacker_art):
+        # Smooth color gradient dengan sedikit variasi
+        color = gradient_colors[idx % len(gradient_colors)]
         sys.stdout.write(f"{color}{line}\033[0m\n")
         time.sleep(0.015)
-        idx += 1
     print()
-    # Title with bright green and cyan
-    title_cols = ['\033[92m', '\033[96m', '\033[92m']
-    for line in title:
+    # Title dengan smooth green-cyan gradient
+    for line_idx, line in enumerate(title):
+        line_color = gradient_colors[(line_idx * 2) % len(gradient_colors)]
         for i, ch in enumerate(line):
-            sys.stdout.write(f"{title_cols[i % 3]}{ch}")
+            # Sedikit variasi per karakter untuk efek smooth
+            char_color = gradient_colors[(line_idx * 2 + i // 20) % len(gradient_colors)]
+            sys.stdout.write(f"{char_color}{ch}")
         sys.stdout.write("\033[0m\n")
         time.sleep(0.025)
     print()
