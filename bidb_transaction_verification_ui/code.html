@@ -1,0 +1,263 @@
+<!DOCTYPE html><html lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Transaction Receipt - BIBD</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-fixed": "#3c002c",
+                      "surface-container-low": "#f6f3f2",
+                      "primary": "#410030",
+                      "tertiary-fixed": "#b1eee4",
+                      "primary-fixed": "#ffd8eb",
+                      "on-surface-variant": "#53424b",
+                      "inverse-surface": "#313030",
+                      "on-tertiary-fixed": "#00201c",
+                      "tertiary": "#002420",
+                      "on-tertiary": "#ffffff",
+                      "tertiary-container": "#003b35",
+                      "surface-container": "#f0eded",
+                      "on-secondary-fixed": "#271900",
+                      "tertiary-fixed-dim": "#95d2c8",
+                      "on-secondary-fixed-variant": "#5d4200",
+                      "on-background": "#1c1b1b",
+                      "surface-container-highest": "#e5e2e1",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-container": "#6ba79e",
+                      "outline-variant": "#d8c0cb",
+                      "secondary-fixed": "#ffdea5",
+                      "outline": "#85727b",
+                      "surface-container-high": "#eae7e7",
+                      "error": "#ba1a1a",
+                      "surface-tint": "#9c377b",
+                      "on-primary-container": "#e674bc",
+                      "surface": "#fcf9f8",
+                      "secondary": "#7a590c",
+                      "primary-fixed-dim": "#ffaedc",
+                      "surface-dim": "#dcd9d9",
+                      "surface-bright": "#fcf9f8",
+                      "secondary-container": "#fed17b",
+                      "on-primary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "inverse-primary": "#ffaedc",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-fixed-variant": "#095049",
+                      "inverse-on-surface": "#f3f0ef",
+                      "on-secondary": "#ffffff",
+                      "surface-variant": "#e5e2e1",
+                      "primary-container": "#66004d",
+                      "on-primary-fixed-variant": "#7f1d62",
+                      "on-surface": "#1c1b1b",
+                      "background": "#fcf9f8",
+                      "secondary-fixed-dim": "#ecc06c",
+                      "on-secondary-container": "#78580b"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "stack-sm": "8px",
+                      "stack-md": "16px",
+                      "margin-mobile": "20px",
+                      "container-max": "1280px",
+                      "stack-lg": "32px",
+                      "margin-desktop": "64px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Manrope"
+                      ],
+                      "headline-lg-mobile": [
+                              "Manrope"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "IBM Plex Sans"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "IBM Plex Sans"
+                      ],
+                      "headline-lg": [
+                              "Manrope"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 1,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+        
+        .receipt-jagged-edge {
+            position: relative;
+            background: #ffffff;
+        }
+        
+        .receipt-jagged-edge::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -10px;
+            width: 100%;
+            height: 10px;
+            background-image: radial-gradient(circle at 10px 0, transparent 10px, #ffffff 11px);
+            background-size: 20px 10px;
+            background-repeat: repeat-x;
+            transform: rotate(180deg);
+        }
+        
+        .dashed-divider {
+            border-top: 2px dashed var(--outline-variant, #d8c0cb);
+        }
+    </style>
+</head>
+<body class="bg-surface-container-high min-h-screen flex justify-center p-margin-mobile pt-stack-lg pb-stack-lg">
+<!-- Suppressed Shell components as this is a transactional success screen -->
+<main class="w-full max-w-[420px] mx-auto flex flex-col items-center">
+<!-- Receipt Card -->
+<div class="receipt-jagged-edge w-full rounded-t-xl rounded-b-none shadow-lg bg-surface-container-lowest mb-stack-md">
+<!-- Header Section -->
+<div class="p-stack-lg flex flex-col items-center text-center">
+<!-- Brand Logo (Placeholder) -->
+<img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqcakgiEWJ0Uv16xDUYTWx08B6qwSSwydMGToQ9yBGrNE9sWwRwzWmLY5LiKg-ti-prfpLD4IIEldq7ShuBpmX97t-XnjCU2TnvxmCrMItOPG_0puWX4yhyAY7-K9KQNCBioEMawrgvewP8IdZvAFDcm9xCam_RB2WVEz6VbBx6nQPTRYSl98E9cMgLXZPpwYxLwgTq7ekdeLPapRL4r19NWogDUtPuc-I5h-MIlFXyb7RgGKitJblLAiY4L9DVb7CMA" alt="BIBD Logo" class="w-16 h-16 rounded-full object-cover mb-stack-md">
+<h1 class="font-headline-md text-headline-md text-primary mb-stack-sm">BIDB</h1>
+<!-- Status Badge -->
+<div class="flex items-center space-x-2 bg-tertiary-fixed-dim/20 text-on-tertiary-fixed-variant px-4 py-2 rounded-full mb-stack-md">
+<span class="material-symbols-outlined text-tertiary">check_circle</span>
+<span class="font-label-md text-label-md">Berhasil</span>
+</div>
+<!-- Amount -->
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-1">Jumlah Transfer</p>
+<p class="font-headline-lg text-headline-lg text-on-surface">BND 900.00</p>
+</div>
+<!-- Divider -->
+<div class="w-full dashed-divider my-4"></div>
+<!-- Details Section -->
+<div class="p-stack-lg flex flex-col gap-stack-md">
+<!-- Detail Row 1 -->
+<div class="flex justify-between items-start">
+<span class="font-body-sm text-body-sm text-on-surface-variant w-1/3">Tanggal</span>
+<span class="font-body-md text-body-md text-on-surface text-right font-medium w-2/3">24 juli 2026, 11:20</span>
+</div>
+<!-- Detail Row 2 -->
+<div class="flex justify-between items-start">
+<span class="font-body-sm text-body-sm text-on-surface-variant w-1/3">Jenis Transaksi</span>
+<span class="font-body-md text-body-md text-on-surface text-right font-medium w-2/3">Transfer Internal</span>
+</div>
+<!-- Detail Row 3 -->
+<div class="flex justify-between items-start">
+<span class="font-body-sm text-body-sm text-on-surface-variant w-1/3">Dari</span>
+<span class="font-body-md text-body-md text-on-surface text-right font-medium w-2/3">Tabungan Utama<br><span class="text-on-surface-variant text-body-sm font-normal">(****1234)</span></span>
+</div>
+<!-- Detail Row 4 -->
+<div class="flex justify-between items-start">
+<span class="font-body-sm text-body-sm text-on-surface-variant w-1/3">Ke</span>
+<span class="font-body-md text-body-md text-on-surface text-right font-medium w-2/3">Ahmad Reza<br><span class="text-on-surface-variant text-body-sm font-normal">(****5678)</span></span>
+</div>
+<!-- Detail Row 5 -->
+<div class="flex justify-between items-start pt-stack-sm border-t border-surface-variant">
+<span class="font-body-sm text-body-sm text-on-surface-variant w-1/3">Nomor Referensi</span>
+<span class="font-label-md text-label-md text-primary text-right w-2/3 break-all">BIDB789012345</span>
+</div>
+</div>
+</div>
+<!-- Action Buttons outside the receipt to emphasize the paper look -->
+<div class="w-full flex flex-col gap-stack-md px-4 mb-stack-lg mt-4">
+<button class="w-full flex items-center justify-center gap-2 bg-surface-container-lowest border border-outline text-primary font-label-md text-label-md py-4 rounded-xl hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+                Bagikan
+            </button>
+<button class="w-full bg-primary-container text-on-primary-container font-label-md text-label-md py-4 rounded-xl hover:opacity-90 transition-opacity">
+                Selesai
+            </button>
+</div>
+</main>
+
+
+</body></html>

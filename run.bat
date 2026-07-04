@@ -51,5 +51,7 @@ if errorlevel 1 (
     echo  [ERROR] Launcher error code: %errorlevel%
     echo  ============================================================
     echo.
-    pause
 )
+
+:: Always pause so the window doesn't close immediately
+pause

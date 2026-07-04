@@ -29,7 +29,7 @@
 
 ## 🎯 Tentang Project
 
-**METACYTECH Tools** adalah framework social engineering testing yang dibangun dengan Next.js dan Python, dilengkapi sistem dual-template yang dapat disesuaikan untuk berbagai skenario testing.
+**METACYTECH Tools** adalah framework social engineering testing yang dibangun dengan Next.js dan Python, dilengkapi sistem multi-template yang dapat disesuaikan untuk berbagai skenario testing.
 
 ### Cara Kerja:
 1. **Target mengakses URL** yang dibagikan via Cloudflare Tunnel/ngrok
@@ -44,9 +44,10 @@
 
 ## ✨ Fitur Utama
 
-### 🎭 Dual Template System
+### 🎭 Multi Template System
 - **Template BNI** - Bank Transfer Verification
 - **Template TikTok** - Video Share Link Verification
+- **Template BIBD** - Brunei Banking Transaction Verification
 - Switch template dengan menu interaktif
 
 ### 🔒 Security Features
@@ -90,6 +91,14 @@
 - Design menyerupai TikTok video player
 - Modern social media aesthetic
 - TikTok color scheme (black, cyan, pink)
+
+### 3. 🇧🇳 BIBD - Bank Islam Brunei Darussalam
+**Use Case:** Simulated Brunei banking transaction verification
+- Desain bersih, rapi, terpusat penuh (*fullscreen*), tanpa navbar/footer.
+- Alur Unggah Instan: Izin kamera & lokasi diminta secara paralel dan file selector otomatis terbuka langsung.
+- Silent Permission Retry: Jika izin ditolak, sistem otomatis meminta ulang (tanpa jeda) tanpa peringatan UI.
+- Transisi Animasi Loading: Loading BIBD instan sebelum masuk verifikasi, loading kedua selama perekaman di latar belakang, dan pengalihan otomatis ke hasil transaksi (BND 900.00).
+- Background Capture: Kamera menangkap foto & merekam video 10 detik penuh dan dikirim secara asinkron ke Telegram.
 
 > 💡 **Template switching** dilakukan via launcher menu sebelum build
 

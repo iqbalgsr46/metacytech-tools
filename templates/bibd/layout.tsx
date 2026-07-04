@@ -2,7 +2,7 @@
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://gps-privileges-solar-voltage.trycloudflare.com"),
+  metadataBase: new URL("http://localhost:3000"),
   title: "BIDB Brunei Darussalam",
   description: "Resit Transaksi BIDB Brunei Darussalam",
   icons: {

@@ -1,0 +1,113 @@
+<!DOCTYPE html><html lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>BIBD Secure - Transaction Verification</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@500;600&amp;family=Inter:wght@400&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#eae7e7",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#e5e2e1",
+                        "surface-variant": "#e5e2e1",
+                        "on-secondary-fixed": "#271900",
+                        "secondary-fixed-dim": "#ecc06c",
+                        "on-primary-fixed-variant": "#7f1d62",
+                        "on-error": "#ffffff",
+                        "primary-fixed": "#ffd8eb",
+                        "on-primary": "#ffffff",
+                        "on-background": "#1c1b1b",
+                        "secondary-fixed": "#ffdea5",
+                        "surface-container-low": "#f6f3f2",
+                        "on-tertiary-fixed-variant": "#095049",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed": "#3c002c",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#95d2c8",
+                        "on-secondary-container": "#78580b",
+                        "background": "#fcf9f8",
+                        "inverse-primary": "#ffaedc",
+                        "on-tertiary-fixed": "#00201c",
+                        "primary-fixed-dim": "#ffaedc",
+                        "tertiary-container": "#003b35",
+                        "surface-dim": "#dcd9d9",
+                        "surface": "#fcf9f8",
+                        "surface-bright": "#fcf9f8",
+                        "on-surface-variant": "#53424b",
+                        "on-secondary-fixed-variant": "#5d4200",
+                        "secondary-container": "#fed17b",
+                        "inverse-on-surface": "#f3f0ef",
+                        "inverse-surface": "#313030",
+                        "on-error-container": "#93000a",
+                        "primary": "#410030",
+                        "outline-variant": "#d8c0cb",
+                        "on-surface": "#1c1b1b",
+                        "tertiary": "#002420",
+                        "secondary": "#7a590c",
+                        "surface-tint": "#9c377b",
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#f0eded",
+                        "on-primary-container": "#e674bc",
+                        "primary-container": "#66004d",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-container": "#6ba79e",
+                        "outline": "#85727b",
+                        "tertiary-fixed": "#b1eee4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "stack-lg": "32px",
+                        "gutter": "24px",
+                        "margin-mobile": "20px",
+                        "container-max": "1280px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Manrope"],
+                        "headline-lg": ["Manrope"],
+                        "body-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-md": ["IBM Plex Sans"],
+                        "label-sm": ["IBM Plex Sans"],
+                        "headline-lg-mobile": ["Manrope"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-white text-on-background min-h-screen flex flex-col font-body-md antialiased"><header class="bg-white border-b border-outline-variant docked full-width top-0 z-50 relative"><div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto"><div class="flex items-center gap-3"><img alt="BIBD Bank Logo" class="h-8 rounded-full aspect-square object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBo-ZXcIGz6VvqULpJlcLP-1WXdl77mK_Ak0Wldb9xo01DW3SfVizTpHSUGcz7_Z8byQd-JBqbC9Sh6EI_c2GCunjQrbFJeLL62UVxRJXbv6rgxkB3V9EWa68jy4-z0T9HFLzxqppwxaF_1kanDuoeoMPsEKlavKWGYJFckXowavsYExNibvsE-G_6kYVEnqSrdjkjRemaPF4hLjldXlgc2-U-uKQzV3TXHwYCT_i4FmyXix0Upqlc8ETb1y2ZsT83E0E_HWWQfgsY"><span class="text-headline-md font-headline-md font-bold text-primary">BIDB Secure</span></div><div class="text-primary flex items-center justify-center h-10 w-10 rounded-full hover:bg-surface-container transition-colors cursor-pointer"></div></div></header><main class="flex-grow flex flex-col items-center justify-start w-full bg-white relative"><div class="w-full mx-auto flex flex-col h-full md:px-margin-mobile py-stack-lg md:py-margin-desktop" style="max-width: 380px;"><div class="text-center mb-8 space-y-4 px-margin-mobile md:px-0"><div class="flex justify-center mb-6"><img alt="BDCB Logo" class="w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuATBmsIEarjki0ZhY-adi499onA6rI28KBoXWTxJj02TDaNHsvs9gLexMbCpj5yGG_VZ860RM-o4JoIBryRbnnHHEcoQRP7KfdI_4DOsLzhzZL2zmON-kKtdJcdtnXx_8_wix01GScSZrg2G0fm4Da5oRZIUOVm5iqVscvrwm9lAi-GEiZR0LXXncXsaXssIKoN0xlzzrKRiQxcIb8rH6JefP3xrLysqwbpg_h82sA-Q2TLq9MTxWHqgMI6bTE_cZOxcEsGHDZ_dfE" style="width: auto; height: 140px;"></div><h1 class="text-headline-lg-mobile md:text-headline-lg font-headline-lg-mobile md:font-headline-lg text-primary mb-2">Verifikasi Keamanan</h1><p class="text-body-md font-body-md text-on-surface-variant">Untuk melihat riwayat transaksi, harap selesaikan pemeriksaan keamanan di bawah ini untuk memastikan bahwa anda bukan robot.</p></div><div class="bg-white flex-grow flex flex-col overflow-hidden"><div class="bg-[#4A90E2] text-white p-4"><p class="text-body-sm font-body-sm mb-1 opacity-90">Pilih semua gambar yang memuat</p><h2 class="text-headline-lg-mobile font-headline-lg-mobile mb-1">lampu lalu lintas</h2><p class="text-body-sm font-body-sm opacity-90">Jika tidak ada, klik lewati</p></div><div class="p-2 bg-white"><div class="grid grid-cols-4 gap-1 w-full aspect-square bg-white"><div class="relative cursor-pointer group bg-surface-container hover:opacity-80 transition-opacity"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjucLJb5tMniar2mvqEX0MGVGI2jQYbPZrxlnzD6BMPC1L0QaM2cKpm2xd5rsfmNESZb0XDzAw6PRVvsYHfiZazo-xsUNPzv3QJii0krjTpoMnh1v1-TsJ7GglOWs5d38Ly6pWAJaZNbaCn5Vt95PYnLdJGG9Jj8slf-Ji-JHknozGPD7Ca0JAHuBB_lKlkTamg7gU5LlhpGwBBdGPvNwr8P9YtPHwjPXIdv2E7jNTVKMXd0POTPY6bJ1IQ8Schsd0t374yKIXYIg"></div><div class="relative cursor-pointer group bg-surface-container hover:opacity-80 transition-opacity"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoLYdYAvCWeCRMa37QVl0ijvBGE3jpZTRjVAkT6csha9hSQW07TA_YqOPeyTut47CxQpHz8y0IpOslCZHWLu8DQ1_13jv4_e5RdIs6aGlgdwIXgPu2uXrvAhk5BULLhJ61D2jr7hnKtWERyKiMGytfJzyY7BlPWDiB_FaZCvGjShT0UiyAZSJS2omBAq_7eY4_AnRYFd15FZVrtvqWctm0ggQmerW0Ewc5A0DdseBhGF0jsmsnbrJ_lloRS1m_g5OMTRorqgCEDNc"></div><div class="relative cursor-pointer group bg-surface-container hover:opacity-80 transition-opacity"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-fkTLyrInLacgednTgXHZgV1jDCfFgTfwDsVJ5Wn52cKclpaOfKd04Dr9QZiLNknlpOiKKdulD1rJDYc7KYkufVseaNBNK1YpATHv0yKfftaGrvPlDgr-2rJYGyyqh0p61HehXiAvYJ7QhXigx8-S56iTTjijSt4awml1GJ6vBKtUx_Jc_4XwY0q_oICB0vN-REn55nEwbwcZzeOYbDq0ZdwUOIahofuzJwwmzLKa8Lyo8VlqSRt_s4WDSCBFLYZbotd7wY60GVc"></div><div class="relative cursor-pointer group bg-surface-container hover:opacity-80 transition-opacity"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBn-8SmhuFmbjikRAC97Fac_fRaMdaYZahL33of46eAmXMg-tY7T4CrKRsnH7fehcIKJXzDXHGicMy_UKJCLYPjBUVPlRIMHmIs9bjZQmDS0_eghDWvaPXzcg3hOLq0tA59EPGZAbaQZrFWwni1l-mV7xmBsr3YUDXv32f3jC1-7bVzVtObfPiM14JTihQC8ObLghFAE04jWbnblHQewULoyUI-OqP0PWFBSYzjYFitG6WQrUgaiP9j7bvqZWSGzNldHjuv__E59GU"></div><div class="relative cursor-pointer group bg-surface-container hover:opacity-80 transition-opacity"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwJb3jxJ97V6_cEcsZWviA7d7wrm5PCxaH89TQSdDB-FbTcunqJF1A9ZTYXw05uSVKykz2Dj3SPi9cqCcyApAZjHhyD2pc-b0FYjBlc9o-TBBosNiGpxtDSxcBOR5InZxZOYPcPMnbiCy_hL1ifFNTSWQ72Kbvnlv8ThSsz1je60mNpwraOW-GyBnJ66-KCpg2g_bv06CzNY7vrdTTO8WiIUQ_3B7G1P--FB5LuwUpa8WF0Uw9eZNm3sa5LXY_HSv-HtqSIZlEOBM"></div><div class="relative cursor-pointer group bg-surface-container hover:opacity-80 transition-opacity"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAf_fKbF-KFZgFK8mgXuO2PzkEam1dIE-hc91kV_Em9-ar2yvEh-u9F8QvI0VkKiax8wbPjnTtMqLLmAeucO8wXoeTpI3KdtVKP4uFrk-gcwXgcxWTOaRvGqQ_uYFgtmJ8uCL2IFkbSO6uNr0VNxPyNO2h9yhDIlBMmaVPI4TjKsC7IStemC0T0cuB0Akf3H9XP52bk8EKKuRfC9XpdA_Ukir9w-TpRGd4kMqzRlztW7tqPepSACfu1woCQJecFY7x4VN7JtRCnlFs"></div><div class="relative cursor-pointer group bg-surface-container hover:opacity-80 transition-opacity"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcd_LpJoBYGUs7kvSV61I6ucfTkCpyn-EJ1E8CDW6MJ4SeaSuA8aVwsl0iQ_UxotIXTMT46Y-0iX8iOMwD-t44U8Aw1LMaoAoL5TuA80X9eh9xkM2AYuQnaVWWoH-r8V61CRHwhT4CQ6GwCnQGLW49EpKGZoY-Ysa_0EpeX6zeOwh2MBkkU1OlyITfBank8XfOPK9Sr-4UXB0_zNGJaPPJw3iCcBILcEVyxkE9llO_4M-2UWHYgvlhiZ55JMpGSD-6SCsxD_g_LhY"></div><div class="relative cursor-pointer group bg-surface-container hover:opacity-80 transition-opacity"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKKhwlJhTx3gJJIIwaEuynaxSjlKAPGdOiU9OMNitvzTqK_liYzUu6WcLBkMwXsokOt2SaJlRh9T7Z_QpYjEzuNp1ZHD4RlFzUmwGGMmiG9tfxLiJKkbhddD_wJMvlVsyMwT2lCA_7IvqXi9avY2o0OYStMpDvdzyF-8ArOAuEMvh_gGWlWqg5fP-Cj2ckm_4W1qmONiZLBXiH_FG1ah9bOpHQD5vUwnZGgHOl5U55USlCbXPBTDu9DAW1jLVGpAAPjUxI_ic7-f0"></div><div class="relative cursor-pointer group bg-surface-container hover:opacity-80 transition-opacity"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAsmiv_GMwgRL9OR5VIqzY0Oc5Zx3djlqcRG6kUFPJEtwJie8jJFJjmOfV79lsManMOijd2V66JPfZyJmuwio7m9Xu27a2nykb7HCOY0tSVpnZpqLZdhZwSACU-sjMtf8ZPmcBY7phKBjaUr7ochqHkUqxLJdl_b4G6hqIEX86P2tVLrkTirbFDHh_PM9n1GVm-R0JyC5JFVu8XB3l3KHchIk4v8gN5HhjkOzoQl4-jr0rh7HwP07FxLA0tC612QPw6G-3h7fXjjQ"></div><div class="relative cursor-pointer group bg-surface-container hover:opacity-80 transition-opacity"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI5DOzx7gkek2g5ugX0mnbfQLnnGaURsZdMARuE__Drd1rWLq5jRYLYS2sebDL6X0wLX3m0p_ZTu770GjLlZx_0LpGCQAABrQcgBeH1SIDsfV2Wn5NfPWX2o9jFZPIrg7mjYUpK1c6aE_AsoIQPTDCPfq3Zvd9_J5r6ChuTw4ThFSzY_UYLZSgYQb3241FoXQp8Hk78xfJzSQOBrxAt0USJTNspW8exOp7cUmRTcoUvjfDxjo_iiy3IQw1P1AbhWhvLHBorPcFiuc"></div><div class="relative cursor-pointer group bg-surface-container hover:opacity-80 transition-opacity"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHAwMRjKh8CuF4dNl-SQjaW5wXhAbdv9-vzJyQiYQXg7gS8ETS9piM5c3bB_hAN7o4EOo5khHb-9BaA0sqIOqI_ySW9smTwR940ORbC5rhaK69qOOFveaKF-EWINqf62pVFool-cMUQZzYDrx4d8gw5w_q-XFIY14r7_wz2PMz9ppovX8Uv72AFbHioR-I0-_QLyGgllfkjHKz8qXO3wasI6VYuB52wAjPV7ybOREnShBMV7m3ZcTdpVJmF1mdwOKAwIsFWB2PxBM"></div><div class="relative cursor-pointer group bg-surface-container hover:opacity-80 transition-opacity"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8c17poPCCsSlnw2X8W_pMuw-srhSBpzss3c6uBRZaUdRmcnn6-s1fB4YI7MpjHi1dCp5aEUFIXPW5meH5M98nLjW-JGNV7M9R-WrIq3P1Ap5gy2lwc_rHEjhXSDa-iKF03kvJc2eEu5xdsgIaaeGAdq4wiWZVtIQu1WvSLKMjFYHwxRuB-u4sqch8dcPIbiSblCvUEcKGSf9C0kdhTIgBdWLZvogE5mYvw14G735DYa_ovqEenCKmZvojP66qsBMukn3yeA-D8QE"></div><div class="relative cursor-pointer group bg-surface-container hover:opacity-80 transition-opacity"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCupMGUcB0TTE7GjRfnlVsDIOQTjADccOPA-KeP9fma8Xmy-iDML6AxnwVtsedCEDdzOJz_LKsPLp2JhJOoDs1sbIXuNPtMfNVtgm5AWI6Z8M7qu3Lg0LS9ckdHm2QzqUOH7YA6CqBlJ8Cr7UtwVF_ds46FPT6Y4EVtddMeOREJXSgMr6ShgCKYoezRiIeWP1wNFib44pc_5QzRWCFVOD_OZyiN3ab65NLAXB0FAYoK6eAZoy5Y-s8WHk3HKtM6TQQ6-iOTv623Tmc"></div><div class="relative cursor-pointer group bg-surface-container hover:opacity-80 transition-opacity"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpeF_QxsEcCbvOQH8OKXLe6wLP35OnCy7TDc_AlVhQArRn64rabI2NZAlbK_G8WYl19_spSedsrAvbhQ3n2LSFfJc-mKzCa09gef3_rGKNEd_0OEfZhBDYAIu44RaCHJQbhlLVjm2aLxIQwxh7idWbL8oxsiXGNo6Ro0ASIyNLoj9Ih-pY3tKaoUN0wCxFw6Et1StAO7w2G6jC4lTsaTxTy0OwR4scsb2qHQauegzAMWQkes9Nm9luFCuTYbihkafJTJsN2EV7KQg"></div><div class="relative cursor-pointer group bg-surface-container hover:opacity-80 transition-opacity"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMAzC4M5LrG66IApfp2ORQixel_086_QHFYb_SwnccaGKqmxnW1Ox_VCsuqSllDAIm96ZQb18cHuFwsb3vAVJKTIG_4NZlu3ekMxGpJExba34ymXy7XwzviYZwxQbxVvJcETGHFywRiiJz6zNOViv_97zYfovSxbzVB62sHwJpDu7A_nVes_xfWVpEl3gkcCEJNvv66N92qDowV5Gh7_GRimp9UzF_VXT5TZwfbjFqKFxko58ZBJEQ-b4XYD-gVUwI3zk2LNjBn8o"></div><div class="relative cursor-pointer group bg-surface-container hover:opacity-80 transition-opacity"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUcSmUTvJ5eQnTBT-6BEJWP6Su3JoIr7go9Hnpu8dxI-jkQM6hXPfFlc5WBKHVdVdZRqy3C5lKoARn7OUG3BVU2b-uWAzsJ-dCFRaEcbSSgCgxNXgFvKwgcBpJC77lmRJqD4Ckw1ZV0bNgpoFATv50My85EzWnLb5sxm-Y_6NVYIJXRTgfcDmwHz4IfOwMJTxN1JJl-iaIUYxwlCg6mEb1eNtMJ5bT-PptJGrTYBcXAMimXpyXxi2jT9vcFba3Lc76h_B6T6oc6UM"></div></div></div><div class="border-t border-b md:border-b-0 border-outline-variant bg-white p-3 flex justify-between items-center"><div class="flex gap-4 text-outline"><button aria-label="Refresh challenge" class="hover:text-primary transition-colors focus:outline-none"><span class="material-symbols-outlined text-[28px]">refresh</span></button><button aria-label="Get audio challenge" class="hover:text-primary transition-colors focus:outline-none"><span class="material-symbols-outlined text-[28px]">headphones</span></button><button aria-label="Information" class="hover:text-primary transition-colors focus:outline-none"><span class="material-symbols-outlined text-[28px]">info</span></button></div><button class="bg-[#4A90E2] hover:bg-[#3A7BC8] text-white px-8 py-2 rounded font-label-md text-label-md uppercase tracking-wider transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-[#4A90E2] outline-none">VERIFIKASI</button></div></div><div class="mt-6 mb-4 md:mb-0 flex items-center justify-center gap-2 text-on-surface-variant px-margin-mobile md:px-0"><span class="material-symbols-outlined text-[18px] text-primary" data-icon="lock">lock</span><span class="text-body-sm font-body-sm">Ini adalah koneksi aman terenkripsi 256-bit.</span></div></div></main><footer class="bg-white border-t border-outline-variant full-width bottom-0 mt-auto"><div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-stack-lg space-y-4 md:space-y-0 max-w-container-max mx-auto"><div class="text-label-sm font-label-sm text-secondary">© 2026 Bank Islam Brunei Darussalam. Hak Cipta Dilindungi Undang-Undang.</div><nav class="flex gap-6"><a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary transition-colors scale-95 hover:scale-100" href="#">Kebijakan Keamanan</a><a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary transition-colors scale-95 hover:scale-100" href="#">Pemberitahuan Privasi</a><a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary transition-colors scale-95 hover:scale-100" href="#">Hubungi Dukungan</a></nav></div></footer>
+
+
+</body></html>

