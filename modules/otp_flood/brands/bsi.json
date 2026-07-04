@@ -1,0 +1,9 @@
+{
+  "brand_name": "BSI",
+  "category": "bank",
+  "otp_format": "BSI-XXXXXX",
+  "message_template": "[BSI] Kode OTP: ${OTP}. Verifikasi transaksi anda. Jangan berikan kepada siapapun.",
+  "sender_name": "BSI",
+  "otp_expiration_seconds": 180,
+  "rate_limit_per_minute": 5
+}

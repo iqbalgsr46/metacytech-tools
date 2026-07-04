@@ -1,0 +1,9 @@
+{
+  "brand_name": "Grab",
+  "category": "finance",
+  "otp_format": "GR-XXXXXX",
+  "message_template": "[Grab] Kode verifikasi Anda: ${OTP}. Berlaku 3 menit.",
+  "sender_name": "Grab",
+  "otp_expiration_seconds": 180,
+  "rate_limit_per_minute": 3
+}

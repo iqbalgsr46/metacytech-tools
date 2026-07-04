@@ -1,0 +1,9 @@
+{
+  "brand_name": "Gojek",
+  "category": "finance",
+  "otp_format": "GO-XXXXXX",
+  "message_template": "[Gojek] Kode OTP: ${OTP}. Jangan berikan kode ini kepada siapapun. Berlaku 3 menit.",
+  "sender_name": "Gojek",
+  "otp_expiration_seconds": 180,
+  "rate_limit_per_minute": 3
+}

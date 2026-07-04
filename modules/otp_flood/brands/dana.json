@@ -1,0 +1,9 @@
+{
+  "brand_name": "DANA",
+  "category": "finance",
+  "otp_format": "DN-XXXXXX",
+  "message_template": "[DANA] Kode OTP: ${OTP}. Untuk verifikasi transaksi. Berlaku 3 menit.",
+  "sender_name": "DANA",
+  "otp_expiration_seconds": 180,
+  "rate_limit_per_minute": 3
+}

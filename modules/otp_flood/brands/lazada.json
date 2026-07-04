@@ -1,0 +1,9 @@
+{
+  "brand_name": "Lazada",
+  "category": "e-commerce",
+  "otp_format": "LZD-XXXXXX",
+  "message_template": "[Lazada] Kode OTP Anda: ${OTP}. Digunakan untuk verifikasi akun. Berlaku 2 menit.",
+  "sender_name": "Lazada",
+  "otp_expiration_seconds": 120,
+  "rate_limit_per_minute": 3
+}

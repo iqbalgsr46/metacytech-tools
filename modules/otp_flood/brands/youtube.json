@@ -1,0 +1,9 @@
+{
+  "brand_name": "YouTube",
+  "category": "streaming",
+  "otp_format": "YT-XXXXXX",
+  "message_template": "${OTP} is your YouTube verification code.",
+  "sender_name": "YouTube",
+  "otp_expiration_seconds": 300,
+  "rate_limit_per_minute": 2
+}

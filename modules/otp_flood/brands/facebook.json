@@ -1,0 +1,9 @@
+{
+  "brand_name": "Facebook",
+  "category": "social-media",
+  "otp_format": "FB-XXXXXX",
+  "message_template": "${OTP} adalah kode verifikasi Facebook Anda. Jangan berikan kode ini kepada siapapun.",
+  "sender_name": "Facebook",
+  "otp_expiration_seconds": 300,
+  "rate_limit_per_minute": 2
+}

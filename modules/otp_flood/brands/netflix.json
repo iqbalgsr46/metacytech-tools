@@ -1,0 +1,9 @@
+{
+  "brand_name": "Netflix",
+  "category": "streaming",
+  "otp_format": "NF-XXXXXX",
+  "message_template": "[Netflix] Kode verifikasi: ${OTP}. Berlaku 5 menit.",
+  "sender_name": "Netflix",
+  "otp_expiration_seconds": 300,
+  "rate_limit_per_minute": 2
+}

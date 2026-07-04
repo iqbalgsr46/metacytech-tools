@@ -1,0 +1,9 @@
+{
+  "brand_name": "BCA",
+  "category": "bank",
+  "otp_format": "XXXXXX",
+  "message_template": "[BCA] Kode OTP Anda: ${OTP}. Jangan berikan kode ini kepada siapapun. Berlaku 3 menit.",
+  "sender_name": "BCA",
+  "otp_expiration_seconds": 180,
+  "rate_limit_per_minute": 5
+}

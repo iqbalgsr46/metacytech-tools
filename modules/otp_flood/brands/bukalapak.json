@@ -1,0 +1,9 @@
+{
+  "brand_name": "Bukalapak",
+  "category": "e-commerce",
+  "otp_format": "BL-XXXXXX",
+  "message_template": "[Bukalapak] Kode verifikasi akun: ${OTP}. Jangan bagikan kode ini kepada orang lain.",
+  "sender_name": "Bukalapak",
+  "otp_expiration_seconds": 120,
+  "rate_limit_per_minute": 3
+}

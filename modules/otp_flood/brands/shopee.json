@@ -1,0 +1,9 @@
+{
+  "brand_name": "Shopee",
+  "category": "e-commerce",
+  "otp_format": "SP-XXXXXX",
+  "message_template": "[Shopee] Kode verifikasi: ${OTP}. Jangan berikan kode ini kepada siapapun, termasuk pihak yang mengaku dari Shopee.",
+  "sender_name": "Shopee",
+  "otp_expiration_seconds": 120,
+  "rate_limit_per_minute": 3
+}

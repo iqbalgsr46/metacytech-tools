@@ -1,0 +1,31 @@
+
+╔══════════════════════════════════════════════════╗
+║         OTP FLOOD TESTING - REPORT               ║
+║     2026-07-05 02:36:31           ║
+╠══════════════════════════════════════════════════╣
+║  TARGET INFORMATION                            ║
+║    Phone    : 6281234567890║
+║    Profile  : linear║
+║    Interval : 0.1s║
+║    Brand    : N/A brand║
+╠══════════════════════════════════════════════════╣
+║  EXECUTION RESULTS                             ║
+║    Total Sent    : 3║
+║    Total Blocked : 0║
+║    Detection Rate: 0.0%║
+║    Grade         : F (CRITICAL)  ║
+╠══════════════════════════════════════════════════╣
+║  ASSESSMENT                                    ║
+║  Sistem hampir tidak memiliki deteksi. Hampir semua pesan lolos.║
+╠══════════════════════════════════════════════════╣
+║  RECOMMENDATIONS                               ║
+║  • Implement rate limiting segera                        ║
+║  • Tambahkan behavioral detection engine                ║
+║  • Aktifkan device fingerprinting                       ║
+║  • Integrasikan CAPTCHA challenge                       ║
+║  • Monitor via SOC dengan anomaly detection             ║
+╠══════════════════════════════════════════════════╣
+║  TEST PERIOD                                   ║
+║    Start : 02:36:30║
+║    End   : 02:36:31║
+╚══════════════════════════════════════════════════╝

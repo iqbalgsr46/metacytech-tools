@@ -1,0 +1,9 @@
+{
+  "brand_name": "Tokopedia",
+  "category": "e-commerce",
+  "otp_format": "TP-XXXXXX",
+  "message_template": "[Tokopedia] Kode OTP Anda: ${OTP}. Gunakan untuk verifikasi login. Jangan berikan ke siapapun.",
+  "sender_name": "Tokopedia",
+  "otp_expiration_seconds": 120,
+  "rate_limit_per_minute": 3
+}
