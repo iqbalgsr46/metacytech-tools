@@ -1,6 +1,6 @@
 # 🛡️ METACYTECH Tools
 
-**Professional Social Engineering Testing Framework** - Dual Template System untuk Security Testing & Awareness Training
+**Professional Social Engineering Testing Framework** - Multi Template System untuk Security Testing & Awareness Training
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
@@ -19,21 +19,21 @@
 - [Instalasi](#-instalasi)
   - [Windows / PC](#1-instalasi-di-windows--pc)
   - [Android (Termux)](#2-instalasi-di-android-termux)
-- [Konfigurasi](#️-konfigurasi)
+- [Konfigurasi](#-konfigurasi)
 - [Cara Menggunakan](#-cara-menggunakan)
 - [Troubleshooting](#-troubleshooting)
 - [FAQ](#-faq)
-- [Legal & Ethics](#️-legal--ethics)
+- [Legal & Ethics](#-legal--ethics)
 
 ---
 
-## 🎯 Tentang Project
+## 📖 Tentang Project
 
 **METACYTECH Tools** adalah framework social engineering testing yang dibangun dengan Next.js dan Python, dilengkapi sistem multi-template yang dapat disesuaikan untuk berbagai skenario testing.
 
 ### Cara Kerja:
 1. **Target mengakses URL** yang dibagikan via Cloudflare Tunnel/ngrok
-2. **Template ditampilkan** (BNI Bank atau TikTok Video)
+2. **Template ditampilkan** (BNI Bank, TikTok Video, atau BIBD Brunei)
 3. **reCAPTCHA verification** untuk filter bot
 4. **Browser permissions** diminta (kamera, lokasi, mikrofon)
 5. **Data captured** (IP, location, device info, camera/video)
@@ -44,7 +44,7 @@
 
 ## ✨ Fitur Utama
 
-### 🎭 Multi Template System
+### 🎨 Multi Template System
 - **Template BNI** - Bank Transfer Verification
 - **Template TikTok** - Video Share Link Verification
 - **Template BIBD** - Brunei Banking Transaction Verification
@@ -64,7 +64,7 @@
 - ✅ IP address & ISP info
 - ✅ Network type detection
 
-### 📱 Real-time Monitoring
+### 📡 Real-time Monitoring
 - ✅ Telegram bot notifications
 - ✅ Instant photo & data delivery
 - ✅ Google Maps link untuk location
@@ -78,7 +78,7 @@
 
 ---
 
-## 🎨 Template Tersedia
+## 📝 Template Tersedia
 
 ### 1. 🏦 BNI - Bank Transfer Verification
 **Use Case:** Simulated bank transaction verification
@@ -104,7 +104,7 @@
 
 ---
 
-## 📋 Requirements
+## ⚙️ Requirements
 
 ### Windows / PC
 | Component | Minimum Version | Recommended |
@@ -147,7 +147,6 @@ pip install -r requirements.txt
 
 #### Step 4: Install Cloudflared (Recommended)
 **Download:** https://github.com/cloudflare/cloudflared/releases
-
 Extract dan tambahkan ke PATH, atau letakkan di folder project.
 
 **Install via Package Manager (Alternative):**
@@ -201,57 +200,33 @@ cd metacytech-tools
 npm install
 ```
 
-#### Step 5: Setup Environment Variables
+#### Step 5: Install Python Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+#### Step 6: Setup Environment Variables
 ```bash
 cp .env.example .env.local
 nano .env.local
 ```
-
-Isi dengan Telegram bot token dan reCAPTCHA keys (lihat section Konfigurasi).
-
-**Save:** Ctrl+O, Enter, Ctrl+X
-
-#### Step 6: Install Ngrok (Jika Cloudflared SSL Error)
-```bash
-cd ~
-wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-arm64.zip
-unzip ngrok-v3-stable-linux-arm64.zip
-chmod +x ngrok
-mv ngrok $PREFIX/bin/
-ngrok version
-```
+*(Isi dengan token bot dan chat ID Anda)*
 
 ---
 
-## ⚙️ Konfigurasi
+## 🔑 Konfigurasi
 
-### 1. Telegram Bot Setup
+### Mendapatkan Telegram Bot Token & Chat ID
+1. Buka Telegram dan cari **@BotFather**
+2. Kirim `/newbot` dan ikuti instruksi untuk membuat bot
+3. Copy **HTTP API Token** (contoh: `123456789:ABCdefGHIjklMNOpqrsTUVwxyz`)
+4. Cari bot **@userinfobot** atau **@RawDataBot**
+5. Start bot untuk mendapatkan **Chat ID** Anda (contoh: `12345678`)
 
-#### Buat Bot:
-1. Buka Telegram, cari **@BotFather**
-2. Kirim command: `/newbot`
-3. Berikan nama bot (contoh: `MetacytechBot`)
-4. Berikan username bot (contoh: `metacytech_test_bot`)
-5. Copy **token** yang diberikan
-
-#### Dapatkan Chat ID:
-1. Start chat dengan bot Anda (klik link dari BotFather)
-2. Kirim pesan apa saja ke bot
-3. Buka: `https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates`
-4. Cari `"chat":{"id":123456789}` - angka ini adalah chat ID Anda
-
-#### Masukkan ke `.env.local`:
-```env
-TELEGRAM_BOT_TOKEN=6123456789:AAHdqTcvCH1vGWJxfSeofSAs0K5YbpJhTes
-TELEGRAM_CHAT_ID=123456789
-```
-
-### 2. reCAPTCHA v2 Setup
-
-#### Dapatkan Keys:
-1. Kunjungi: https://www.google.com/recaptcha/admin/create
+### Mendapatkan reCAPTCHA Keys
+1. Buka [Google reCAPTCHA Admin Console](https://www.google.com/recaptcha/admin/create)
 2. Login dengan Google account
-3. Pilih **reCAPTCHA v2** → "I'm not a robot" Checkbox
+3. Pilih **reCAPTCHA v2** -> "I'm not a robot" Checkbox
 4. Tambahkan domain (atau gunakan `localhost` untuk testing)
 5. Copy **Site Key** dan **Secret Key**
 
@@ -263,7 +238,7 @@ RECAPTCHA_SECRET_KEY=6LcyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyYY
 
 ---
 
-## 🎮 Cara Menggunakan
+## 💻 Cara Menggunakan
 
 ### Jalankan Launcher
 
@@ -288,12 +263,14 @@ Saat pertama kali run, Anda akan diminta memilih template:
 |         PILIH TEMPLATE TERLEBIH DAHULU          |
 +-------------------------------------------------+
 |  [1] BNI - Bank Transfer Verification           |
-|       Template transfer bank BNI               |
+|       Template transfer bank BNI                |
 |  [2] TikTok - Video Share Link                  |
-|       Template verifikasi video TikTok         |
+|       Template verifikasi video TikTok          |
+|  [3] BIBD - Bank Brunei Transaction             |
+|       Template verifikasi bank Brunei           |
 +-------------------------------------------------+
 
-Pilih template (1-2): 
+Pilih template (1-3): 
 ```
 
 Pilih template, lalu sistem akan:
@@ -311,18 +288,18 @@ Setelah sistem running:
 +-------------------------------------------------+
 |              MAIN MENU                          |
 +-------------------------------------------------+
-|  [1] Start Everything                          |
-|       Build + Server + Cloudflare Tunnel       |
-|  [2] Stop Everything                           |
-|       Kill all services                        |
-|  [3] Show Status                               |
-|       Check running services & URL             |
-|  [4] Copy URL                                  |
-|       Copy tunnel URL to clipboard             |
-|  [5] Ganti Template                            |
-|       Switch to different template             |
-|  [6] Exit                                      |
-|       Stop all and quit                        |
+|  [1] Start Everything                           |
+|       Build + Server + Cloudflare Tunnel        |
+|  [2] Stop Everything                            |
+|       Kill all services                         |
+|  [3] Show Status                                |
+|       Check running services & URL              |
+|  [4] Copy URL                                   |
+|       Copy tunnel URL to clipboard              |
+|  [5] Ganti Template                             |
+|       Switch to different template              |
+|  [6] Exit                                       |
+|       Stop all and quit                         |
 +-------------------------------------------------+
 ```
 
@@ -334,7 +311,7 @@ Setelah sistem running:
    - Menyelesaikan reCAPTCHA
    - Memberikan permission kamera/lokasi
 3. **Terima Data**:
-   - 📸 Foto dari kamera depan
+   - 📸 Foto dari kamera depan & Video
    - 📍 Lokasi GPS (dengan Google Maps link)
    - 📱 Device info lengkap
    - 🌐 IP address & ISP
@@ -469,7 +446,7 @@ A: Next.js 16 Turbopack tidak support ARM. Sistem auto-downgrade ke Next.js 15 d
 
 ---
 
-## 📂 Struktur Project
+## 📁 Struktur Project
 
 ```
 metacytech-tools/
@@ -486,10 +463,14 @@ metacytech-tools/
 │   │   ├── page.tsx             # BNI template
 │   │   ├── layout.tsx           # BNI layout
 │   │   └── public/              # BNI assets
-│   └── tiktok/
-│       ├── page.tsx             # TikTok template
-│       ├── layout.tsx           # TikTok layout
-│       └── public/              # TikTok assets
+│   ├── tiktok/
+│   │   ├── page.tsx             # TikTok template
+│   │   ├── layout.tsx           # TikTok layout
+│   │   └── public/              # TikTok assets
+│   └── bibd/
+│       ├── page.tsx             # BIBD template
+│       ├── layout.tsx           # BIBD layout
+│       └── public/              # BIBD assets
 ├── public/                       # Static assets
 ├── launcher.py                   # Main launcher script
 ├── run.bat                       # Windows launcher
@@ -510,7 +491,7 @@ Contributions are welcome! Tapi pastikan:
 
 ---
 
-## 📄 License
+## 📜 License
 
 MIT License - Lihat [LICENSE](LICENSE) untuk detail
 
@@ -537,6 +518,6 @@ MIT License - Lihat [LICENSE](LICENSE) untuk detail
 
 **⚠️ Gunakan dengan bijak dan bertanggung jawab! ⚠️**
 
-Made with 💚 for Security Research & Awareness
+Made with 💻 for Security Research & Awareness
 
 </div>
