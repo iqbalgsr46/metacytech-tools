@@ -46,6 +46,9 @@ next-env.d.ts
 __pycache__/
 *.pyc
 
+# WhatsApp auth session (keep private!)
+modules/otp_flood/.auth_session/
+
 # Tunnel logs
 tunnel.log
 
