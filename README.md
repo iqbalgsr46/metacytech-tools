@@ -518,7 +518,7 @@ MIT License - Lihat [LICENSE](LICENSE) untuk detail
 
 ## 👨‍💻 Author
 
-**Muhammad Iqbal**  
+**Iqbal**  
 - GitHub: [@iqbalgsr46](https://github.com/iqbalgsr46)
 - Project: [METACYTECH Tools](https://github.com/iqbalgsr46/metacytech-tools)
 
