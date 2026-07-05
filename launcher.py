@@ -531,7 +531,7 @@ class Engine:
     def start_server(self):
         return self._start_server_silent(verbose=True)
 
-    def _start_server_silent(self, verbose=False):
+    def _start_server_silent(self, verbose=False, sl=None):
         if self.check_port(self.app_port):
             self.kill_port(self.app_port)
             time.sleep(3)
@@ -606,7 +606,7 @@ class Engine:
     def start_tunnel(self):
         return self._start_tunnel_silent(verbose=True)
 
-    def _repair_termux_certificates(self, verbose=False):
+    def _repair_termux_certificates(self, verbose=False, sl=None):
         if not IS_ANDROID or not shutil.which("pkg"):
             return False
         if verbose:
@@ -624,7 +624,7 @@ class Engine:
         except Exception:
             return False
 
-    def _run_cloudflared_tunnel(self, cf, log, timeout, verbose=False):
+    def _run_cloudflared_tunnel(self, cf, log, timeout, verbose=False, sl=None):
         try:
             if os.path.exists(log): os.remove(log)
         except: pass
@@ -667,20 +667,20 @@ class Engine:
                 pass
         return None, last_content
 
-    def _start_tunnel_silent(self, verbose=False):
+    def _start_tunnel_silent(self, verbose=False, sl=None):
         cf = self._find_cloudflared()
         if not cf:
             cf = self._install_cloudflared_termux(verbose=verbose)
         if not cf:
             if verbose:
                 print(f"  ..  Cloudflared not found, trying ngrok...")
-            return self._start_ngrok_fallback(verbose=verbose)
+            return self._start_ngrok_fallback(verbose=verbose, sl=sl)
         self.kill_tunnel()
         time.sleep(2)
         log = os.path.join(self.app_dir, "tunnel.log")
         timeout = 60 if IS_ANDROID else 45
 
-        url, content = self._run_cloudflared_tunnel(cf, log, timeout, verbose=verbose)
+        url, content = self._run_cloudflared_tunnel(cf, log, timeout, verbose=verbose, sl=sl)
         if url:
             return url
 
@@ -689,11 +689,11 @@ class Engine:
             or "failed to verify certificate" in content
         ):
             self.kill_tunnel()
-            self._repair_termux_certificates(verbose=verbose)
+            self._repair_termux_certificates(verbose=verbose, sl=sl)
             time.sleep(2)
             if verbose:
                 print(f"  ..  Retrying cloudflared after CA repair...")
-            url, content = self._run_cloudflared_tunnel(cf, log, timeout, verbose=False)
+            url, content = self._run_cloudflared_tunnel(cf, log, timeout, verbose=False, sl=sl)
             if url:
                 return url
 
@@ -709,9 +709,9 @@ class Engine:
                 print(f"  {C.CORAL}Could not read tunnel.log: {e}{C.RST}")
             print(f"  {C.DIM}─────────────────────────────────────────────{C.RST}")
         if verbose: print(f"  ..  Cloudflare Tunnel failed, trying ngrok...")
-        return self._start_ngrok_fallback(verbose=verbose)
+        return self._start_ngrok_fallback(verbose=verbose, sl=sl)
 
-    def _start_ngrok_fallback(self, verbose=False):
+    def _start_ngrok_fallback(self, verbose=False, sl=None):
         ngrok = shutil.which("ngrok")
         if not ngrok and IS_ANDROID:
             if verbose:
