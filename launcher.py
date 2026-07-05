@@ -460,7 +460,10 @@ class Engine:
     def _build_silent(self, verbose=False, sl=None):
         nm = os.path.join(self.app_dir, "node_modules")
         if not os.path.exists(nm):
-            if verbose: print(f"  {C.W}  Installing dependencies...{C.RST}")
+            if verbose and sl:
+                sl.log("Installing dependencies...")
+            elif verbose:
+                print(f"  Installing dependencies...")
             if not self._npm_install(verbose=verbose):
                 return False
         env = os.environ.copy()
@@ -475,7 +478,8 @@ class Engine:
                     pkg_data = json.load(f)
                 next_ver = pkg_data.get("dependencies", {}).get("next", "")
                 if next_ver and not next_ver.startswith("15"):
-                    print(f"{C.YLW}  Android: downgrading Next.js to v15 (Turbopack v16 not supported on ARM)...{C.RST}")
+                    if sl:
+                        sl.log("Android: downgrading Next.js to v15...")
                     shutil.copy2(pkg_json, pkg_bak)
                     pkg_data["dependencies"]["next"] = "15.3.3"
                     dev_deps = pkg_data.get("devDependencies", {})
@@ -483,8 +487,6 @@ class Engine:
                         dev_deps["eslint-config-next"] = "15.3.3"
                     with open(pkg_json, "w") as f:
                         json.dump(pkg_data, f, indent=2)
-                    # Must delete node_modules and package-lock.json for clean reinstall
-                    print(f"{C.DIM}  Cleaning node_modules for fresh install...{C.RST}")
                     nm_dir = os.path.join(self.app_dir, "node_modules")
                     lock_file = os.path.join(self.app_dir, "package-lock.json")
                     if os.path.exists(nm_dir):
@@ -494,13 +496,12 @@ class Engine:
                     if not self._npm_install(verbose=verbose):
                         return False
                     did_downgrade = True
-                    print(f"{C.GRN}  Next.js v15.3.3 ready for Android build (uses Webpack){C.RST}")
         except Exception as e:
-            print(f"{C.RED}  Failed to downgrade Next.js: {e}{C.RST}")
+            pass
         build_timeout = 600 if IS_ANDROID else 120
         if not self._ensure_next_installed(verbose=verbose):
-            if verbose:
-                print(f"  {C.RED}Next.js install incomplete: node_modules/next/dist/bin/next not found{C.RST}")
+            if sl:
+                sl.log("Next.js install incomplete", color=C.CORAL)
             return False
         r = subprocess.run(self._next_cmd("build"), cwd=self.app_dir, env=env, shell=IS_WIN, capture_output=True, text=True, timeout=build_timeout)
         # KEEP v15 on Android — don't restore original package.json
@@ -513,7 +514,6 @@ class Engine:
             except Exception:
                 pass
         if r.returncode == 0:
-            if verbose: print(f"  ok  Build successful!")
             return True
         if verbose:
             print(f"  xx  Build failed!")
@@ -784,7 +784,7 @@ class Engine:
 
         sl = StepLine("building")
         sl.start()
-        if not self._build_silent(verbose=True):
+        if not self._build_silent(verbose=True, sl=sl):
             sl.stop(False)
             return False
         sl.stop()
@@ -792,7 +792,7 @@ class Engine:
 
         sl = StepLine("starting server")
         sl.start()
-        if not self._start_server_silent(verbose=True):
+        if not self._start_server_silent(verbose=True, sl=sl):
             sl.stop(False)
             return False
         sl.stop()
@@ -800,7 +800,7 @@ class Engine:
 
         sl = StepLine("starting tunnel")
         sl.start()
-        url = self._start_tunnel_silent(verbose=True)
+        url = self._start_tunnel_silent(verbose=True, sl=sl)
         if url:
             sl.stop()
             print()
@@ -811,7 +811,7 @@ class Engine:
             print()
             sl = StepLine("rebuilding")
             sl.start()
-            self._build_silent(verbose=True)
+            self._build_silent(verbose=True, sl=sl)
             self._restart_silent()
             sl.stop()
         else:
