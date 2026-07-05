@@ -899,8 +899,8 @@ class Engine:
         tmpl = TEMPLATES[self.current_template]
         print()
         if url:
-            print(f"  url  {url}")
-        print(f"  local  http://localhost:{self.app_port}")
+            print(f"  {C.EMER}[v]{C.RST} url\t\t: {C.B}{url}{C.RST}")
+        print(f"  {C.EMER}[v]{C.RST} local\t: http://localhost:{self.app_port}")
         print()
 
 
