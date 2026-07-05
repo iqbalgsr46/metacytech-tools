@@ -10,50 +10,70 @@ GREEN='\033[0;92m'
 YELLOW='\033[0;93m'
 CYAN='\033[0;96m'
 WHITE='\033[1;97m'
+DIM='\033[2m'
 RESET='\033[0m'
 
 clear
 
-echo -e "${RED}============================================================${RESET}"
+# ── Banner (sama persis dengan run.bat) ────────────────────────────
+echo -e "${CYAN}"
+echo "  ============================================================"
 echo ""
-echo -e "${WHITE}   M   M  EEEE  TTTTT   A     C   C  Y   Y  TTTTT  EEEE  C   C  H   H${RESET}"
-echo -e "${WHITE}   MM MM  E        T    A A    C       Y Y      T    E      C   C   H H${RESET}"
-echo -e "${WHITE}   M M M  EEE      T   A   A   C        Y       T    EEE    C C    HHH${RESET}"
-echo -e "${WHITE}   M   M  E        T   AAAAA    C       Y       T    E      C   C   H H${RESET}"
-echo -e "${WHITE}   M   M  EEEE     T   A   A    C      Y       T    EEEE   C   C   H H${RESET}"
+echo "   ███╗   ███╗ ███████╗ ████████╗ █████╗  ██████╗ ██╗   ██╗ ████████╗ ███████╗ ██████╗  ██╗  ██╗"
+echo "   ████╗ ████║ ██╔════╝ ╚══██╔══╝ ██╔══██╗ ██╔════╝ ╚██╗ ██╔╝ ╚══██╔══╝ ██╔════╝ ██╔════╝  ██║  ██║"
+echo "   ██╔████╔██║ █████╗      ██║    ███████║ ██║       ╚████╔╝     ██║    █████╗   ██║      ███████║"
+echo "   ██║╚██╔╝██║ ██╔══╝      ██║    ██╔══██║ ██║        ╚██╔╝      ██║    ██╔══╝   ██║      ██╔══██║"
+echo "   ██║ ╚═╝ ██║ ███████╗    ██║    ██║  ██║ ╚██████╗    ██║       ██║    ███████╗ ╚██████╗ ██║  ██║"
+echo "   ╚═╝     ╚═╝ ╚══════╝    ╚═╝    ╚═╝  ╚═╝  ╚═════╝    ╚═╝       ╚═╝    ╚══════╝  ╚═════╝ ╚═╝  ╚═╝"
 echo ""
-echo -e "${RED}============================================================${RESET}"
-echo -e "${WHITE}  METACYTECH  *  Cloudflare Tunnel  *  Telegram${RESET}"
-echo -e "${RED}============================================================${RESET}"
+echo -e "${CYAN}  ============================================================${RESET}"
+echo ""
+echo -e "  ${WHITE}Multi Template: BNI + TikTok + BIBD + OTP Flood${RESET}"
+echo -e "  ${DIM}Cloudflare Tunnel  *  Telegram  *  OTP Testing${RESET}"
+echo ""
+echo -e "${CYAN}  ============================================================${RESET}"
 echo ""
 
-# Check Python
-if ! command -v python3 &> /dev/null && ! command -v python &> /dev/null; then
+# ── Cek lokasi: Termux + external storage → auto pindah ──────────
+if [ -n "$TERMUX_VERSION" ] || [ -d "/data/data/com.termux" ]; then
+    CURRENT_DIR=$(pwd)
+    if echo "$CURRENT_DIR" | grep -q "/storage/emulated/0"; then
+        echo -e "${YELLOW}  [!] TERDETEKSI: Project di storage eksternal (Download).${RESET}"
+        echo -e "${YELLOW}      External storage TIDAK support symlink (EACCES error).${RESET}"
+        echo -e "${YELLOW}      npm install WAJIB di home directory Termux.${RESET}"
+        echo ""
+        echo -e "${CYAN}  [*] Memindahkan project ke ~/metacytech-tools ...${RESET}"
+
+        # Pindah ke home
+        TARGET_DIR="$HOME/metacytech-tools"
+        if [ -d "$TARGET_DIR" ]; then
+            echo -e "${YELLOW}  [!] $TARGET_DIR sudah ada, menghapus dulu...${RESET}"
+            rm -rf "$TARGET_DIR"
+        fi
+        cp -r "$CURRENT_DIR" "$TARGET_DIR"
+        cd "$TARGET_DIR"
+        echo -e "${GREEN}  [✓] Project dipindah ke: $TARGET_DIR${RESET}"
+        echo ""
+    fi
+fi
+
+# ── Check Python ──────────────────────────────────────────────────
+PYTHON_CMD=""
+if command -v python3 &> /dev/null; then
+    PYTHON_CMD="python3"
+elif command -v python &> /dev/null; then
+    PYTHON_CMD="python"
+else
     echo -e "${RED}  [ERROR] Python tidak ditemukan! Install Python 3.8+${RESET}"
     echo ""
-    # Detect package manager
     if command -v pkg &> /dev/null; then
-        echo -e "${YELLOW}  Termux detected. Install with: pkg install python${RESET}"
-    elif command -v apt &> /dev/null; then
-        echo -e "${YELLOW}  Install with: sudo apt install python3${RESET}"
-    elif command -v pacman &> /dev/null; then
-        echo -e "${YELLOW}  Install with: sudo pacman -S python${RESET}"
-    elif command -v dnf &> /dev/null; then
-        echo -e "${YELLOW}  Install with: sudo dnf install python3${RESET}"
-    else
-        echo -e "${YELLOW}  Download: https://www.python.org/downloads/${RESET}"
+        echo -e "${YELLOW}  Termux: pkg install python${RESET}"
     fi
     echo ""
     exit 1
 fi
 
-# Use python3 if available, fallback to python
-PYTHON_CMD="python3"
-if ! command -v python3 &> /dev/null; then
-    PYTHON_CMD="python"
-fi
-
-# Check launcher.py
+# ── Check launcher.py ─────────────────────────────────────────────
 if [ ! -f "launcher.py" ]; then
     echo -e "${RED}  [ERROR] launcher.py tidak ditemukan!${RESET}"
     echo "  Current dir: $(pwd)"
@@ -61,18 +81,29 @@ if [ ! -f "launcher.py" ]; then
     exit 1
 fi
 
-# Check and install Node.js dependencies
+# ── Check and install Node.js dependencies ────────────────────────
 if [ ! -d "node_modules" ]; then
     echo -e "${YELLOW}  Installing dependencies...${RESET}"
-    npm install
+    # Cek apakah filesystem support symlink
+    touch /tmp/.symlink_test 2>/dev/null
+    ln -sf /tmp/.symlink_test /tmp/.symlink_test_link 2>/dev/null
+    SYMLINK_OK=$?
+    rm -f /tmp/.symlink_test /tmp/.symlink_test_link
+
+    if [ $SYMLINK_OK -eq 0 ]; then
+        npm install
+    else
+        echo -e "${YELLOW}  Filesystem tidak support symlink. Pakai --no-bin-links...${RESET}"
+        npm install --no-bin-links
+    fi
 fi
 
-# Check and install cloudflared (Termux / Linux)
+# ── Check and install cloudflared (Termux / Linux) ────────────────
 if ! command -v cloudflared &> /dev/null; then
     echo -e "${YELLOW}  cloudflared not found, attempting to install...${RESET}"
     if command -v pkg &> /dev/null; then
         # Termux
-        pkg install cloudflared -y 2>/dev/null || echo -e "${YELLOW}  Manual install: download from https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/${RESET}"
+        pkg install cloudflared -y 2>/dev/null || echo -e "${YELLOW}  Manual install: pkg install cloudflared${RESET}"
     elif command -v apt &> /dev/null; then
         # Debian/Ubuntu
         ARCH=$(uname -m)
@@ -84,8 +115,17 @@ if ! command -v cloudflared &> /dev/null; then
     fi
 fi
 
-# Run the launcher
+# ── Run the launcher ──────────────────────────────────────────────
 echo -e "${CYAN}  Starting METACYTECH launcher...${RESET}"
-echo -e "${RED}============================================================${RESET}"
+echo -e "${CYAN}  ============================================================${RESET}"
 echo ""
 $PYTHON_CMD launcher.py
+
+# ── If launcher exits with error, show message ────────────────────
+if [ $? -ne 0 ]; then
+    echo ""
+    echo -e "${RED}  ============================================================${RESET}"
+    echo -e "${RED}  [ERROR] Launcher error!${RESET}"
+    echo -e "${RED}  ============================================================${RESET}"
+    echo ""
+fi
