@@ -528,7 +528,7 @@ class Engine:
 
         sl = StepLine("building")
         sl.start()
-        if not self._build_silent():
+        if not self._build_silent(verbose=True):
             sl.stop(False)
             return False
         sl.stop()
@@ -536,7 +536,7 @@ class Engine:
 
         sl = StepLine("starting server")
         sl.start()
-        if not self._start_server_silent():
+        if not self._start_server_silent(verbose=True):
             sl.stop(False)
             return False
         sl.stop()
@@ -544,7 +544,7 @@ class Engine:
 
         sl = StepLine("starting tunnel")
         sl.start()
-        url = self._start_tunnel_silent()
+        url = self._start_tunnel_silent(verbose=True)
         if url:
             sl.stop()
             print()
@@ -555,7 +555,7 @@ class Engine:
             print()
             sl = StepLine("rebuilding")
             sl.start()
-            self._build_silent()
+            self._build_silent(verbose=True)
             self._restart_silent()
             sl.stop()
         else:
