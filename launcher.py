@@ -298,6 +298,10 @@ class Engine:
                 env["SSL_CERT_FILE"] = cert_file
                 env["REQUESTS_CA_BUNDLE"] = cert_file
                 env["NODE_EXTRA_CA_CERTS"] = cert_file
+            # Safety net: Node.js on Termux may not respect extra CA certs
+            # due to using BoringSSL/Node's own cert store. This allows
+            # Telegram API calls to work in development/testing.
+            env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0"
         return env
 
     def _nw(self):
