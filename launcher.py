@@ -399,9 +399,15 @@ class Engine:
             return True
         if verbose:
             print(f"  xx  Build failed!")
+            print(f"  {C.DIM}─── stdout ─────────────────────────────────{C.RST}")
+            if r.stdout:
+                for e in r.stdout.strip().split("\n")[-20:]:
+                    print(f"  {C.DIM}{e}{C.RST}")
+            print(f"  {C.DIM}─── stderr ─────────────────────────────────{C.RST}")
             if r.stderr:
-                for e in r.stderr.strip().split("\n")[-3:]:
-                    print(f"     {e}")
+                for e in r.stderr.strip().split("\n")[-20:]:
+                    print(f"  {C.CORAL}{e}{C.RST}")
+            print(f"  {C.DIM}─────────────────────────────────────────────{C.RST}")
         return False
 
     def start_server(self):
