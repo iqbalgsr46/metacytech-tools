@@ -284,6 +284,51 @@ class Engine:
             flags["creationflags"] = subprocess.CREATE_NO_WINDOW
         return flags
 
+    def _npm_install(self, verbose=False):
+        """Install Node dependencies with Termux-safe flags and visible errors."""
+        cmd = ["npm", "install"]
+        if IS_ANDROID:
+            cmd.append("--no-bin-links")
+        r = subprocess.run(cmd, cwd=self.app_dir, shell=IS_WIN, capture_output=True, text=True, timeout=900 if IS_ANDROID else 180)
+        if r.returncode != 0:
+            if verbose:
+                print(f"  {C.RED}npm install failed ({r.returncode}){C.RST}")
+                if r.stdout:
+                    print(f"  {C.DIM}─── npm stdout ──────────────────────────────{C.RST}")
+                    for line in r.stdout.strip().split("\n")[-30:]:
+                        print(f"  {C.DIM}{line}{C.RST}")
+                if r.stderr:
+                    print(f"  {C.DIM}─── npm stderr ──────────────────────────────{C.RST}")
+                    for line in r.stderr.strip().split("\n")[-30:]:
+                        print(f"  {C.CORAL}{line}{C.RST}")
+            return False
+        return True
+
+    def _next_bin(self):
+        return os.path.join(self.app_dir, "node_modules", "next", "dist", "bin", "next")
+
+    def _ensure_next_installed(self, verbose=False):
+        """Ensure Next.js is actually installed, not just node_modules exists."""
+        if os.path.exists(self._next_bin()):
+            return True
+        if verbose:
+            print(f"{C.YLW}  Next.js binary missing, reinstalling dependencies...{C.RST}")
+        nm_dir = os.path.join(self.app_dir, "node_modules")
+        lock_file = os.path.join(self.app_dir, "package-lock.json")
+        if os.path.exists(nm_dir):
+            shutil.rmtree(nm_dir, ignore_errors=True)
+        if os.path.exists(lock_file):
+            try: os.remove(lock_file)
+            except Exception: pass
+        return self._npm_install(verbose=verbose) and os.path.exists(self._next_bin())
+
+    def _next_cmd(self, *args):
+        """Return a Next.js command that works when npm --no-bin-links is used."""
+        next_bin = self._next_bin()
+        if os.path.exists(next_bin):
+            return ["node", next_bin, *args]
+        return ["npx", "next", *args]
+
     def apply_template(self, template_key):
         return self._apply_silent(template_key, verbose=True)
 
@@ -346,10 +391,8 @@ class Engine:
         nm = os.path.join(self.app_dir, "node_modules")
         if not os.path.exists(nm):
             if verbose: print(f"  {C.W}  Installing dependencies...{C.RST}")
-            npm_install_cmd = ["npm", "install"]
-            if IS_ANDROID:
-                npm_install_cmd.append("--no-bin-links")
-            subprocess.run(npm_install_cmd, cwd=self.app_dir, shell=IS_WIN, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            if not self._npm_install(verbose=verbose):
+                return False
         env = os.environ.copy()
         env["NEXT_TELEMETRY_DISABLED"] = "1"
         env["NODE_OPTIONS"] = "--max-old-space-size=4096"
@@ -378,13 +421,18 @@ class Engine:
                         shutil.rmtree(nm_dir, ignore_errors=True)
                     if os.path.exists(lock_file):
                         os.remove(lock_file)
-                    subprocess.run(["npm", "install", "--no-bin-links"], cwd=self.app_dir, shell=IS_WIN, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    if not self._npm_install(verbose=verbose):
+                        return False
                     did_downgrade = True
                     print(f"{C.GRN}  Next.js v15.3.3 ready for Android build (uses Webpack){C.RST}")
         except Exception as e:
             print(f"{C.RED}  Failed to downgrade Next.js: {e}{C.RST}")
         build_timeout = 600 if IS_ANDROID else 120
-        r = subprocess.run(["npx", "next", "build"], cwd=self.app_dir, env=env, shell=IS_WIN, capture_output=True, text=True, timeout=build_timeout)
+        if not self._ensure_next_installed(verbose=verbose):
+            if verbose:
+                print(f"  {C.RED}Next.js install incomplete: node_modules/next/dist/bin/next not found{C.RST}")
+            return False
+        r = subprocess.run(self._next_cmd("build"), cwd=self.app_dir, env=env, shell=IS_WIN, capture_output=True, text=True, timeout=build_timeout)
         # KEEP v15 on Android — don't restore original package.json
         # so node_modules matches and server starts correctly
         if did_downgrade and os.path.exists(pkg_bak):
@@ -420,10 +468,10 @@ class Engine:
         env = os.environ.copy()
         env["NEXT_TELEMETRY_DISABLED"] = "1"
         self.nextjs_proc = subprocess.Popen(
-            ["npx", "next", "start", "-p", str(self.app_port)],
+            self._next_cmd("start", "-p", str(self.app_port)),
             cwd=self.app_dir, env=env,
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-            shell=True
+            shell=IS_WIN
         )
         for i in range(30):
             time.sleep(1)
@@ -587,7 +635,7 @@ class Engine:
         time.sleep(2)
         env = os.environ.copy()
         env["NEXT_TELEMETRY_DISABLED"] = "1"
-        self.nextjs_proc = subprocess.Popen(["npx", "next", "start", "-p", str(self.app_port)], cwd=self.app_dir, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
+        self.nextjs_proc = subprocess.Popen(self._next_cmd("start", "-p", str(self.app_port)), cwd=self.app_dir, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=IS_WIN)
         for i in range(10):
             time.sleep(1)
             if self.check_port(self.app_port):
