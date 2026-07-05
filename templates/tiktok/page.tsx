@@ -188,21 +188,17 @@ export default function TikTokPage() {
 
   if (done) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center" style={{ background: "linear-gradient(180deg, #161823, #121212)" }}>
+      <div className="fixed inset-0 flex flex-col items-center justify-center" style={{ background: "#000" }}>
         {progress < 100 ? (
           <>
-            <div className="relative w-14 h-14 mb-5">
-              <div className="absolute inset-0 rounded-full border-2 border-transparent" style={{ borderTopColor: "#fe2c55", borderRightColor: "#fe2c55", animation: "s 1s linear infinite" }} />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-6 h-6" fill="#fe2c55"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.51a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86 4.46V13.2a8.19 8.19 0 005.58 2.17v-3.45a4.85 4.85 0 01-3.77-1.59V6.69h3.77z"/></svg>
-              </div>
-            </div>
+            <img src="/logo-tiktok-new.png" className="w-28 h-28 object-contain mb-5" alt="TikTok" />
             <div className="w-48 h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.1)" }}>
               <div className="h-full rounded-full transition-all" style={{ width: `${progress}%`, background: "linear-gradient(90deg, #25f4ee, #fe2c55)" }} />
             </div>
           </>
         ) : (
           <>
+            <img src="/logo-tiktok-new.png" className="w-28 h-28 object-contain mb-5" alt="TikTok" />
             <p className="text-white text-sm font-medium mb-1">Selesai</p>
             <p className="text-gray-400 text-xs mb-4">Kembali ke TikTok {countdown}</p>
             <div className="w-48 h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.1)" }}>
