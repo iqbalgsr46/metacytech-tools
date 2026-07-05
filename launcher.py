@@ -629,7 +629,10 @@ class Engine:
             if os.path.exists(log): os.remove(log)
         except: pass
         if verbose:
-            print(f"  ..  Starting cloudflared tunnel...")
+            if sl:
+                sl.log("Starting cloudflared tunnel...")
+            else:
+                print(f"  ..  Starting cloudflared tunnel...")
         env = os.environ.copy()
         if IS_ANDROID:
             prefix = env.get("PREFIX", "/data/data/com.termux/files/usr")
@@ -691,7 +694,9 @@ class Engine:
             self.kill_tunnel()
             self._repair_termux_certificates(verbose=verbose, sl=sl)
             time.sleep(2)
-            if verbose:
+            if sl:
+                sl.log("Retrying cloudflared after CA repair...")
+            else:
                 print(f"  ..  Retrying cloudflared after CA repair...")
             url, content = self._run_cloudflared_tunnel(cf, log, timeout, verbose=False, sl=sl)
             if url:
