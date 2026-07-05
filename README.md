@@ -48,6 +48,11 @@ Platform simulasi phishing dan social engineering awareness multi-template.
 | Cloudflared | 2026+ (opsional, auto fallback ke ngrok) |
 | OS | Windows 10+ / Termux (Android) |
 
+> [!TIP]
+> **Punya HP Android?** Baca panduan Termux lengkap:
+> [📱 RUN_GUIDE.md — Instalasi Termux dari Nol](RUN_GUIDE.md)
+> Termasuk install Python, Node.js, Git, Cloudflared, setup Telegram, langkah demi langkah.
+
 ### Install Cloudflared
 
 **Windows:** Download dari [developers.cloudflare.com](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) dan install ke `C:\Program Files (x86)\cloudflared\`
