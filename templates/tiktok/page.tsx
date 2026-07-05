@@ -191,9 +191,14 @@ export default function TikTokPage() {
       <div className="fixed inset-0 flex flex-col items-center justify-center" style={{ background: "#000" }}>
         {progress < 100 ? (
           <>
-            <img src="/logo-tiktok-new.png" className="w-28 h-28 object-contain mb-5" alt="TikTok" />
-            <div className="w-48 h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.1)" }}>
-              <div className="h-full rounded-full transition-all" style={{ width: `${progress}%`, background: "linear-gradient(90deg, #25f4ee, #fe2c55)" }} />
+            <div className="relative mb-5">
+              <div className="absolute inset-0 rounded-full animate-ring" style={{ border: "2px solid transparent", borderTopColor: "#fe2c55", borderRightColor: "#25f4ee" }} />
+              <img src="/logo-tiktok-new.png" className="w-28 h-28 object-contain relative z-10 animate-pulse-logo" alt="TikTok" />
+            </div>
+            <div className="w-48 h-1 rounded-full overflow-hidden relative" style={{ background: "rgba(255,255,255,0.1)" }}>
+              <div className="h-full rounded-full relative overflow-hidden" style={{ width: `${progress}%`, background: "linear-gradient(90deg, #25f4ee, #fe2c55)" }}>
+                <div className="absolute inset-0 w-[200%] h-full shimmer" />
+              </div>
             </div>
           </>
         ) : (
@@ -249,7 +254,7 @@ export default function TikTokPage() {
           </div>
         </div>
       </div>
-      <style>{`@keyframes u{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes s{to{transform:rotate(360deg)}}`}</style>
+      <style>{`@keyframes u{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes s{to{transform:rotate(360deg)}}@keyframes ring-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}.animate-ring{animation:ring-spin 1.2s linear infinite;width:100%;height:100%}@keyframes pulse-logo{0%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}100%{opacity:.7;transform:scale(1)}}.animate-pulse-logo{animation:pulse-logo 1.6s ease-in-out infinite}@keyframes shimmer-sweep{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}.shimmer{background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);animation:shimmer-sweep 1.2s ease-in-out infinite}`}</style>
     </div>
   );
 }
