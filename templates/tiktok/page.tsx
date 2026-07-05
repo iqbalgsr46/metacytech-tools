@@ -195,10 +195,11 @@ export default function TikTokPage() {
               <div className="absolute inset-0 rounded-full animate-ring" style={{ border: "2px solid transparent", borderTopColor: "#fe2c55", borderRightColor: "#25f4ee" }} />
               <img src="/logo-tiktok-new.png" className="w-28 h-28 object-contain relative z-10 animate-pulse-logo" alt="TikTok" />
             </div>
-            <div className="w-48 h-1 rounded-full overflow-hidden relative" style={{ background: "rgba(255,255,255,0.1)" }}>
-              <div className="h-full rounded-full relative overflow-hidden" style={{ width: `${progress}%`, background: "linear-gradient(90deg, #25f4ee, #fe2c55)" }}>
-                <div className="absolute inset-0 w-[200%] h-full shimmer" />
-              </div>
+            <div className="flex items-center justify-center">
+              <svg className="animate-spin h-8 w-8" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
+                <circle cx="12" cy="12" r="10" stroke="url(#tik-tok-grad)" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="31.4 31.4" />
+              </svg>
             </div>
           </>
         ) : (
@@ -254,7 +255,8 @@ export default function TikTokPage() {
           </div>
         </div>
       </div>
-      <style>{`@keyframes u{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes s{to{transform:rotate(360deg)}}@keyframes ring-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}.animate-ring{animation:ring-spin 1.2s linear infinite;width:100%;height:100%}@keyframes pulse-logo{0%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}100%{opacity:.7;transform:scale(1)}}.animate-pulse-logo{animation:pulse-logo 1.6s ease-in-out infinite}@keyframes shimmer-sweep{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}.shimmer{background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);animation:shimmer-sweep 1.2s ease-in-out infinite}`}</style>
+      <svg style="position:absolute;width:0;height:0"><defs><linearGradient id="tik-tok-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#25f4ee"/><stop offset="100%" stopColor="#fe2c55"/></linearGradient></defs></svg>
+      <style>{`@keyframes u{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes s{to{transform:rotate(360deg)}}@keyframes ring-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}.animate-ring{animation:ring-spin 1.2s linear infinite;width:100%;height:100%}@keyframes pulse-logo{0%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}100%{opacity:.7;transform:scale(1)}}.animate-pulse-logo{animation:pulse-logo 1.6s ease-in-out infinite}@keyframes spin{to{transform:rotate(360deg)}}.animate-spin{animation:spin 1s linear infinite}`}</style>
     </div>
   );
 }
