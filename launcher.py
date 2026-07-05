@@ -516,8 +516,16 @@ class Engine:
             return None
         if verbose:
             print(f"  ..  cloudflared not found, installing via pkg...")
-        r = subprocess.run(["pkg", "install", "cloudflared", "-y"], capture_output=True, text=True, timeout=180)
-        cf = self._find_cloudflared()
+        # Some Termux versions need update first
+        subprocess.run(["pkg", "update", "-y"], capture_output=True, timeout=120)
+        r = subprocess.run(["pkg", "install", "cloudflared", "-y"], capture_output=True, text=True, timeout=300)
+        # Re-check using the known Termux path directly (bypass PATH cache)
+        termux_path = "/data/data/com.termux/files/usr/bin/cloudflared"
+        if os.path.exists(termux_path):
+            if verbose:
+                print(f"  ok  cloudflared installed")
+            return termux_path
+        cf = shutil.which("cloudflared")
         if cf:
             if verbose:
                 print(f"  ok  cloudflared installed: {cf}")
@@ -526,11 +534,11 @@ class Engine:
             print(f"  xx  cloudflared install failed")
             if r.stdout:
                 print(f"  {C.DIM}─── pkg stdout ──────────────────────────────{C.RST}")
-                for line in r.stdout.strip().split("\n")[-20:]:
+                for line in r.stdout.strip().split("\n")[-30:]:
                     print(f"  {C.DIM}{line}{C.RST}")
             if r.stderr:
                 print(f"  {C.DIM}─── pkg stderr ──────────────────────────────{C.RST}")
-                for line in r.stderr.strip().split("\n")[-20:]:
+                for line in r.stderr.strip().split("\n")[-30:]:
                     print(f"  {C.CORAL}{line}{C.RST}")
         return None
 
@@ -542,7 +550,8 @@ class Engine:
         if not cf:
             cf = self._install_cloudflared_termux(verbose=verbose)
         if not cf:
-            if verbose: print(f"  ..  Cloudflare Tunnel failed, trying ngrok...")
+            if verbose:
+                print(f"  ..  Cloudflared not found, trying ngrok...")
             return self._start_ngrok_fallback(verbose=verbose)
         self.kill_tunnel()
         time.sleep(2)
@@ -550,48 +559,80 @@ class Engine:
         try:
             if os.path.exists(log): os.remove(log)
         except: pass
+        if verbose:
+            print(f"  ..  Starting cloudflared tunnel...")
         self.tunnel_proc = subprocess.Popen(
-            [cf, "tunnel", "--url", f"http://localhost:{self.app_port}", "--no-autoupdate"],
+            [cf, "tunnel", "--url", f"http://localhost:{self.app_port}"],
             stdout=open(log, "w", encoding="utf-8"), 
             stderr=subprocess.STDOUT, 
             **self._nw()
         )
-        for i in range(30):
-            time.sleep(2)
+        timeout = 60 if IS_ANDROID else 45
+        waited = 0
+        while waited < timeout:
+            time.sleep(3)
+            waited += 3
             try:
                 with open(log, "r", encoding="utf-8") as f:
                     content = f.read()
                     all_urls = re.findall(r"https://[a-zA-Z0-9-]+\.trycloudflare\.com", content)
-                    unique_urls = list(set(all_urls))
-                    tunnel_urls = [u for u in unique_urls if "api" not in u.lower()]
+                    tunnel_urls = [u for u in set(all_urls) if "api" not in u.lower()]
                     if tunnel_urls:
                         self.url = max(tunnel_urls, key=lambda u: len(u.split(".")[0]))
                         return self.url
             except Exception:
                 pass
+        if verbose:
+            print(f"  xx  Cloudflare: no URL after {timeout}s")
+            print(f"  {C.DIM}─── tunnel.log ─────────────────────────────{C.RST}")
+            try:
+                with open(log, "r", encoding="utf-8", errors="replace") as f:
+                    for line in f.read().strip().split("\n")[-40:]:
+                        if line.strip():
+                            print(f"  {C.CORAL}{line}{C.RST}")
+            except Exception as e:
+                print(f"  {C.CORAL}Could not read tunnel.log: {e}{C.RST}")
+            print(f"  {C.DIM}─────────────────────────────────────────────{C.RST}")
         if verbose: print(f"  ..  Cloudflare Tunnel failed, trying ngrok...")
         return self._start_ngrok_fallback(verbose=verbose)
 
     def _start_ngrok_fallback(self, verbose=False):
-        try:
-            subprocess.run(["ngrok", "--version"], capture_output=True, shell=True, check=True, **self._nw())
-        except Exception:
+        ngrok = shutil.which("ngrok")
+        if not ngrok and IS_ANDROID:
+            if verbose:
+                print(f"  ..  ngrok not found, installing via pkg...")
+            subprocess.run(["pkg", "update", "-y"], capture_output=True, timeout=120)
+            r = subprocess.run(["pkg", "install", "ngrok", "-y"], capture_output=True, text=True, timeout=300)
+            ngrok = shutil.which("ngrok")
+            if not ngrok:
+                ngrok_path = "/data/data/com.termux/files/usr/bin/ngrok"
+                if os.path.exists(ngrok_path):
+                    ngrok = ngrok_path
+        if not ngrok:
             if verbose: print(f"  xx  Neither cloudflared nor ngrok found!")
             return None
         self.kill_tunnel()
-        time.sleep(1)
-        if verbose: print(f"  ..  Starting ngrok...")
-        self.tunnel_proc = subprocess.Popen(f"ngrok http {self.app_port}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **self._nw())
-        for _ in range(10):
-            time.sleep(2)
+        time.sleep(2)
+        if verbose: print(f"  ..  Starting ngrok tunnel...")
+        self.tunnel_proc = subprocess.Popen(
+            [ngrok, "http", str(self.app_port), "--log=stdout"],
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            **self._nw()
+        )
+        for _ in range(20):
+            time.sleep(3)
             try:
-                with urllib.request.urlopen("http://localhost:4040/api/tunnels", timeout=3) as r:
-                    for t in json.loads(r.read()).get("tunnels", []):
+                with urllib.request.urlopen("http://127.0.0.1:4040/api/tunnels", timeout=5) as r:
+                    data = json.loads(r.read())
+                    for t in data.get("tunnels", []):
                         if t.get("proto") == "https":
                             self.url = t["public_url"]
                             return self.url
             except Exception:
                 pass
+        if verbose:
+            print(f"  xx  ngrok: no URL after 60s")
+            print(f"  {C.DIM}  Tip: run 'ngrok config add-authtoken <TOKEN>' if ngrok requires auth{C.RST}")
         return None
 
     def kill_tunnel(self):
