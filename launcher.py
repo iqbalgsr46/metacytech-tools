@@ -144,15 +144,29 @@ class C:
     RST = "\033[0m"
     B = "\033[1m"
     DIM = "\033[2m"
-    RED = "\033[91m"
-    GRN = "\033[92m"
-    YLW = "\033[93m"
-    BLU = "\033[94m"
-    CYN = "\033[96m"
-    WHT = "\033[97m"
-    BG_B = "\033[44m"
-    MAG = "\033[35m"
-    BG_R = "\033[41m"
+    ITA = "\033[3m"
+    SLATE  = "\033[38;5;243m"
+    STEEL  = "\033[38;5;67m"
+    TEAL   = "\033[38;5;37m"
+    EMER   = "\033[38;5;42m"
+    GOLD   = "\033[38;5;214m"
+    CORAL  = "\033[38;5;203m"
+    WHITE  = "\033[97m"
+    BG_DIM = "\033[48;5;236m"
+    BG_TEAL = "\033[48;5;30m"
+    G = TEAL
+    S = EMER
+    W = GOLD
+    E = CORAL
+    RED = CORAL
+    GRN = EMER
+    YLW = GOLD
+    CYN = TEAL
+    BLU = STEEL
+    WHT = WHITE
+    MAG = CORAL
+    BG_B = BG_DIM
+    BG_R = CORAL
 
 
 def cls():
@@ -161,125 +175,96 @@ def cls():
 
 def banner():
     cls()
-    hacker_art = [
-        r"",
-        "                           ..::::.                                                            ",
-        "                      :=*#\033[94m%@@@@@@@%\033[90m#+:                                           ",
-        "                   -*\033[94m%@@@@@@@@@@@@@@@@\033[90m%%#=.                                     ",
-        "                .+\033[94m%@@@@@@@@@@@@@@@@@@@@@@@@\033[90m+                                    ",
-        "               =\033[94m@@@@@@@@@@@@@@@@@@@@@@@@@@@@\033[90m%:                                  ",
-        "              #\033[94m@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\033[90m:                                 ",
-        "             #\033[94m@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\033[90m%                                 ",
-        "            +\033[94m@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\033[90m:                                ",
-        "            \033[94m%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%\033[90m:                                ",
-        "           .\033[94m@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\033[90m=                                 ",
-        "            #\033[94m@@@@@@@\033[97m*+@@@@@@%#*%@@%*#\033[94m@@@@@@@@\033[90m%                      ",
-        "             #\033[94m@@@@\033[97m#%#*#@*++==+##%*==--=@#---++                                  ",
-        "             .+=\033[94m%@\033[97m++++@#=....:+@#*=:-..-::==.+.                                 ",
-        "                #*#+ \033[97m+@%*.....:@@@*\033[90m  ...:---==                                  ",
-        "                +*++::*#=......:==.....-----:                                      ",
-        "                 :=++...............:-#\033[94m@%\033[90m*=-                                    ",
-        "                    -=::.........:-*\033[94m%%##\033[90m*=.-+                                   ",
-        "                      .=*++==+===+*\033[94m%\033[90m*-::::::-*                                  ",
-        "       ...            .##*\033[94m%#%@\033[97m++++------:-=+*#                                  ",
-        "     :#**********+++++*##*++=+==--==-:::...:=+::.                              ",
-        "      *#*******************++.:::--...-:::...:\033[94m%@@\033[90m#                             ",
-        "      :#********************+:...:-..:=-:....:.\033[94m%@@\033[90m-                            ",
-        "       +#********************=..:--..-*=.:-==-::\033[94m%@\033[90m:                            ",
-        "       .#********+************==-==-=+-:.....::.\033[94m%\033[90m.                             ",
-        "        =#********************+:.:..::=:.::.....:\033[94m%\033[90m:                            ",
-        "\033[97m=========#*******************+*=*=+*=-**++-.:=++*#.\033[90m                             ",
-        "\033[97m=+++++*+*%%#%%#####***********+%%###*####*++++==+=\033[90m                             ",
-        "\033[37m::---===++***###%%%%%%%%\033[94m@@@@\033[37m%%%**#*++=-::.........\033[90m                     ",
-        ".............:::::::----------:::..............:::                          ",
-        "\033[0m",
-    ]
-    title = [
-        r"   ███╗   ███╗███████╗████████╗ █████╗  ██████╗██████╗ ██╗   ██╗████████╗███████╗ ██████╗██╗  ██╗",
-        r"   ████╗ ████║██╔════╝╚══██╔══╝██╔══██╗██╔════╝██╔══██╗╚██╗ ██╔╝╚══██╔══╝██╔════╝██╔════╝██║  ██║",
-        r"   ██╔████╔██║█████╗     ██║   ███████║██║     ██████╔╝ ╚████╔╝    ██║   █████╗  ██║     ███████║",
-        r"   ██║╚██╔╝██║██╔══╝     ██║   ██╔══██║██║     ██╔══██╗  ╚██╔╝     ██║   ██╔══╝  ██║     ██╔══██║",
-        r"   ██║ ╚═╝ ██║███████╗   ██║   ██║  ██║╚██████╗██║  ██║   ██║      ██║   ███████╗╚██████╗██║  ██║",
-        r"   ╚═╝     ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚══════╝ ╚═════╝╚═╝  ╚═╝",
-    ]
     print()
-    # Dynamic gradient colors - smooth transitions dari hijau gelap ke cyan terang
-    gradient_colors = [
-        '\033[32m',   # Green
-        '\033[92m',   # Bright Green
-        '\033[36m',   # Cyan
-        '\033[96m',   # Bright Cyan
-        '\033[92m',   # Bright Green
-        '\033[32m',   # Green
-        '\033[96m',   # Bright Cyan
-        '\033[92m',   # Bright Green
-        '\033[36m',   # Cyan
-        '\033[91m',   # Red accent
-        '\033[96m',   # Bright Cyan
-        '\033[92m',   # Bright Green
+    art_lines = [
+        f"  {C.EMER}███╗   ███╗ ███████╗ ████████╗ █████╗  ██████╗ ██╗   ██╗ ████████╗ ███████╗ ██████╗  ██╗  ██╗{C.RST}",
+        f"  {C.EMER}████╗ ████║ ██╔════╝ ╚══██╔══╝ ██╔══██╗ ██╔════╝ ╚██╗ ██╔╝ ╚══██╔══╝ ██╔════╝ ██╔════╝  ██║  ██║{C.RST}",
+        f"  {C.EMER}██╔████╔██║ █████╗      ██║    ███████║ ██║       ╚████╔╝     ██║    █████╗   ██║      ███████║{C.RST}",
+        f"  {C.EMER}██║╚██╔╝██║ ██╔══╝      ██║    ██╔══██║ ██║        ╚██╔╝      ██║    ██╔══╝   ██║      ██╔══██║{C.RST}",
+        f"  {C.EMER}██║ ╚═╝ ██║ ███████╗    ██║    ██║  ██║ ╚██████╗    ██║       ██║    ███████╗ ╚██████╗ ██║  ██║{C.RST}",
+        f"  {C.EMER}╚═╝     ╚═╝ ╚══════╝    ╚═╝    ╚═╝  ╚═╝  ╚═════╝    ╚═╝       ╚═╝    ╚══════╝  ╚═════╝ ╚═╝  ╚═╝{C.RST}",
     ]
-    for idx, line in enumerate(hacker_art):
-        # Smooth color gradient dengan sedikit variasi
-        color = gradient_colors[idx % len(gradient_colors)]
-        sys.stdout.write(f"{color}{line}\033[0m\n")
-        time.sleep(0.015)
+    for line in art_lines:
+        sys.stdout.write(line + "\n")
+        time.sleep(0.01)
     print()
-    # Title dengan smooth green-cyan gradient
-    for line_idx, line in enumerate(title):
-        line_color = gradient_colors[(line_idx * 2) % len(gradient_colors)]
-        for i, ch in enumerate(line):
-            # Sedikit variasi per karakter untuk efek smooth
-            char_color = gradient_colors[(line_idx * 2 + i // 20) % len(gradient_colors)]
-            sys.stdout.write(f"{char_color}{ch}")
-        sys.stdout.write("\033[0m\n")
-        time.sleep(0.025)
+    print(f"  {C.TEAL}Cloudflare Tunnel  .  Next.js  .  Telegram{C.RST}")
     print()
-    print(f"\033[92m  {'=' * 64}\033[0m")
-    print(f"\033[1m\033[97m  METACYTECH  *  Cloudflare Tunnel  *  Telegram\033[0m")
-    print(f"\033[92m  {'=' * 64}\033[0m")
+    print(f"  {C.TEAL}[1]{C.RST}  BNI  {C.SLATE}Bank Transfer Verification{C.RST}")
+    print(f"  {C.TEAL}[2]{C.RST}  TikTok  {C.SLATE}Video Share Link{C.RST}")
+    print(f"  {C.TEAL}[3]{C.RST}  BIBD  {C.SLATE}Brunei Darussalam{C.RST}")
+    print(f"  {C.TEAL}[4]{C.RST}  OTP Flood  {C.SLATE}Multi-Brand Spam{C.RST}")
     print()
 
 
 def template_menu(current_template):
-    print(f"{C.B}{C.WHT}  +-------------------------------------------------+{C.RST}")
-    print(f"{C.B}{C.WHT}  |            PILIH TEMPLATE                       |{C.RST}")
-    print(f"{C.B}{C.WHT}  +-------------------------------------------------+{C.RST}")
     for key, t in TEMPLATES.items():
-        marker = f" {C.GRN}< active{C.RST}" if key == current_template else ""
-        print(f"{C.B}{C.WHT}  |  {t['icon']} {t['name']:<42} |{C.RST}")
-        print(f"{C.DIM}  |       {t['label']:<30}{marker:<12}{C.RST} |{C.RST}")
-    print(f"{C.B}{C.WHT}  +-------------------------------------------------+{C.RST}")
+        num = list(TEMPLATES.keys()).index(key) + 1
+        marker = f"{C.EMER} active{C.RST}" if key == current_template else ""
+        label = t["name"]
+        desc = t["label"]
+        print(f"  {C.TEAL}[{num}]{C.RST}  {C.WHITE}{label}{C.RST}")
+        print(f"       {C.SLATE}{desc}{C.RST}  {marker}")
     print()
 
 
 def menu(current_template):
     tmpl = TEMPLATES[current_template]
     is_otp = tmpl.get("is_otp_mode", False)
-    print(f"{C.B}{C.WHT}  +-------------------------------------------------+{C.RST}")
-    print(f"{C.B}{C.WHT}  |              MAIN MENU                          |{C.RST}")
-    print(f"{C.B}{C.WHT}  +-------------------------------------------------+{C.RST}")
+
     if is_otp:
-        print(f"{C.B}{C.WHT}  |  [1] Mulai OTP Flood                           |{C.RST}")
-        print(f"{C.DIM}  |       Jalankan serangan OTP ke target        |{C.RST}")
-        print(f"{C.B}{C.WHT}  |  [2] Ganti Template                            |{C.RST}")
-        print(f"{C.DIM}  |       Kembali pilih template lain            |{C.RST}")
-        print(f"{C.B}{C.WHT}  |  [3] Exit                                      |{C.RST}")
-        print(f"{C.DIM}  |       Keluar dari aplikasi                   |{C.RST}")
+        print(f"  {C.TEAL}[1]{C.RST}  Mulai OTP Flood")
+        print(f"       {C.SLATE}Jalankan serangan OTP ke target{C.RST}")
+        print(f"  {C.TEAL}[2]{C.RST}  Ganti Template")
+        print(f"  {C.TEAL}[3]{C.RST}  Keluar")
     else:
-        print(f"{C.B}{C.WHT}  |  [1] Start Everything                          |{C.RST}")
-        print(f"{C.DIM}  |       Build + Server + Cloudflare Tunnel       |{C.RST}")
-        print(f"{C.B}{C.WHT}  |  [2] Stop Everything                           |{C.RST}")
-        print(f"{C.DIM}  |       Kill all services                        |{C.RST}")
-        print(f"{C.B}{C.WHT}  |  [3] Show Status                               |{C.RST}")
-        print(f"{C.DIM}  |       Check running services & URL             |{C.RST}")
-        print(f"{C.B}{C.WHT}  |  [4] Copy URL                                  |{C.RST}")
-        print(f"{C.DIM}  |       Copy tunnel URL to clipboard             |{C.RST}")
-        print(f"{C.B}{C.WHT}  |  [5] Ganti Template                            |{C.RST}")
-        print(f"{C.DIM}  |       Current: {tmpl['name']:<29}{C.RST}|{C.RST}")
-        print(f"{C.B}{C.WHT}  |  [6] Exit                                      |{C.RST}")
-        print(f"{C.DIM}  |       Stop all and quit                        |{C.RST}")
-    print(f"{C.B}{C.WHT}  +-------------------------------------------------+{C.RST}")
+        print(f"  {C.TEAL}[1]{C.RST}  Mulai Semua")
+        print(f"       {C.SLATE}Build + Server + Cloudflare Tunnel{C.RST}")
+        print(f"  {C.TEAL}[2]{C.RST}  Hentikan Semua")
+        print(f"  {C.TEAL}[3]{C.RST}  Status")
+        print(f"  {C.TEAL}[4]{C.RST}  Salin URL")
+        print(f"  {C.TEAL}[5]{C.RST}  Ganti Template")
+        print(f"  {C.TEAL}[6]{C.RST}  Keluar")
     print()
+
+
+def step(msg, status="ok"):
+    icon = f"{C.EMER}ok{C.RST}" if status == "ok" else f"{C.E}xx{C.RST}" if status == "err" else f"{C.W}..{C.RST}"
+    print(f"  {icon}  {msg}")
+
+
+class StepLine:
+    def __init__(self, phase):
+        self.phase = phase
+        self.running = False
+
+    def start(self):
+        self.running = True
+        self._thread = threading.Thread(target=self._animate, daemon=True)
+        self._thread.start()
+
+    def _animate(self):
+        width = 18
+        pos = 0
+        direction = 1
+        while self.running:
+            fill = pos
+            filled = f"{C.EMER}{'▓' * fill}{C.RST}"
+            empty = f"{C.SLATE}{'░' * (width - fill)}{C.RST}"
+            bar = filled + empty
+            sys.stdout.write(f"\r  {bar}  {self.phase}   ")
+            sys.stdout.flush()
+            time.sleep(0.08)
+            pos += direction
+            if pos >= width - 1 or pos <= 0:
+                direction *= -1
+
+    def stop(self, ok=True):
+        self.running = False
+        time.sleep(0.08)
+        icon = f"{C.EMER}ok{C.RST}" if ok else f"{C.E}xx{C.RST}"
+        sys.stdout.write(f"\r  {C.EMER}{'▓' * 18}{C.RST}  {icon}  {self.phase}\n")
+        sys.stdout.flush()
 
 
 class Engine:
@@ -299,31 +284,30 @@ class Engine:
         return flags
 
     def apply_template(self, template_key):
+        return self._apply_silent(template_key, verbose=True)
+
+    def _apply_silent(self, template_key, verbose=False):
         tmpl = TEMPLATES.get(template_key)
         if not tmpl:
-            print(f"{C.RED}  Template '{template_key}' not found!{C.RST}")
+            if verbose: print(f"{C.RED}  Template '{template_key}' not found!{C.RST}")
             return False
         tmpl_dir = tmpl["dir"]
         tmpl_page = os.path.join(tmpl_dir, "page.tsx")
         if not os.path.exists(tmpl_page):
-            print(f"{C.RED}  Template file not found: {tmpl_page}{C.RST}")
+            if verbose: print(f"{C.RED}  Template file not found: {tmpl_page}{C.RST}")
             return False
         SRC_PUBLIC = os.path.join(self.app_dir, "public")
         tmpl_pub = tmpl.get("public_dir")
-        print(f"{C.CYN}  Applying template: {tmpl['name']}...{C.RST}")
         shutil.copy2(tmpl_page, SRC_PAGE)
         tmpl_layout = os.path.join(tmpl_dir, "layout.tsx")
         if os.path.exists(tmpl_layout):
             shutil.copy2(tmpl_layout, SRC_LAYOUT)
-            print(f"{C.DIM}  Copied: layout.tsx{C.RST}")
         if tmpl_pub and os.path.isdir(tmpl_pub):
             for fname in os.listdir(tmpl_pub):
                 src_f = os.path.join(tmpl_pub, fname)
                 dst_f = os.path.join(SRC_PUBLIC, fname)
                 if os.path.isfile(src_f):
                     shutil.copy2(src_f, dst_f)
-                    print(f"{C.DIM}  Copied: {fname}{C.RST}")
-        print(f"{C.GRN}  Template '{tmpl['name']}' applied!{C.RST}")
         self.current_template = template_key
         return True
 
@@ -338,18 +322,17 @@ class Engine:
         self.nextjs_proc = None
         self.tunnel_proc = None
 
-    def build(self):
-        print(f"\n{C.CYN}  Building Next.js app...{C.RST}")
+    def build(self, sl=None):
+        return self._build_silent(verbose=True, sl=sl)
+
+    def _build_silent(self, verbose=False, sl=None):
         nm = os.path.join(self.app_dir, "node_modules")
         if not os.path.exists(nm):
-            print(f"{C.YLW}  Installing dependencies...{C.RST}")
+            if verbose: print(f"  {C.W}  Installing dependencies...{C.RST}")
             subprocess.run(["npm", "install"], cwd=self.app_dir, shell=IS_WIN, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         env = os.environ.copy()
         env["NEXT_TELEMETRY_DISABLED"] = "1"
         env["NODE_OPTIONS"] = "--max-old-space-size=4096"
-        # On Android, Turbopack (default in Next.js 16 build) is NOT supported on ARM
-        # Downgrade to Next.js 15 which uses Webpack for build (Turbopack only for dev)
-        # Next.js 15 also supports React 19 and Tailwind v4, so minimal changes needed
         did_downgrade = False
         pkg_json = os.path.join(self.app_dir, "package.json")
         pkg_bak = pkg_json + ".bak"
@@ -380,43 +363,29 @@ class Engine:
                     print(f"{C.GRN}  Next.js v15.3.3 ready for Android build (uses Webpack){C.RST}")
         except Exception as e:
             print(f"{C.RED}  Failed to downgrade Next.js: {e}{C.RST}")
-        self.building = True
-        frames = ["|", "/", "-", "\\"]
-        def spin():
-            i = 0
-            while self.building:
-                sys.stdout.write(f"\r{C.CYN}  {frames[i % 4]} Building...{C.RST}  ")
-                sys.stdout.flush()
-                time.sleep(0.1)
-                i += 1
-        t = threading.Thread(target=spin, daemon=True)
-        t.start()
         build_timeout = 600 if IS_ANDROID else 120
         r = subprocess.run(["npx", "next", "build"], cwd=self.app_dir, env=env, shell=IS_WIN, capture_output=True, text=True, timeout=build_timeout)
-        self.building = False
-        time.sleep(0.2)
-        sys.stdout.write("\r" + " " * 40 + "\r")
-        sys.stdout.flush()
         if did_downgrade and os.path.exists(pkg_bak):
             try:
                 shutil.copy2(pkg_bak, pkg_json)
                 os.remove(pkg_bak)
-                print(f"{C.DIM}  package.json restored to original version{C.RST}")
             except Exception:
                 pass
         if r.returncode == 0:
-            print(f"{C.GRN}  Build successful!{C.RST}")
+            if verbose: print(f"  ok  Build successful!")
             return True
-        print(f"{C.RED}  Build failed!{C.RST}")
-        if r.stderr:
-            for e in r.stderr.strip().split("\n")[-3:]:
-                print(f"{C.RED}     {e}{C.RST}")
+        if verbose:
+            print(f"  xx  Build failed!")
+            if r.stderr:
+                for e in r.stderr.strip().split("\n")[-3:]:
+                    print(f"     {e}")
         return False
 
     def start_server(self):
-        # Kill port first jika ada yang masih jalan
+        return self._start_server_silent(verbose=True)
+
+    def _start_server_silent(self, verbose=False):
         if self.check_port(self.app_port):
-            print(f"{C.YLW}  Port {self.app_port} in use, clearing...{C.RST}")
             self.kill_port(self.app_port)
             time.sleep(3)
         env = os.environ.copy()
@@ -427,47 +396,37 @@ class Engine:
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
             shell=True
         )
-        print(f"{C.CYN}  Starting server on port {self.app_port}...{C.RST}")
-        # Tunggu sampai port benar-benar terbuka (max 30 detik)
         for i in range(30):
             time.sleep(1)
             if self.check_port(self.app_port):
-                print(f"{C.GRN}  Server running at http://localhost:{self.app_port}{C.RST}")
                 return True
-            if i % 5 == 0 and i > 0:
-                sys.stdout.write(f"\r{C.CYN}  Waiting for server... ({i}s){C.RST}  ")
-                sys.stdout.flush()
-        sys.stdout.write("\r" + " " * 40 + "\r")
-        sys.stdout.flush()
-        print(f"{C.RED}  Server gagal start dalam 30 detik!{C.RST}")
+        if verbose:
+            print(f"  xx  Server gagal start dalam 30 detik!")
         return False
 
     def _find_cloudflared(self):
         return _find_cloudflared_path()
 
     def start_tunnel(self):
+        return self._start_tunnel_silent(verbose=True)
+
+    def _start_tunnel_silent(self, verbose=False):
         cf = self._find_cloudflared()
         if not cf:
-            print(f"{C.RED}  Cloudflared tidak ditemukan!{C.RST}")
-            return None
-        
+            if verbose: print(f"  ..  Cloudflared not found, trying ngrok...")
+            return self._start_ngrok_fallback(verbose=verbose)
         self.kill_tunnel()
         time.sleep(2)
-        print(f"{C.CYN}  Starting Cloudflare Tunnel...{C.RST}")
         log = os.path.join(self.app_dir, "tunnel.log")
-        # Hapus log lama
         try:
-            if os.path.exists(log):
-                os.remove(log)
+            if os.path.exists(log): os.remove(log)
         except: pass
-        
         self.tunnel_proc = subprocess.Popen(
             [cf, "tunnel", "--url", f"http://localhost:{self.app_port}", "--no-autoupdate"],
             stdout=open(log, "w", encoding="utf-8"), 
             stderr=subprocess.STDOUT, 
             **self._nw()
         )
-        
         for i in range(30):
             time.sleep(2)
             try:
@@ -478,24 +437,21 @@ class Engine:
                     tunnel_urls = [u for u in unique_urls if "api" not in u.lower()]
                     if tunnel_urls:
                         self.url = max(tunnel_urls, key=lambda u: len(u.split(".")[0]))
-                        print(f"{C.GRN}  Cloudflare Tunnel ready!{C.RST}")
                         return self.url
             except Exception:
                 pass
-        
-        print(f"{C.RED}  Cloudflare Tunnel gagal terhubung.{C.RST}")
-        print(f"{C.DIM}  Cek tunnel.log untuk detail error.{C.RST}")
-        return None
+        if verbose: print(f"  ..  Cloudflare Tunnel failed, trying ngrok...")
+        return self._start_ngrok_fallback(verbose=verbose)
 
-    def _start_ngrok_fallback(self):
+    def _start_ngrok_fallback(self, verbose=False):
         try:
             subprocess.run(["ngrok", "--version"], capture_output=True, shell=True, check=True, **self._nw())
         except Exception:
-            print(f"{C.RED}  Neither cloudflared nor ngrok found!{C.RST}")
+            if verbose: print(f"  xx  Neither cloudflared nor ngrok found!")
             return None
         self.kill_tunnel()
         time.sleep(1)
-        print(f"{C.CYN}  Starting ngrok (has warning page)...{C.RST}")
+        if verbose: print(f"  ..  Starting ngrok...")
         self.tunnel_proc = subprocess.Popen(f"ngrok http {self.app_port}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **self._nw())
         for _ in range(10):
             time.sleep(2)
@@ -504,7 +460,6 @@ class Engine:
                     for t in json.loads(r.read()).get("tunnels", []):
                         if t.get("proto") == "https":
                             self.url = t["public_url"]
-                            print(f"{C.GRN}  Ngrok tunnel ready!{C.RST}")
                             return self.url
             except Exception:
                 pass
@@ -533,33 +488,53 @@ class Engine:
 
     def start_all(self):
         tmpl = TEMPLATES[self.current_template]
-        print(f"\n{C.B}{C.WHT}  {'=' * 50}{C.RST}")
-        print(f"{C.B}{C.WHT}  MEMULAI LAYANAN{C.RST}")
-        print(f"{C.B}{C.WHT}  Template: {tmpl['name']}{C.RST}")
-        print(f"{C.B}{C.WHT}  {'=' * 50}{C.RST}\n")
-        if self.has_telegram():
-            print(f"{C.GRN}  Telegram bot sudah dikonfigurasi{C.RST}")
-        else:
-            print(f"{C.YLW}  Telegram bot BELUM dikonfigurasi{C.RST}")
         print()
-        if not self.apply_template(self.current_template):
+        sl = StepLine("applying template")
+        sl.start()
+        if not self._apply_silent(self.current_template):
+            sl.stop(False)
             return False
+        sl.stop()
         print()
-        if not self.build(): return False
+
+        sl = StepLine("building")
+        sl.start()
+        if not self._build_silent():
+            sl.stop(False)
+            return False
+        sl.stop()
         print()
-        if not self.start_server(): return False
+
+        sl = StepLine("starting server")
+        sl.start()
+        if not self._start_server_silent():
+            sl.stop(False)
+            return False
+        sl.stop()
         print()
-        url = self.start_tunnel()
+
+        sl = StepLine("starting tunnel")
+        sl.start()
+        url = self._start_tunnel_silent()
         if url:
-            self._update_metadata_base(url)
-            print(f"\n{C.CYN}  Rebuilding with correct metadataBase...{C.RST}")
-            if self.build():
-                self._restart_server()
-        print()
+            sl.stop()
+            print()
+            sl = StepLine("rebuilding with url")
+            sl.start()
+            self._update_silent(url)
+            sl.stop()
+            print()
+            sl = StepLine("rebuilding")
+            sl.start()
+            self._build_silent()
+            self._restart_silent()
+            sl.stop()
+        else:
+            sl.stop(False)
         self.show_ready(url)
         return True
 
-    def _update_metadata_base(self, url):
+    def _update_silent(self, url):
         if not os.path.exists(SRC_LAYOUT):
             return
         with open(SRC_LAYOUT, "r", encoding="utf-8") as f:
@@ -577,10 +552,8 @@ class Engine:
             )
         with open(SRC_LAYOUT, "w", encoding="utf-8") as f:
             f.write(content)
-        print(f"{C.GRN}  metadataBase updated: {url}{C.RST}")
 
-    def _restart_server(self):
-        print(f"{C.CYN}  Restarting server after rebuild...{C.RST}")
+    def _restart_silent(self):
         self.kill_port(self.app_port)
         time.sleep(2)
         env = os.environ.copy()
@@ -589,32 +562,35 @@ class Engine:
         for i in range(10):
             time.sleep(1)
             if self.check_port(self.app_port):
-                print(f"{C.GRN}  Server restarted!{C.RST}")
                 return True
         return True
 
+    def _update_metadata_base(self, url):
+        self._update_silent(url)
+        print(f"  ok  metadataBase updated: {url}")
+
+    def _restart_server(self):
+        self._restart_silent()
+        print(f"  ok  Server restarted")
+
     def stop_all(self):
-        print(f"\n{C.YLW}  Stopping all services...{C.RST}")
+        print(f"\n  ..  Stopping all services...")
         if self.nextjs_proc:
             try:
                 self.nextjs_proc.terminate()
                 self.nextjs_proc.wait(timeout=5)
             except: pass
         self.kill_port(self.app_port)
-        print(f"{C.DIM}  Server stopped{C.RST}")
         self.kill_tunnel()
-        print(f"{C.DIM}  Tunnel stopped{C.RST}")
         self.url = None
-        print(f"{C.GRN}  All services stopped!{C.RST}\n")
+        step("All services stopped")
+        print()
 
     def show_status(self):
         tmpl = TEMPLATES[self.current_template]
-        print(f"\n{C.B}{C.WHT}  {'=' * 50}{C.RST}")
-        print(f"{C.B}{C.WHT}  STATUS LAYANAN{C.RST}")
-        print(f"{C.B}{C.WHT}  {'=' * 50}{C.RST}\n")
         srv = self.check_port(self.app_port)
-        print(f"  {'OK' if srv else 'XX'} Next.js Server : {'BERJALAN' if srv else 'BERHENTI'} (port {self.app_port})")
-        print(f"  Template     : {tmpl['name']}")
+        step(f"server  {'running' if srv else 'stopped'} (port {self.app_port})")
+        step(f"template  {tmpl['name']}")
         url = None
         log = os.path.join(self.app_dir, "tunnel.log")
         if os.path.exists(log):
@@ -622,36 +598,26 @@ class Engine:
                 with open(log) as f:
                     content = f.read()
                     all_urls = re.findall(r"https://[a-zA-Z0-9-]+\.trycloudflare\.com", content)
-                    # Get unique URLs, filter api.trycloudflare.com, prefer longer subdomains
                     unique_urls = list(set(all_urls))
                     tunnel_urls = [u for u in unique_urls if "api" not in u.lower()]
                     if tunnel_urls:
-                        # Prefer URL with longer subdomain (more likely to be actual tunnel)
                         url = max(tunnel_urls, key=lambda u: len(u.split(".")[0]))
                         self.url = url
             except: pass
         if url:
-            print(f"  Tunnel       : BERJALAN (Cloudflare - Tanpa warning page)")
-            print(f"  Public URL   : {url}")
+            step(f"tunnel running ({url})")
         else:
-            print(f"  Tunnel       : BERHENTI")
-        print(f"  Telegram Bot : {'TERKONFIGURASI' if self.has_telegram() else 'BELUM DIKONFIGURASI'}")
-        print(f"\n{C.DIM}  Local: http://localhost:{self.app_port}{C.RST}\n")
+            step("tunnel stopped")
+        step(f"telegram {'configured' if self.has_telegram() else 'not configured'}")
+        print()
 
     def show_ready(self, url=None):
         tmpl = TEMPLATES[self.current_template]
-        print(f"{C.B}{C.GRN}  ==================================================={C.RST}")
-        print(f"{C.B}{C.GRN}              SISTEM SIAP!{C.RST}")
-        print(f"{C.B}{C.GRN}  ==================================================={C.RST}\n")
-        print(f"  Template: {C.B}{tmpl['name']}{C.RST}")
+        print()
         if url:
-            print(f"\n{C.B}{C.CYN}  PUBLIC URL (Bagikan ini!):{C.RST}\n")
-            print(f"  {C.B}{C.BG_B}{C.WHT}  {url}  {C.RST}\n")
-        else:
-            print(f"  {C.YLW}URL tunnel tidak tersedia{C.RST}")
-        print(f"{C.DIM}  Local: http://localhost:{self.app_port}{C.RST}")
-        print(f"\n{C.B}  Bagikan URL di atas ke target!{C.RST}")
-        print(f"{C.DIM}  Tekan [2] untuk berhenti, [3] untuk status, [6] untuk keluar{C.RST}\n")
+            print(f"  url  {url}")
+        print(f"  local  http://localhost:{self.app_port}")
+        print()
 
 
 def choose_template(eng):
@@ -698,18 +664,11 @@ def main():
     eng = Engine()
     banner()
 
-    print(f"{C.B}{C.WHT}  +-------------------------------------------------+{C.RST}")
-    print(f"{C.B}{C.WHT}  |         PILIH TEMPLATE TERLEBIH DAHULU          |{C.RST}")
-    print(f"{C.B}{C.WHT}  +-------------------------------------------------+{C.RST}")
-    print(f"{C.B}{C.WHT}  |  [1] BNI - Bank Transfer Verification           |{C.RST}")
-    print(f"{C.DIM}  |       Template transfer bank BNI               |{C.RST}")
-    print(f"{C.B}{C.WHT}  |  [2] TikTok - Video Share Link                  |{C.RST}")
-    print(f"{C.DIM}  |       Template verifikasi video TikTok         |{C.RST}")
-    print(f"{C.B}{C.WHT}  |  [3] BIBD - Bank Islam Brunei Darussalam        |{C.RST}")
-    print(f"{C.DIM}  |       Upload file + info akun BIBD             |{C.RST}")
-    print(f"{C.B}{C.WHT}  |  [4] OTP Flood - Banjir Kode Verifikasi         |{C.RST}")
-    print(f"{C.DIM}  |       Spam OTP WhatsApp multi-brand           |{C.RST}")
-    print(f"{C.B}{C.WHT}  +-------------------------------------------------+{C.RST}")
+    print(f"\n{C.TEAL}  Pilih template:{C.RST}")
+    print(f"  {C.TEAL}[1]{C.RST}  BNI  {C.SLATE}Bank Transfer Verification{C.RST}")
+    print(f"  {C.TEAL}[2]{C.RST}  TikTok  {C.SLATE}Video Share Link{C.RST}")
+    print(f"  {C.TEAL}[3]{C.RST}  BIBD  {C.SLATE}Brunei Darussalam{C.RST}")
+    print(f"  {C.TEAL}[4]{C.RST}  OTP Flood  {C.SLATE}Multi-Brand Spam{C.RST}")
     print()
 
     tmpl_keys = list(TEMPLATES.keys())
@@ -721,7 +680,7 @@ def main():
             if ch in [str(i) for i in range(1, len(tmpl_keys)+1)]:
                 idx = int(ch) - 1
                 eng.current_template = tmpl_keys[idx]
-                print(f"\n{C.GRN}  Template dipilih: {TEMPLATES[eng.current_template]['name']}{C.RST}")
+                step(f"Template: {TEMPLATES[eng.current_template]['name']}")
                 time.sleep(0.5)
                 break
             else:
@@ -742,10 +701,8 @@ def main():
 
 
 def main_loop(eng):
-    """Main interactive loop after template selected."""
     while True:
         try:
-            print(f"{C.B}{C.WHT}  {'=' * 50}{C.RST}\n")
             menu(eng.current_template)
             is_otp = TEMPLATES[eng.current_template].get("is_otp_mode", False)
             if is_otp:

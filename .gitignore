@@ -48,9 +48,10 @@ __pycache__/
 
 # WhatsApp auth session (keep private!)
 modules/otp_flood/.auth_session/
+.wwebjs_auth/
+
+# OTP flood reports
+modules/reports/*.txt
 
 # Tunnel logs
 tunnel.log
-
-# VS Code (optional, keep if team wants shared settings)
-# .vscode/

