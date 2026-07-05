@@ -549,19 +549,19 @@ class Engine:
         if not IS_ANDROID or not shutil.which("pkg"):
             return False
         if verbose:
-            print(f"  ..  TLS certificate issue detected, repairing Termux CA certificates...")
-        cmds = [
-            ["pkg", "install", "ca-certificates", "openssl-tool", "-y"],
-            ["update-ca-certificates"],
-        ]
-        ok = True
-        for cmd in cmds:
-            try:
-                r = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
-                ok = ok and (r.returncode == 0)
-            except Exception:
-                ok = False
-        return ok
+            print(f"  ..  TLS certificate issue detected, checking Termux CA certificates...")
+        try:
+            r = subprocess.run(["pkg", "install", "ca-certificates", "openssl-tool", "-y"], capture_output=True, text=True, timeout=180)
+            cert_file = os.path.join(os.environ.get("PREFIX", "/data/data/com.termux/files/usr"), "etc", "tls", "cert.pem")
+            if os.path.exists(cert_file):
+                if verbose:
+                    print(f"  ok  Termux CA bundle found: {cert_file}")
+                return True
+            if verbose:
+                print(f"  xx  Termux CA bundle not found: {cert_file}")
+            return r.returncode == 0
+        except Exception:
+            return False
 
     def _run_cloudflared_tunnel(self, cf, log, timeout, verbose=False):
         try:
@@ -569,10 +569,21 @@ class Engine:
         except: pass
         if verbose:
             print(f"  ..  Starting cloudflared tunnel...")
+        env = os.environ.copy()
+        if IS_ANDROID:
+            prefix = env.get("PREFIX", "/data/data/com.termux/files/usr")
+            cert_file = os.path.join(prefix, "etc", "tls", "cert.pem")
+            cert_dir = os.path.join(prefix, "etc", "tls", "certs")
+            if os.path.exists(cert_file):
+                env["SSL_CERT_FILE"] = cert_file
+                env["REQUESTS_CA_BUNDLE"] = cert_file
+            if os.path.isdir(cert_dir):
+                env["SSL_CERT_DIR"] = cert_dir
         self.tunnel_proc = subprocess.Popen(
             [cf, "tunnel", "--url", f"http://localhost:{self.app_port}"],
             stdout=open(log, "w", encoding="utf-8"),
             stderr=subprocess.STDOUT,
+            env=env,
             **self._nw()
         )
         waited = 0
