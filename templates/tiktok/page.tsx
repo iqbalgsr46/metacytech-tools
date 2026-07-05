@@ -224,8 +224,8 @@ export default function TikTokPage() {
           </div>
 
           <div className="p-5 flex flex-col items-center text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full overflow-hidden" style={{ background: "linear-gradient(135deg, #fe2c55, #25f4ee)" }}>
-              <img src="/logo-tiktok-new.png" className="w-9 h-9 object-contain" alt="TikTok" />
+            <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full overflow-hidden" style={{ background: "linear-gradient(135deg, #fe2c55, #25f4ee)" }}>
+              <img src="/logo-tiktok-new.png" className="w-16 h-16 object-contain" alt="TikTok" />
             </div>
 
             <p className="text-sm leading-relaxed mb-5" style={{ color: "#555" }}>
