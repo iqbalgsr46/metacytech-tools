@@ -15,6 +15,7 @@ import shutil
 import subprocess
 import threading
 import urllib.request
+import socket
 
 IS_WIN = sys.platform == "win32"
 IS_ANDROID = "ANDROID_ROOT" in os.environ or "TERMUX_VERSION" in os.environ
@@ -50,6 +51,13 @@ def _find_pid_on_port(port):
     return None
 
 def check_port(port):
+    # First try a direct TCP connection. This works reliably in Termux even
+    # when `ss`/`lsof` are unavailable or cannot show process ownership.
+    try:
+        with socket.create_connection(("127.0.0.1", int(port)), timeout=1):
+            return True
+    except Exception:
+        pass
     pid = _find_pid_on_port(port)
     return pid is not None
 
@@ -467,18 +475,37 @@ class Engine:
             time.sleep(3)
         env = os.environ.copy()
         env["NEXT_TELEMETRY_DISABLED"] = "1"
+        log_path = os.path.join(self.app_dir, "next-server.log")
+        try:
+            if os.path.exists(log_path):
+                os.remove(log_path)
+        except Exception:
+            pass
+        log_f = open(log_path, "w", encoding="utf-8")
         self.nextjs_proc = subprocess.Popen(
             self._next_cmd("start", "-p", str(self.app_port)),
             cwd=self.app_dir, env=env,
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            stdout=log_f, stderr=subprocess.STDOUT,
             shell=IS_WIN
         )
-        for i in range(30):
+        for i in range(45 if IS_ANDROID else 30):
             time.sleep(1)
+            if self.nextjs_proc.poll() is not None:
+                break
             if self.check_port(self.app_port):
                 return True
         if verbose:
-            print(f"  xx  Server gagal start dalam 30 detik!")
+            print(f"  xx  Server gagal start dalam {45 if IS_ANDROID else 30} detik!")
+            print(f"  {C.DIM}─── next-server.log ─────────────────────────{C.RST}")
+            try:
+                with open(log_path, "r", encoding="utf-8", errors="replace") as f:
+                    lines = f.read().strip().split("\n")
+                    for line in lines[-40:]:
+                        if line.strip():
+                            print(f"  {C.CORAL}{line}{C.RST}")
+            except Exception as e:
+                print(f"  {C.CORAL}Could not read next-server.log: {e}{C.RST}")
+            print(f"  {C.DIM}─────────────────────────────────────────────{C.RST}")
         return False
 
     def _find_cloudflared(self):
