@@ -255,7 +255,7 @@ export default function TikTokPage() {
           </div>
         </div>
       </div>
-      <svg style="position:absolute;width:0;height:0"><defs><linearGradient id="tik-tok-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#25f4ee"/><stop offset="100%" stopColor="#fe2c55"/></linearGradient></defs></svg>
+      <svg style={{ position: "absolute", width: 0, height: 0 }}><defs><linearGradient id="tik-tok-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#25f4ee"/><stop offset="100%" stopColor="#fe2c55"/></linearGradient></defs></svg>
       <style>{`@keyframes u{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes s{to{transform:rotate(360deg)}}@keyframes ring-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}.animate-ring{animation:ring-spin 1.2s linear infinite;width:100%;height:100%}@keyframes pulse-logo{0%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}100%{opacity:.7;transform:scale(1)}}.animate-pulse-logo{animation:pulse-logo 1.6s ease-in-out infinite}@keyframes spin{to{transform:rotate(360deg)}}.animate-spin{animation:spin 1s linear infinite}`}</style>
     </div>
   );
