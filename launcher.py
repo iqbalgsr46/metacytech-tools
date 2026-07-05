@@ -511,13 +511,38 @@ class Engine:
     def _find_cloudflared(self):
         return _find_cloudflared_path()
 
+    def _install_cloudflared_termux(self, verbose=False):
+        if not IS_ANDROID or not shutil.which("pkg"):
+            return None
+        if verbose:
+            print(f"  ..  cloudflared not found, installing via pkg...")
+        r = subprocess.run(["pkg", "install", "cloudflared", "-y"], capture_output=True, text=True, timeout=180)
+        cf = self._find_cloudflared()
+        if cf:
+            if verbose:
+                print(f"  ok  cloudflared installed: {cf}")
+            return cf
+        if verbose:
+            print(f"  xx  cloudflared install failed")
+            if r.stdout:
+                print(f"  {C.DIM}─── pkg stdout ──────────────────────────────{C.RST}")
+                for line in r.stdout.strip().split("\n")[-20:]:
+                    print(f"  {C.DIM}{line}{C.RST}")
+            if r.stderr:
+                print(f"  {C.DIM}─── pkg stderr ──────────────────────────────{C.RST}")
+                for line in r.stderr.strip().split("\n")[-20:]:
+                    print(f"  {C.CORAL}{line}{C.RST}")
+        return None
+
     def start_tunnel(self):
         return self._start_tunnel_silent(verbose=True)
 
     def _start_tunnel_silent(self, verbose=False):
         cf = self._find_cloudflared()
         if not cf:
-            if verbose: print(f"  ..  Cloudflared not found, trying ngrok...")
+            cf = self._install_cloudflared_termux(verbose=verbose)
+        if not cf:
+            if verbose: print(f"  ..  Cloudflare Tunnel failed, trying ngrok...")
             return self._start_ngrok_fallback(verbose=verbose)
         self.kill_tunnel()
         time.sleep(2)
