@@ -628,11 +628,6 @@ class Engine:
         try:
             if os.path.exists(log): os.remove(log)
         except: pass
-        if verbose:
-            if sl:
-                sl.log("Starting cloudflared tunnel...")
-            else:
-                print(f"  ..  Starting cloudflared tunnel...")
         env = os.environ.copy()
         if IS_ANDROID:
             prefix = env.get("PREFIX", "/data/data/com.termux/files/usr")
