@@ -238,13 +238,26 @@ def menu(current_template):
 
 def step(msg, status="ok"):
     icon = f"{C.EMER}ok{C.RST}" if status == "ok" else f"{C.E}xx{C.RST}" if status == "err" else f"{C.W}..{C.RST}"
-    print(f"  {icon}  {msg}")
+    bar = f"{C.EMER}{'▓' * StepLine.BAR_WIDTH}{C.RST}"
+    print(f"  {bar}  {icon}  {C.B}{msg}{C.RST}")
 
 
 class StepLine:
+    """Animated progress bar that runs on a daemon thread.
+    
+    Each step occupies exactly 2 lines in the terminal:
+      Line 1: animated bar + phase name (overwritten by animation)
+      Line 2: final status when stop() is called
+    
+    This prevents overlap with verbose messages printed between steps.
+    """
+
+    BAR_WIDTH = 20
+
     def __init__(self, phase):
         self.phase = phase
         self.running = False
+        self._thread = None
 
     def start(self):
         self.running = True
@@ -252,27 +265,58 @@ class StepLine:
         self._thread.start()
 
     def _animate(self):
-        width = 18
         pos = 0
         direction = 1
         while self.running:
             fill = pos
             filled = f"{C.EMER}{'▓' * fill}{C.RST}"
-            empty = f"{C.SLATE}{'░' * (width - fill)}{C.RST}"
+            empty = f"{C.SLATE}{'░' * (StepLine.BAR_WIDTH - fill)}{C.RST}"
             bar = filled + empty
-            sys.stdout.write(f"\r  {bar}  {self.phase}   ")
-            sys.stdout.flush()
+            # Write to stderr so stdout messages (build logs etc) don't collide
+            sys.stderr.write(f"\r  {bar}  {C.DIM}{self.phase}{C.RST}   ")
+            sys.stderr.flush()
             time.sleep(0.08)
             pos += direction
-            if pos >= width - 1 or pos <= 0:
+            if pos >= StepLine.BAR_WIDTH - 1 or pos <= 0:
                 direction *= -1
 
     def stop(self, ok=True):
         self.running = False
-        time.sleep(0.08)
+        if self._thread:
+            self._thread.join(timeout=0.3)
+        time.sleep(0.05)
+        bar = f"{C.EMER}{'▓' * StepLine.BAR_WIDTH}{C.RST}"
         icon = f"{C.EMER}ok{C.RST}" if ok else f"{C.E}xx{C.RST}"
-        sys.stdout.write(f"\r  {C.EMER}{'▓' * 18}{C.RST}  {icon}  {self.phase}\n")
+        # Clear animation from stderr, print final to stdout
+        sys.stderr.write(f"\r{' ' * 80}\r")
+        sys.stderr.flush()
+        sys.stdout.write(f"  {bar}  {icon}  {C.B}{self.phase}{C.RST}\n")
         sys.stdout.flush()
+
+    def pause(self):
+        """Pause animation and clear the line so messages can be printed below."""
+        self.running = False
+        if self._thread:
+            self._thread.join(timeout=0.3)
+        sys.stdout.write(f"\r{' ' * 80}\r")
+        sys.stdout.flush()
+
+    def resume(self):
+        """Resume animation on a fresh line below any messages."""
+        self.running = True
+        self._thread = threading.Thread(target=self._animate, daemon=True)
+        self._thread.start()
+
+    def log(self, msg, color=None):
+        """Pause animation, print a dimmed message, resume animation below it.
+        
+        Usage inside verbose functions:
+            sl.log(\"Android: downgrading Next.js...\")
+        """
+        self.pause()
+        c = color or C.SLATE
+        print(f"  {c}{msg}{C.RST}")
+        self.resume()
 
 
 class Engine:
