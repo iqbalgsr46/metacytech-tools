@@ -42,7 +42,7 @@ def select_mode():
 
     print(f"  {C.CYN}[1]{C.RST} {C.B}🔥 TRIGGER — GRATIS TOTAL (REKOMENDASI){C.RST}")
     print(f"  {C.DIM}     ✅ Target liat OTP dari brand ASLI (Tokopedia, Gojek, dll){C.RST}")
-    print(f"  {C.DIM}     ✅ Nomor lo AMAN — gak kelihatan/C.RST}")
+    print(f"  {C.DIM}     ✅ Nomor lo AMAN — gak kelihatan{C.RST}")
     print(f"  {C.DIM}     ✅ GRATIS — gak perlu API key / QR scan{C.RST}")
     print(f"  {C.DIM}     ✅ Tinggal masukin nomor → gas{C.RST}\n")
 
