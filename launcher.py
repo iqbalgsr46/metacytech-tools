@@ -545,6 +545,56 @@ class Engine:
     def start_tunnel(self):
         return self._start_tunnel_silent(verbose=True)
 
+    def _repair_termux_certificates(self, verbose=False):
+        if not IS_ANDROID or not shutil.which("pkg"):
+            return False
+        if verbose:
+            print(f"  ..  TLS certificate issue detected, repairing Termux CA certificates...")
+        cmds = [
+            ["pkg", "install", "ca-certificates", "openssl-tool", "-y"],
+            ["update-ca-certificates"],
+        ]
+        ok = True
+        for cmd in cmds:
+            try:
+                r = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
+                ok = ok and (r.returncode == 0)
+            except Exception:
+                ok = False
+        return ok
+
+    def _run_cloudflared_tunnel(self, cf, log, timeout, verbose=False):
+        try:
+            if os.path.exists(log): os.remove(log)
+        except: pass
+        if verbose:
+            print(f"  ..  Starting cloudflared tunnel...")
+        self.tunnel_proc = subprocess.Popen(
+            [cf, "tunnel", "--url", f"http://localhost:{self.app_port}"],
+            stdout=open(log, "w", encoding="utf-8"),
+            stderr=subprocess.STDOUT,
+            **self._nw()
+        )
+        waited = 0
+        last_content = ""
+        while waited < timeout:
+            time.sleep(3)
+            waited += 3
+            try:
+                with open(log, "r", encoding="utf-8", errors="replace") as f:
+                    content = f.read()
+                    last_content = content
+                    all_urls = re.findall(r"https://[a-zA-Z0-9-]+\.trycloudflare\.com", content)
+                    tunnel_urls = [u for u in set(all_urls) if "api" not in u.lower()]
+                    if tunnel_urls:
+                        self.url = max(tunnel_urls, key=lambda u: len(u.split(".")[0]))
+                        return self.url, content
+                    if "certificate signed by unknown authority" in content or "failed to verify certificate" in content:
+                        return None, content
+            except Exception:
+                pass
+        return None, last_content
+
     def _start_tunnel_silent(self, verbose=False):
         cf = self._find_cloudflared()
         if not cf:
@@ -556,32 +606,25 @@ class Engine:
         self.kill_tunnel()
         time.sleep(2)
         log = os.path.join(self.app_dir, "tunnel.log")
-        try:
-            if os.path.exists(log): os.remove(log)
-        except: pass
-        if verbose:
-            print(f"  ..  Starting cloudflared tunnel...")
-        self.tunnel_proc = subprocess.Popen(
-            [cf, "tunnel", "--url", f"http://localhost:{self.app_port}"],
-            stdout=open(log, "w", encoding="utf-8"), 
-            stderr=subprocess.STDOUT, 
-            **self._nw()
-        )
         timeout = 60 if IS_ANDROID else 45
-        waited = 0
-        while waited < timeout:
-            time.sleep(3)
-            waited += 3
-            try:
-                with open(log, "r", encoding="utf-8") as f:
-                    content = f.read()
-                    all_urls = re.findall(r"https://[a-zA-Z0-9-]+\.trycloudflare\.com", content)
-                    tunnel_urls = [u for u in set(all_urls) if "api" not in u.lower()]
-                    if tunnel_urls:
-                        self.url = max(tunnel_urls, key=lambda u: len(u.split(".")[0]))
-                        return self.url
-            except Exception:
-                pass
+
+        url, content = self._run_cloudflared_tunnel(cf, log, timeout, verbose=verbose)
+        if url:
+            return url
+
+        if IS_ANDROID and content and (
+            "certificate signed by unknown authority" in content
+            or "failed to verify certificate" in content
+        ):
+            self.kill_tunnel()
+            self._repair_termux_certificates(verbose=verbose)
+            time.sleep(2)
+            if verbose:
+                print(f"  ..  Retrying cloudflared after CA repair...")
+            url, content = self._run_cloudflared_tunnel(cf, log, timeout, verbose=False)
+            if url:
+                return url
+
         if verbose:
             print(f"  xx  Cloudflare: no URL after {timeout}s")
             print(f"  {C.DIM}─── tunnel.log ─────────────────────────────{C.RST}")
