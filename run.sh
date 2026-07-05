@@ -2,8 +2,6 @@
 # METACYTECH - Launcher for Linux / Android (Termux)
 # Cross-platform launcher - works on Linux, macOS, and Android (Termux)
 
-set -e
-
 # Colors
 RED='\033[0;91m'
 GREEN='\033[0;92m'
@@ -84,6 +82,9 @@ fi
 # ── Check and install Node.js dependencies ────────────────────────
 if [ ! -d "node_modules" ]; then
     echo -e "${YELLOW}  Installing dependencies...${RESET}"
+    echo -e "${DIM}  (Ini bisa 3-10 menit di HP, sabar ya){RESET}"
+    echo ""
+    
     # Cek apakah filesystem support symlink
     touch /tmp/.symlink_test 2>/dev/null
     ln -sf /tmp/.symlink_test /tmp/.symlink_test_link 2>/dev/null
@@ -96,6 +97,19 @@ if [ ! -d "node_modules" ]; then
         echo -e "${YELLOW}  Filesystem tidak support symlink. Pakai --no-bin-links...${RESET}"
         npm install --no-bin-links
     fi
+    
+    NPM_EXIT=$?
+    if [ $NPM_EXIT -ne 0 ]; then
+        echo ""
+        echo -e "${RED}  [ERROR] npm install gagal! (kode: $NPM_EXIT)${RESET}"
+        echo -e "${YELLOW}  Coba manual:${RESET}"
+        echo -e "    ${WHITE}npm install --no-bin-links${RESET}"
+        echo -e "    ${WHITE}bash run.sh${RESET}"
+        echo ""
+        exit $NPM_EXIT
+    fi
+    echo -e "${GREEN}  Dependencies installed.{RESET}"
+    echo ""
 fi
 
 # ── Check and install cloudflared (Termux / Linux) ────────────────
