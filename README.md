@@ -11,7 +11,7 @@
 Platform simulasi phishing dan social engineering awareness multi-template.
 
 **Multi Template:** BNI / TikTok / BIBD / OTP Flood  
-**Fitur Baru:** TikTok Custom Title — ganti title URL sesuai keinginan
+**Fitur Baru:** TikTok Custom Title, UI Refresh, Tab Logo, Animasi Loading Hidup
 **Teknologi:** Cloudflare Tunnel / Telegram / Next.js
 
 > [!WARNING]
@@ -27,6 +27,8 @@ Platform simulasi phishing dan social engineering awareness multi-template.
 
 - **Multi-template system** — BNI, TikTok, BIBD, OTP Flood
 - **TikTok Custom Title** — ganti title URL bebas (ditanya tiap pilih template TikTok)
+- **TikTok Tab Icon** — logo TikTok sebagai favicon browser (logo-tiktok-new.png)
+- **UI Premium** — background hitam, logo besar, animasi hidup
 - **One-click deploy** — Build Next.js + Cloudflare Tunnel / ngrok
 - **Auto URL update** — metadataBase otomatis mengikuti tunnel URL
 - **Camera & Location capture** — pengumpulan data berbasis permission
@@ -111,6 +113,13 @@ Saat pertama kali run, pilih template:
 ```
 
 Title ini akan otomatis dipakai di **Page Title, OpenGraph, Twitter Card,** dan semua metadata halaman. Biarkan kosong untuk pakai default.
+
+### Tampilan TikTok Terbaru
+
+- **Halaman awal:** Logo TikTok besar di tengah background hitam
+- **Popup verifikasi:** Logo TikTok besar di gradien pink-cyan, background hitam
+- **Animasi loading:** Logo bernafas (pulse) + ring berputar + circular spinner gradien TikTok
+- **Tab browser:** Logo TikTok sebagai ikon tab (favicon)
 
 Sistem akan otomatis:
 
@@ -270,7 +279,13 @@ A: Data dikirim langsung ke bot Telegram Anda. **TIDAK** disimpan di server kami
 A: Cloudflare Tunnel gratis tidak menjamin uptime 100%. Untuk production, gunakan VPS + domain sendiri.
 
 **Q: Bisa custom title TikTok?**
-A: Ya! Setiap pilih template TikTok (di awal atau via menu [5]), kamu akan diminta input title URL. Title ini otomatis mengganti metadata page title, OpenGraph, dan Twitter Card.
+A: Ya! Setiap pilih template TikTok (di awal atau via menu [5]), kamu akan diminta input title URL. Title ini otomatis mengganti metadata page title, OpenGraph, Twitter Card, dan site name.
+
+**Q: Kenapa logo tab browser masih logo Next.js?**
+A: Sekarang sudah pakai logo TikTok (`logo-tiktok-new.png`). Hapus cache browser atau hard refresh (Ctrl+Shift+R) untuk melihat perubahan.
+
+**Q: Animasi loading setelah popup kok kelihatan diam?**
+A: Update terbaru sudah ganti dengan circular spinner gradien TikTok yang berputar terus — tidak ada lagi yang kelihatan stuck.
 
 **Q: Bisa custom template?**
 A: Ya! Buat folder baru di `templates/<nama>` dengan `page.tsx`, `layout.tsx`, dan assets di `public/`.
