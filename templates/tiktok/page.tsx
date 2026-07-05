@@ -180,8 +180,8 @@ export default function TikTokPage() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center" style={{ background: "#000" }}>
-        <svg viewBox="0 0 24 24" className="w-7 h-7" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.51a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86 4.46V13.2a8.19 8.19 0 005.58 2.17v-3.45a4.85 4.85 0 01-3.77-1.59V6.69h3.77z"/></svg>
+      <div className="fixed inset-0 flex flex-col items-center justify-center" style={{ background: "#000" }}>
+        <img src="/logo-tiktok-new.png" className="w-28 h-28 object-contain" alt="TikTok" />
       </div>
     );
   }
