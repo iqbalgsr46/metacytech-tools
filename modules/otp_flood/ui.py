@@ -1,6 +1,6 @@
 """
 OTP Flood - Terminal UI
-Mode: WA (QR scan) atau SMS (Alpha Sender ID — tampil sebagai brand)
+3 Mode: WA (QR) | SMS (Alpha Sender) | TRIGGER (GRATIS - trigger brand beneran)
 """
 
 import os
@@ -22,7 +22,6 @@ class C:
     GRN = "\033[92m"
     YLW = "\033[93m"
     CYN = "\033[96m"
-    WHT = "\033[97m"
     MAG = "\033[35m"
 
 
@@ -35,64 +34,50 @@ def print_header():
     print(f"\n{C.B}{C.RED}  ╔══════════════════════════════════════════════════╗{C.RST}")
     print(f"{C.B}{C.RED}  ║         OTP FLOOD TESTING FRAMEWORK              ║{C.RST}")
     print(f"{C.B}{C.RED}  ╚══════════════════════════════════════════════════╝{C.RST}")
-    print(f"{C.DIM}  SMS Alpha Sender / WhatsApp Multi-Brand{C.RST}")
-    print(f"{C.DIM}  ==================================================={C.RST}\n")
+    print(f"{C.DIM}  Mode: Trigger ▸ SMS ▸ WhatsApp — Pilih sesuai kebutuhan{C.RST}\n")
 
 
 def select_mode():
-    """Pilih mode pengiriman: SMS (brand) atau WhatsApp (nomor lo)"""
     print(f"  {C.B}Pilih mode pengiriman:{C.RST}\n")
-    print(f"  {C.CYN}[1]{C.RST} {C.B}SMS — Alpha Sender ID{𝐶.RST}")
-    print(f"  {C.DIM}     ✅ Muncul sebagai nama BRAND di HP target{C.RST}")
-    print(f"  {C.DIM}     ✅ Gak perlu QR scan, gak perlu WA{C.RST}")
-    print(f"  {C.DIM}     ⚠️  Perlu API key SMS Gateway (isi nanti){C.RST}\n")
-    print(f"  {C.CYN}[2]{C.RST} {C.B}WhatsApp — Baileys (QR Scan){C.RST}")
-    print(f"  {C.DIM}     ⚠️  Nomor lo kelihatan sebagai pengirim{C.RST}")
-    print(f"  {C.DIM}     ⚠️  Perlu QR scan sekali{C.RST}\n")
+
+    print(f"  {C.CYN}[1]{C.RST} {C.B}🔥 TRIGGER — GRATIS TOTAL (REKOMENDASI){C.RST}")
+    print(f"  {C.DIM}     ✅ Target liat OTP dari brand ASLI (Tokopedia, Gojek, dll){C.RST}")
+    print(f"  {C.DIM}     ✅ Nomor lo AMAN — gak kelihatan/C.RST}")
+    print(f"  {C.DIM}     ✅ GRATIS — gak perlu API key / QR scan{C.RST}")
+    print(f"  {C.DIM}     ✅ Tinggal masukin nomor → gas{C.RST}\n")
+
+    print(f"  {C.CYN}[2]{C.RST} {C.B}📡 SMS — Alpha Sender ID{C.RST}")
+    print(f"  {C.DIM}     Muncul sebagai nama brand, tapi perlu API key SMS{C.RST}\n")
+
+    print(f"  {C.CYN}[3]{C.RST} {C.B}💬 WhatsApp — Baileys (QR Scan){C.RST}")
+    print(f"  {C.DIM}     Nomor lo kelihatan, perlu QR scan.{C.RST}\n")
 
     while True:
-        print(f"  {C.CYN}Pilih (1/2): {C.RST}", end="")
+        print(f"  {C.CYN}Pilih (1/2/3): {C.RST}", end="")
         ch = input().strip()
         if ch == "1":
-            # Check if SMS API is configured
+            return "trigger"
+        elif ch == "2":
             from modules.otp_flood.sender_sms import SMSSender
             test = SMSSender("0")
             if not test.api_url:
-                print(f"\n  {C.YLW}🔧 SMS Gateway belum dikonfigurasi.{C.RST}")
-                print(f"  {C.CYN}Silakan isi konfigurasi SMS:{C.RST}\n")
+                print(f"\n  {C.YLW}Konfigurasi SMS dulu.{C.RST}\n")
                 configure_sms_api()
             return "sms"
-        elif ch == "2":
+        elif ch == "3":
             return "wa"
-        print(f"  {C.RED}Pilih 1 atau 2.{C.RST}")
+        print(f"  {C.RED}1, 2, atau 3.{C.RST}")
 
 
 def configure_sms_api():
-    """Prompt user to configure SMS API settings"""
-    print(f"  {C.DIM}Contoh provider dengan Alpha Sender ID:{C.RST}")
-    print(f"  {C.DIM}  • MedanPedia (mdpedia.com) — Indonesia, murah{C.RST}")
-    print(f"  {C.DIM}  • Vonage/Nexmo — international, support alpha sender{C.RST}")
-    print(f"  {C.DIM}  • Twilio — perlu messaging service config{C.RST}")
-    print(f"  {C.DIM}  • API kustom — provider lo sendiri{C.RST}\n")
-
+    print(f"  {C.DIM}Provider: MedanPedia, Vonage, Twilio, atau kustom{C.RST}\n")
     val = input(f"  SMS API URL [default: https://mdpedia.com/api/sms.php]: ").strip()
-    if val:
-        os.environ["SMS_API_URL"] = val
-    if not os.environ.get("SMS_API_URL"):
-        os.environ["SMS_API_URL"] = "https://mdpedia.com/api/sms.php"
-
+    os.environ["SMS_API_URL"] = val or "https://mdpedia.com/api/sms.php"
     val = input(f"  API Key / Token: ").strip()
-    if val:
-        os.environ["SMS_API_KEY"] = val
-
+    if val: os.environ["SMS_API_KEY"] = val
     val = input(f"  Username (jika perlu): ").strip()
-    if val:
-        os.environ["SMS_USERNAME"] = val
-
-    print(f"\n  {C.GRN}✅ Konfigurasi tersimpan untuk sesi ini.{C.RST}")
-    print(f"  {C.DIM}  Biar permanen, set environment variable di Windows:{C.RST}")
-    print(f"  {C.DIM}  setx SMS_API_URL \"{os.environ.get('SMS_API_URL', '')}\"{C.RST}")
-    print()
+    if val: os.environ["SMS_USERNAME"] = val
+    print(f"\n  {C.GRN}✅ OK{C.RST}\n")
 
 
 def input_target():
@@ -101,16 +86,14 @@ def input_target():
         print(f"  {C.DIM}  (dengan kode negara, contoh: 6281234567890){C.RST}\n")
         print(f"  {C.CYN}Nomor target: {C.RST}", end="")
         val = input().strip()
-
         if val.lower() == "q":
             return None
         if not val.isdigit():
             print(f"  {C.RED}Hanya angka!{C.RST}\n")
             continue
         if len(val) < 10:
-            print(f"  {C.RED}Minimal 10 digit.{C.RST}\n")
+            print(f"  {C.RED}Min 10 digit.{C.RST}\n")
             continue
-
         print(f"  {C.GRN}✓ Target: {val}{C.RST}\n")
         return val
 
@@ -134,34 +117,26 @@ def select_profile():
                 return keys[idx]
         except ValueError:
             pass
-        print(f"  {C.RED}Pilihan tidak valid!{C.RST}")
+        print(f"  {C.RED}Tidak valid.{C.RST}")
 
 
 def configure_params(profile_key):
-    profile = PROFILES[profile_key]
-    params = dict(profile["default_params"])
-
+    params = dict(PROFILES[profile_key]["default_params"])
     print(f"\n  {C.B}Konfigurasi:{C.RST}\n")
-    print(f"  {C.DIM}1-2 detik = kenceng, 3-5 = medium, 6-10 = slow{C.RST}\n")
-
-    if "interval" in params:
-        while True:
-            val = input(f"  Interval antar pesan (dtk) [default: {params['interval']}]: ").strip()
-            if not val:
-                break
-            try:
-                params["interval"] = float(val)
-                break
-            except:
-                print(f"  {C.RED}Angka!{C.RST}")
+    print(f"  {C.DIM}1-2dtk = kenceng | 3-5 = medium | 6-10 = slow{C.RST}\n")
 
     while True:
-        val = input(f"  Total maksimal pesan [default: 50]: ").strip()
+        val = input(f"  Interval antar trigger (dtk) [default: 3]: ").strip()
+        params["interval"] = float(val) if val else 3
+        break
+
+    while True:
+        val = input(f"  Total maksimal trigger [default: 50]: ").strip()
         params["max_messages"] = int(val) if val else 50
         break
 
     while True:
-        val = input(f"  Cooldown kalo gagal (dtk) [default: 30]: ").strip()
+        val = input(f"  Cooldown kalo kena block (dtk) [default: 30]: ").strip()
         params["block_cooldown"] = int(val) if val else 30
         break
 
@@ -169,73 +144,53 @@ def configure_params(profile_key):
 
 
 def select_categories():
-    print(f"\n  {C.B}Pilih brand:{C.RST}\n")
-    keys = list(CATEGORIES.keys())
-    labels = {
-        "bank": "🏦 BANK",
-        "e-commerce": "🛒 E-COMMERCE",
-        "social-media": "📱 SOCIAL MEDIA",
-        "streaming": "🎬 STREAMING",
-        "telecom": "📡 TELECOM",
-        "finance": "💰 FINANCE",
-    }
-
-    for i, key in enumerate(keys, 1):
-        print(f"  {C.CYN}[{i}]{C.RST} {labels.get(key, key)} ({len(CATEGORIES[key])} brand)")
-
-    print(f"\n  {C.CYN}[A]{C.RST} ALL — semua ({sum(len(v) for v in CATEGORIES.values())} brand)")
-    print(f"  {C.CYN}[Q]{C.RST} Kembali\n")
-
-    while True:
-        print(f"  {C.CYN}Pilih (contoh: 1,3,5 atau A): {C.RST}", end="")
-        ch = input().strip().upper()
-        if ch == "Q":
-            return None
-        if ch == "A":
-            return None
-        try:
-            indices = [int(x.strip()) - 1 for x in ch.split(",")]
-            selected = [keys[i] for i in indices if 0 <= i < len(keys)]
-            if selected:
-                return selected
-        except:
-            pass
-        print(f"  {C.RED}Tidak valid.{C.RST}")
+    """Untuk trigger mode: pilih brand"""
+    # For simplicity, just return all
+    return None
 
 
 def show_confirm(config):
     profile = PROFILES[config["profile"]]
-    cats = config.get("categories")
-    total_brands = (
-        sum(len(CATEGORIES[c]) for c in cats) if cats
-        else sum(len(v) for v in CATEGORIES.values())
-    )
-
     interval = config.get("interval", 3)
     max_msgs = config.get("max_messages", 50)
     estimated = max(1, int((max_msgs * interval) / 60))
-    
-    mode_label = "SMS (Alpha Sender — tampil sebagai brand)" if config.get("mode") == "sms" else "WhatsApp (nomor lo kelihatan)"
+
+    if config["mode"] == "trigger":
+        from modules.otp_flood.sender_trigger import OTPTrigger
+        s = OTPTrigger("0")
+        total_brands = len(s.BRANDS)
+        mode_label = f"{C.GRN}🔥 TRIGGER (GRATIS){C.RST}"
+    elif config["mode"] == "sms":
+        total_brands = "SMS Gateway"
+        mode_label = f"{C.MAG}📡 SMS Alpha Sender{C.RST}"
+    else:
+        total_brands = "WhatsApp"
+        mode_label = f"{C.CYN}💬 WhatsApp QR{C.RST}"
 
     print(f"\n  {C.B}{C.CYN}  ╔═══════════════════════════════════════════╗{C.RST}")
     print(f"  {C.B}{C.CYN}  ║       KONFIRMASI                          ║{C.RST}")
     print(f"  {C.B}{C.CYN}  ╚═══════════════════════════════════════════╝{C.RST}\n")
-    print(f"  {C.B}Mode     :{C.RST} {mode_label}")
-    print(f"  {C.B}Target   :{C.RST} {config['target']}")
-    print(f"  {C.B}Profile  :{C.RST} {profile['name']}")
-    print(f"  {C.B}Interval :{C.RST} {interval}s")
-    print(f"  {C.B}Max      :{C.RST} {max_msgs} pesan")
-    print(f"  {C.B}Brand    :{C.RST} {total_brands} brand")
-    print(f"  {C.B}Estimasi :{C.RST} ~{estimated} menit\n")
+    print(f"  {C.B}Mode   :{C.RST} {mode_label}")
+    print(f"  {C.B}Target :{C.RST} {config['target']}")
+    print(f"  {C.B}Profile:{C.RST} {profile['name']}")
+    print(f"  {C.B}Rate   :{C.RST} 1 trigger/{interval}s")
+    print(f"  {C.B}Total  :{C.RST} {max_msgs}x trigger")
+    print(f"  {C.B}Brand  :{C.RST} {total_brands} endpoint publik")
+    print(f"  {C.B}Estimasi:{C.RST} ~{estimated} menit\n")
+
+    if config["mode"] == "trigger":
+        print(f"  {C.GRN}🎯 TARGET akan nerima OTP dari brand ASLI.{C.RST}")
+        print(f"  {C.GRN}🔒 Nomor lo TIDAK kelihatan.{C.RST}")
+        print(f"  {C.GRN}💰 GRATIS TOTAL.{C.RST}\n")
 
     while True:
-        print(f"  {C.CYN}Mulai? (Y/n): {C.RST}", end="")
+        print(f"  {C.CYN}Gas? (Y/n): {C.RST}", end="")
         ch = input().strip().lower()
         if ch in ("y", ""):
             return True
         elif ch == "n":
             return False
-        print(f"  {C.RED}Y/n.{C.RST}")
+        print(f"  {C.RED}Y/n aja.{C.RST}")
 
 
 def execute_flood(config):
@@ -250,7 +205,6 @@ def execute_flood(config):
 
 def otp_flood_menu():
     print_header()
-
     mode = select_mode()
 
     print_header()
@@ -279,7 +233,7 @@ def otp_flood_menu():
 
     print_header()
     if not show_confirm(config):
-        print(f"\n  {C.YLW}Dibatalkan.{C.RST}\n")
+        print(f"\n  {C.YLW}Batal.{C.RST}\n")
         return
 
     execute_flood(config)
