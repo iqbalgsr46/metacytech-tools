@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "TikTok - ChatGpt Pro Free",
   description: "vt.tiktok.com",
   icons: {
-    icon: "/favicon.svg",
+    icon: "/logo-tiktok-new.png",
   },
   openGraph: {
     title: "TikTok - ChatGpt Pro Free",

