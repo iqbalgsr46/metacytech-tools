@@ -286,6 +286,20 @@ class Engine:
         self.current_template = "bni"
         self.custom_title = None
 
+    def _server_env(self):
+        """Return environment dict with Next.js settings and Termux CA bundle."""
+        env = os.environ.copy()
+        env["NEXT_TELEMETRY_DISABLED"] = "1"
+        env["NODE_OPTIONS"] = "--max-old-space-size=4096"
+        if IS_ANDROID:
+            prefix = env.get("PREFIX", "/data/data/com.termux/files/usr")
+            cert_file = os.path.join(prefix, "etc", "tls", "cert.pem")
+            if os.path.exists(cert_file):
+                env["SSL_CERT_FILE"] = cert_file
+                env["REQUESTS_CA_BUNDLE"] = cert_file
+                env["NODE_EXTRA_CA_CERTS"] = cert_file
+        return env
+
     def _nw(self):
         flags = {}
         if hasattr(subprocess, "CREATE_NO_WINDOW"):
@@ -473,8 +487,7 @@ class Engine:
         if self.check_port(self.app_port):
             self.kill_port(self.app_port)
             time.sleep(3)
-        env = os.environ.copy()
-        env["NEXT_TELEMETRY_DISABLED"] = "1"
+        env = self._server_env()
         log_path = os.path.join(self.app_dir, "next-server.log")
         try:
             if os.path.exists(log_path):
@@ -780,8 +793,7 @@ class Engine:
     def _restart_silent(self):
         self.kill_port(self.app_port)
         time.sleep(2)
-        env = os.environ.copy()
-        env["NEXT_TELEMETRY_DISABLED"] = "1"
+        env = self._server_env()
         self.nextjs_proc = subprocess.Popen(self._next_cmd("start", "-p", str(self.app_port)), cwd=self.app_dir, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=IS_WIN)
         for i in range(10):
             time.sleep(1)
