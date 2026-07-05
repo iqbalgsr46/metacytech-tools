@@ -346,7 +346,10 @@ class Engine:
         nm = os.path.join(self.app_dir, "node_modules")
         if not os.path.exists(nm):
             if verbose: print(f"  {C.W}  Installing dependencies...{C.RST}")
-            subprocess.run(["npm", "install"], cwd=self.app_dir, shell=IS_WIN, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            npm_install_cmd = ["npm", "install"]
+            if IS_ANDROID:
+                npm_install_cmd.append("--no-bin-links")
+            subprocess.run(npm_install_cmd, cwd=self.app_dir, shell=IS_WIN, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         env = os.environ.copy()
         env["NEXT_TELEMETRY_DISABLED"] = "1"
         env["NODE_OPTIONS"] = "--max-old-space-size=4096"
@@ -375,16 +378,19 @@ class Engine:
                         shutil.rmtree(nm_dir, ignore_errors=True)
                     if os.path.exists(lock_file):
                         os.remove(lock_file)
-                    subprocess.run(["npm", "install"], cwd=self.app_dir, shell=IS_WIN, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    subprocess.run(["npm", "install", "--no-bin-links"], cwd=self.app_dir, shell=IS_WIN, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                     did_downgrade = True
                     print(f"{C.GRN}  Next.js v15.3.3 ready for Android build (uses Webpack){C.RST}")
         except Exception as e:
             print(f"{C.RED}  Failed to downgrade Next.js: {e}{C.RST}")
         build_timeout = 600 if IS_ANDROID else 120
         r = subprocess.run(["npx", "next", "build"], cwd=self.app_dir, env=env, shell=IS_WIN, capture_output=True, text=True, timeout=build_timeout)
+        # KEEP v15 on Android — don't restore original package.json
+        # so node_modules matches and server starts correctly
         if did_downgrade and os.path.exists(pkg_bak):
             try:
-                shutil.copy2(pkg_bak, pkg_json)
+                if not IS_ANDROID:
+                    shutil.copy2(pkg_bak, pkg_json)
                 os.remove(pkg_bak)
             except Exception:
                 pass
