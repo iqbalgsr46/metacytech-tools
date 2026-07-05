@@ -215,7 +215,7 @@ export default function TikTokPage() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, #121212 0%, #1a1a2e 50%, #161823 100%)" }}>
+    <div className="relative min-h-screen flex items-center justify-center" style={{ background: "#000" }}>
       <div className="w-full max-w-[340px] mx-4" style={{ animation: "u 0.4s cubic-bezier(0.22,1,0.36,1) both" }}>
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
           <div className="flex items-center gap-2 px-4 py-3 border-b" style={{ borderColor: "#f1f1f1" }}>
