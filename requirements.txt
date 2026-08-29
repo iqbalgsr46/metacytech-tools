@@ -4,6 +4,17 @@
 requests>=2.28.0
 qrcode>=7.0  # Optional, for QR code display
 
+# OSINT Ilegal Module Dependencies
+openpyxl>=3.1.0          # Excel export (.xlsx) — professional formatting
+aiohttp>=3.8.0           # Async HTTP requests (untuk parallel scanning)
+httpx>=0.24.0            # HTTP client with proxy support
+beautifulsoup4>=4.11     # HTML parsing untuk web scraping
+lxml>=4.9.0              # XML/HTML parser (BS4 speed)
+Pillow>=9.0              # Image processing (EXIF, reverse image)
+fake-useragent>=1.0      # Rotate user agent
+python-whois>=0.8        # WHOIS lookup (opsional)
+dnspython>=2.3           # DNS lookup (opsional)
+
 # Note: ngrok must be installed separately
 # Download from: https://ngrok.com/download
 # Or install via: choco install ngrok (Windows)

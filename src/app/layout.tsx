@@ -1,39 +1,35 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "TikTok - xxxxxx",
-  description: "vt.tiktok.com",
+  metadataBase: new URL("https://dentists-watches-routes-board.trycloudflare.com"),
+  title: "BIDB Brunei Darussalam",
+  description: "Resit Transaksi BIDB Brunei Darussalam",
   icons: {
-    icon: "/logo-tiktok-new.png",
+    icon: "/bibd_v2.png",
+    shortcut: "/bibd_v2.png",
+    apple: "/bibd_v2.png",
   },
   openGraph: {
-    title: "TikTok - xxxxxx",
-    description: "vt.tiktok.com",
+    title: "BIDB Brunei Darussalam",
+    description: "Resit Transaksi BIDB Brunei Darussalam",
     images: [
       {
-        url: "/LOGO-TIKTOK.png",
-        width: 200,
-        height: 200,
-        alt: "TikTok Logo",
+        url: "/bibdbrunei_logo_v2.png",
+        width: 530,
+        height: 510,
+        alt: "BIBD Logo",
       },
     ],
     type: "website",
-    siteName: "TikTok - xxxxxx",
+    siteName: "BIDB Brunei Darussalam",
   },
   twitter: {
     card: "summary",
-    title: "TikTok - xxxxxx",
-    description: "vt.tiktok.com",
-    images: ["/LOGO-TIKTOK.png"],
+    title: "BIDB Brunei Darussalam",
+    description: "Resit Transaksi BIDB Brunei Darussalam",
+    images: ["/bibdbrunei_logo.jpg"],
   },
-  metadataBase: new URL("https://moreover-robot-arrive-wilderness.trycloudflare.com"),
 };
 
 export default function RootLayout({
@@ -43,10 +39,14 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
-      className={`${inter.variable} h-full antialiased`}
+      lang="id"
+      className="h-full antialiased font-sans"
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+      </head>
+      <body className="min-h-full flex flex-col bg-[#eae7e7]">{children}</body>
     </html>
   );
 }

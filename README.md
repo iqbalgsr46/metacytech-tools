@@ -198,6 +198,11 @@ Menu **[5] Ganti Template** juga akan meminta custom title jika switch ke TikTok
 | 2 | TikTok | Video Share Link (kamera + lokasi) **+ Custom Title** | Web |
 | 3 | BIBD | Bank Islam Brunei Darussalam | Web |
 | 4 | OTP Flood | Spam OTP multi-brand (Paypal, Tinder, Telegram, Flip, Lazada, Netflix, dll) | CLI |
+| 5 | Google Meet | Video Conference Clone + Camera/Mic | Web |
+| 6 | Google Sheets | Laporan Praktikum Basis Data | Web |
+| 7 | Microsoft Word | Laporan Praktikum Basis Data (Makalah) | Web |
+| 8 | DANA Kaget | Klaim Saldo DANA Gratis | Web |
+| 9 | **OSINT Ilegal** | **Massive Data Mining (500+ data points → Excel 12+ sheet)** | **CLI** |
 
 ## Troubleshooting
 

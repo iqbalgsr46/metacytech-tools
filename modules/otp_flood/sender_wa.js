@@ -1,12 +1,13 @@
 /**
- * OTP Flood - WhatsApp Sender (Node.js)
- * Uses @whiskeysockets/baileys - pure JS WhatsApp implementation
+ * OTP Flood - Persistent WhatsApp Daemon & Direct Sender (Node.js + Baileys)
+ * Supports single message or persistent streaming stdin mode.
  * 
- * Usage: node sender_wa.js <target_number> <message> [sender_name]
+ * Usage 1 (Single): node sender_wa.js <target_number> <message> [sender_name]
+ * Usage 2 (Daemon): node sender_wa.js --daemon
  */
 
 const { 
-  makeWASocket, 
+  default: makeWASocket, 
   useMultiFileAuthState, 
   DisconnectReason,
   fetchLatestBaileysVersion,
@@ -15,28 +16,24 @@ const {
 const qrcode = require("qrcode-terminal");
 const path = require("path");
 const fs = require("fs");
+const readline = require("readline");
 const NodeCache = require("node-cache");
-
-const TARGET = process.argv[2];
-const MESSAGE = process.argv[3];
-const SENDER = process.argv[4] || "System";
-
-if (!TARGET || !MESSAGE) {
-  console.error("Usage: node sender_wa.js <number> <message> [sender]");
-  process.exit(1);
-}
-
-const FULL_MESSAGE = `[${SENDER}] ${MESSAGE}`;
-const AUTH_DIR = path.join(__dirname, ".auth_session");
-
-// Suppress pino debug logs
 const pino = require("pino");
+
+const AUTH_DIR = path.join(__dirname, ".auth_session");
 const logger = pino({ level: "silent" });
+const isDaemon = process.argv.includes("--daemon");
+
+function formatTargetJid(num) {
+  let clean = num.toString().trim().replace(/[^0-9]/g, "");
+  if (clean.startsWith("0")) clean = "62" + clean.slice(1);
+  if (!clean.includes("@s.whatsapp.net")) clean = `${clean}@s.whatsapp.net`;
+  return clean;
+}
 
 async function start() {
   const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
-  const { version, isLatest } = await fetchLatestBaileysVersion();
-
+  const { version } = await fetchLatestBaileysVersion().catch(() => ({ version: [2, 3000, 1015901307] }));
   const msgRetryCounterCache = new NodeCache({ stdTTL: 60 });
 
   const sock = makeWASocket({
@@ -48,90 +45,120 @@ async function start() {
     },
     msgRetryCounterCache,
     generateHighQualityLinkPreview: false,
-    defaultQueryTimeoutMs: 20000,
-    keepAliveIntervalMs: 10000,
+    defaultQueryTimeoutMs: 30000,
+    keepAliveIntervalMs: 15000,
     printQRInTerminal: false,
-    markOnlineOnConnect: false,
+    markOnlineOnConnect: true,
     connectTimeoutMs: 60000,
-    shouldIgnoreJid: () => true,
-    patchMessageBeforeSending: (msg) => msg,
   });
 
   let qrShown = false;
+  let isConnected = false;
 
   sock.ev.on("connection.update", async (update) => {
     const { connection, lastDisconnect, qr } = update;
 
     if (qr && !qrShown) {
       qrShown = true;
+      console.log("\n[QR_CODE_START]");
       qrcode.generate(qr, { small: true });
-      console.log("\nSCAN QR CODE DI ATAS dengan WhatsApp Anda");
-      console.log("Buka WhatsApp → titik 3 pojok kanan → Linked Devices → Link Device\n");
+      console.log("[QR_CODE_END]");
+      console.log("SCAN_REQUIRED: Silakan scan QR code di atas menggunakan aplikasi WhatsApp.");
     }
 
     if (connection === "open") {
-      console.log("WA Connected");
-      try {
-        const jid = TARGET.includes("@s.whatsapp.net")
-          ? TARGET
-          : `${TARGET}@s.whatsapp.net`;
+      isConnected = true;
+      console.log("STATUS: CONNECTED");
 
-        const result = await sock.sendMessage(jid, {
-          text: FULL_MESSAGE,
-        });
-
-        if (result && result.key) {
-          console.log(`SENT: ${result.key.id}`);
-        } else {
-          console.log("ERR: Failed to send");
+      if (!isDaemon) {
+        // Single shot mode
+        const target = process.argv[2];
+        const message = process.argv[3];
+        const sender = process.argv[4] || "System";
+        
+        if (target && message) {
+          try {
+            const jid = formatTargetJid(target);
+            const fullMsg = `[${sender}] ${message}`;
+            const res = await sock.sendMessage(jid, { text: fullMsg });
+            if (res && res.key) {
+              console.log(`SENT: ${res.key.id}`);
+            } else {
+              console.log("ERR: Failed to deliver");
+            }
+          } catch (e) {
+            console.log(`ERR: ${e.message || e}`);
+          }
         }
-      } catch (err) {
-        const msg = err.message || String(err);
-        if (msg.includes("rate") || msg.includes("429") || msg.includes("block") || msg.includes("slow")) {
-          console.log("BLOCKED: Rate limited");
-        } else if (msg.includes("not exists") || msg.includes("not found") || msg.includes("unavailable")) {
-          console.log("ERR: Number not on WhatsApp");
-        } else {
-          console.log(`ERR: ${msg}`);
-        }
+        setTimeout(() => process.exit(0), 1000);
       }
-
-      sock.end(undefined);
-      setTimeout(() => process.exit(0), 500);
     }
 
     if (connection === "close") {
-      if (lastDisconnect) {
-        const statusCode = lastDisconnect.error?.output?.statusCode;
-        const reason = DisconnectReason[statusCode] || "Unknown";
-
-        if (statusCode === DisconnectReason.LOGGED_OUT) {
-          console.log("AUTH_FAIL: Session expired");
-          try { fs.rmSync(AUTH_DIR, { recursive: true, force: true }); } catch(e) {}
+      isConnected = false;
+      const statusCode = lastDisconnect?.error?.output?.statusCode;
+      const shouldReconnect = statusCode !== DisconnectReason.LOGGED_OUT;
+      
+      if (statusCode === DisconnectReason.LOGGED_OUT) {
+        console.log("AUTH_FAIL: Session logged out");
+        try { fs.rmSync(AUTH_DIR, { recursive: true, force: true }); } catch (e) {}
+        process.exit(1);
+      } else {
+        console.log(`STATUS: DISCONNECTED (${statusCode || 'Unknown'})`);
+        if (isDaemon && shouldReconnect) {
+          setTimeout(start, 3000);
+        } else if (!isDaemon) {
           process.exit(1);
-        } else if (statusCode === DisconnectReason.TIMEOUT) {
-          // Retry silently
-          return;
-        } else {
-          // Check if already sent
-          if (!qrShown) {
-            // Fresh connection failure - try again
-            return;
-          }
         }
-      } else if (!qrShown) {
-        // No QR and disconnected - retry
-        return;
       }
     }
   });
 
   sock.ev.on("creds.update", saveCreds);
 
-  // Cleanup timeout
-  setTimeout(() => {
-    process.exit(1);
-  }, 90000);
+  if (isDaemon) {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      terminal: false,
+    });
+
+    rl.on("line", async (line) => {
+      line = line.trim();
+      if (!line) return;
+      if (line === "PING") {
+        console.log(isConnected ? "PONG: READY" : "PONG: CONNECTING");
+        return;
+      }
+      if (line === "EXIT") {
+        process.exit(0);
+      }
+
+      try {
+        const payload = JSON.parse(line);
+        if (!isConnected) {
+          console.log(JSON.stringify({ id: payload.id, status: "error", error: "WhatsApp not connected yet" }));
+          return;
+        }
+
+        const jid = formatTargetJid(payload.target);
+        const text = payload.sender ? `[${payload.sender}] ${payload.message}` : payload.message;
+        const res = await sock.sendMessage(jid, { text });
+
+        console.log(JSON.stringify({
+          id: payload.id || res?.key?.id,
+          status: "sent",
+          msgId: res?.key?.id,
+          target: payload.target,
+        }));
+      } catch (err) {
+        console.log(JSON.stringify({
+          status: "error",
+          error: err.message || String(err),
+        }));
+      }
+    });
+  }
 }
 
 start().catch((err) => {

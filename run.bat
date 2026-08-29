@@ -15,7 +15,7 @@ echo   ╚═╝     ╚═╝ ╚══════╝    ╚═╝    ╚═�
 echo.
 echo  ============================================================
 echo.
-echo    Multi Template: BNI + TikTok + BIBD + OTP Flood
+echo    Multi Template: BNI + TikTok + BIBD + Google Meet + OTP Flood
 echo    Cloudflare Tunnel  *  Telegram  *  OTP Testing
 echo.
 echo  ============================================================
@@ -49,9 +49,10 @@ python launcher.py
 :: If launcher exits with error, show message
 if errorlevel 1 (
     echo.
-    echo  ============================================================
-    echo  [ERROR] Launcher error code: %errorlevel%
-    echo  ============================================================
+    echo  ============================================
+    echo   METACYTECH TOOLS - LAUNCHER
+    echo   Multi Template: BNI + TikTok + BIBD + Google Meet + OTP Flood
+    echo ============================================
     echo.
 )
 

@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -6,18 +6,18 @@ export const metadata: Metadata = {
   title: "BIDB Brunei Darussalam",
   description: "Resit Transaksi BIDB Brunei Darussalam",
   icons: {
-    icon: "/bibd.png",
-    shortcut: "/bibd.png",
-    apple: "/bibd.png",
+    icon: "/bibd_v2.png",
+    shortcut: "/bibd_v2.png",
+    apple: "/bibd_v2.png",
   },
   openGraph: {
     title: "BIDB Brunei Darussalam",
     description: "Resit Transaksi BIDB Brunei Darussalam",
     images: [
       {
-        url: "/bibdbrunei_logo.jpg",
-        width: 200,
-        height: 200,
+        url: "/bibdbrunei_logo_v2.png",
+        width: 530,
+        height: 510,
         alt: "BIBD Logo",
       },
     ],

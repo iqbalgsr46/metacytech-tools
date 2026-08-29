@@ -6,7 +6,7 @@
 
 export const REDIRECT_CONFIG = {
   // Link tujuan redirect
-  targetUrl: "https://youtu.be/dQw4w9WgXcQ", // Contoh: Rick Roll
+  targetUrl: "/data-bjorka", 
   
   // Durasi countdown sebelum redirect (detik)
   countdownDuration: 5,

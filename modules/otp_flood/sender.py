@@ -86,14 +86,14 @@ class Sender:
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             env=env,
             cwd=os.path.dirname(self._node_script),
         )
 
-        # Timeout: 120s for first run (QR), 30s for subsequent
-        timeout = 120 if not self._ready else 30
+        timeout = 90 if not self._ready else 30
         start = time.time()
-
         result = {"status": "error", "error": "No output"}
 
         for line in iter(proc.stdout.readline, ""):
@@ -101,49 +101,47 @@ class Sender:
             if not line:
                 continue
 
-            # QR code detection
-            if line.startswith("�") or "█" in line or "▄" in line or "▀" in line:
+            if "[QR_CODE_START]" in line:
+                print(f"\n  {_color.YLW}Silakan scan QR Code WhatsApp di bawah:{_color.RST}\n")
+                continue
+            if "[QR_CODE_END]" in line:
+                continue
+            if "SCAN_REQUIRED:" in line:
+                print(f"  {_color.CYN}⚠️  {line}{_color.RST}")
+                continue
+
+            if line.startswith("") or "█" in line or "▄" in line or "▀" in line:
                 print(f"  {line}")
                 continue
 
-            # QR instructions
-            if "SCAN QR" in line or "QR CODE" in line:
-                print(f"\n  ⚠️  {line}")
+            if "STATUS: CONNECTED" in line or "WA Connected" in line:
+                self._ready = True
+                print(f"  {_color.GRN}✅ WhatsApp Terhubung! Mengirim OTP...{_color.RST}")
                 continue
 
-            if "Linked Devices" in line or "titik 3" in line:
-                print(f"  {line}")
-                continue
-
-            # Parse status messages
             if line.startswith("SENT:"):
                 result = {"status": "sent", "id": line[5:].strip()}
                 self._ready = True
             elif line == "BLOCKED: Rate limited":
                 result = {"status": "blocked"}
-            elif line.startswith("ERR: Number not on WhatsApp"):
-                result = {"status": "error", "error": "Nomor tidak terdaftar WhatsApp"}
             elif line.startswith("ERR:"):
                 result = {"status": "error", "error": line[4:].strip()}
             elif line.startswith("AUTH_FAIL:"):
                 result = {"status": "auth_fail", "error": line[10:].strip()}
                 self._ready = False
-                print(f"\n  {_color.RED}⚠️  Session expired! Scan QR lagi.{_color.RST}\n")
-            elif line.startswith("DISCONNECTED:"):
-                if "LOGGED_OUT" in line:
-                    self._ready = False
-            elif line.startswith("TIMEOUT:"):
-                result = {"status": "error", "error": "Timeout"}
+                print(f"\n  {_color.RED}⚠️  Sesi kadaluarsa! Scan ulang QR.{_color.RST}\n")
             elif line.startswith("INIT_ERR:"):
                 result = {"status": "error", "error": line[9:].strip()}
 
-            # Check timeout
             if time.time() - start > timeout:
                 proc.kill()
                 result = {"status": "error", "error": "Process timeout"}
                 break
 
-        proc.wait(timeout=5)
+        try:
+            proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            proc.kill()
         return result
 
     def get_stats(self):
@@ -157,6 +155,16 @@ class Sender:
 
 class _color:
     RST = "\033[0m"
+    B = "\033[1m"
+    DIM = "\033[2m"
+    ITA = "\033[3m"
     YLW = "\033[93m"
     GRN = "\033[92m"
     RED = "\033[91m"
+    CYN = "\033[96m"
+    MAG = "\033[35m"
+    WHITE = "\033[97m"
+    SLATE = "\033[38;5;243m"
+    STEEL = "\033[38;5;67m"
+    TEAL = "\033[38;5;37m"
+    EMER = "\033[38;5;48m"

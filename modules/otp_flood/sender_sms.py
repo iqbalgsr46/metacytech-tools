@@ -223,9 +223,16 @@ class SMSSender:
 # Color helper for UI
 class _color:
     RST = "\033[0m"
+    B = "\033[1m"
     DIM = "\033[2m"
+    ITA = "\033[3m"
     YLW = "\033[93m"
     GRN = "\033[92m"
     RED = "\033[91m"
     CYN = "\033[96m"
-    B = "\033[1m"
+    MAG = "\033[35m"
+    WHITE = "\033[97m"
+    SLATE = "\033[38;5;243m"
+    STEEL = "\033[38;5;67m"
+    TEAL = "\033[38;5;37m"
+    EMER = "\033[38;5;48m"

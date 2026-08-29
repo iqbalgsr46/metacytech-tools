@@ -1,8 +1,8 @@
 # Bank Transfer Verification Launcher - PowerShell Version
 
 Write-Host "============================================" -ForegroundColor Cyan
-Write-Host "  BANK TRANSFER VERIFICATION LAUNCHER" -ForegroundColor Yellow
-Write-Host "  100% FREE - Python + Ngrok + Next.js" -ForegroundColor Green
+Write-Host "  METACYTECH TOOLS - LAUNCHER" -ForegroundColor Yellow
+Write-Host "  Multi Template: BNI + TikTok + BIBD + Google Meet + OTP Flood" -ForegroundColor Green
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host ""
 

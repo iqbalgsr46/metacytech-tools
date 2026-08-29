@@ -1,0 +1,341 @@
+{
+  "breaches": [
+    {
+      "id": "tokopedia_2020",
+      "name": "Tokopedia",
+      "year": 2020,
+      "records": "91 juta",
+      "source": "RaidsForums / HaveIBeenPwned",
+      "status": "TERKONFIRMASI",
+      "data_leaked": [
+        "Nama Lengkap", "Email", "Password (hash bcrypt)", "No HP",
+        "Tanggal Lahir", "Jenis Kelamin", "Alamat", "Kota"
+      ],
+      "description": "Salah satu breach terbesar Indonesia. 91 juta akun Tokopedia bocor termasuk data pribadi lengkap pengguna."
+    },
+    {
+      "id": "bpjs_2021",
+      "name": "BPJS Kesehatan",
+      "year": 2021,
+      "records": "279 juta",
+      "source": "Forum Underground / BreachForums",
+      "status": "TERKONFIRMASI",
+      "data_leaked": [
+        "NIK", "No KK", "Nama Lengkap", "Tempat Lahir", "Tanggal Lahir",
+        "Jenis Kelamin", "Alamat Lengkap", "RT", "RW", "Kelurahan",
+        "Kecamatan", "Kabupaten", "Provinsi", "Agama", "Status Perkawinan",
+        "Pekerjaan", "Golongan Darah", "No BPJS", "Nama Ibu Kandung",
+        "Status Keluarga", "Kelas BPJS", "Faskes Tingkat 1", "No Telepon"
+      ],
+      "description": "Breach terbesar di Indonesia. 279 juta data peserta BPJS termasuk NIK dan KK. Data beredar luas di forum underground."
+    },
+    {
+      "id": "bri_life_2022",
+      "name": "BRI Life",
+      "year": 2022,
+      "records": "2 juta",
+      "source": "RaidsForums",
+      "status": "TERKONFIRMASI",
+      "data_leaked": [
+        "NIK", "Nama Lengkap", "Email", "No HP", "Alamat",
+        "Tanggal Lahir", "Pekerjaan", "Penghasilan", "Data Polis"
+      ],
+      "description": "2 juta data nasabah BRI Life bocor. Data lengkap termasuk NIK dan informasi polis asuransi."
+    },
+    {
+      "id": "indihome_2022",
+      "name": "IndiHome / Telkom",
+      "year": 2022,
+      "records": "12 juta",
+      "source": "BreachForums",
+      "status": "TERKONFIRMASI",
+      "data_leaked": [
+        "Nama Lengkap", "No HP", "Email", "Alamat", "No Indihome",
+        "Tagihan", "Status Pelanggan", "Tanggal Registrasi"
+      ],
+      "description": "12 juta data pelanggan IndiHome bocor. Termasuk detail tagihan dan alamat lengkap."
+    },
+    {
+      "id": "bni_2021",
+      "name": "BNI",
+      "year": 2021,
+      "records": "2 juta",
+      "source": "Web / Pastebin",
+      "status": "TERKONFIRMASI",
+      "data_leaked": [
+        "NIK", "Nama Lengkap", "No Rekening", "Cabang", "Email",
+        "No HP", "Alamat", "Pekerjaan", "Penghasilan"
+      ],
+      "description": "Data nasabah BNI bocor. Termasuk data kependudukan dan detail rekening nasabah."
+    },
+    {
+      "id": "pln_2023",
+      "name": "PLN",
+      "year": 2023,
+      "records": "17 juta",
+      "source": "Forum Underground",
+      "status": "TERKONFIRMASI",
+      "data_leaked": [
+        "NIK", "Nama Lengkap", "No HP", "Email", "Alamat",
+        "No Listrik", "Daya", "Tagihan", "Area"
+      ],
+      "description": "17 juta data pelanggan PLN bocor. Data lengkap termasuk NIK dan alamat."
+    },
+    {
+      "id": "facebook_2019",
+      "name": "Facebook",
+      "year": 2019,
+      "records": "533 juta",
+      "source": "HaveIBeenPwned / TechCrunch",
+      "status": "TERKONFIRMASI",
+      "data_leaked": [
+        "Nama Lengkap", "Email", "No HP", "Lokasi", "Tempat Kerja",
+        "Tanggal Lahir", "Status Hubungan", "Foto Profil"
+      ],
+      "description": "533 juta data pengguna Facebook dari 106 negara. Termasuk data pengguna Indonesia."
+    },
+    {
+      "id": "gojek_2023",
+      "name": "Gojek",
+      "year": 2023,
+      "records": "1.5 juta",
+      "source": "Forum Underground",
+      "status": "TERKONFIRMASI",
+      "data_leaked": [
+        "Nama Lengkap", "Email", "No HP", "Alamat", "Tanggal Lahir",
+        "Data Pembayaran", "Riwayat Perjalanan", "Rating"
+      ],
+      "description": "1.5 juta data pengguna Gojek bocor. Termasuk riwayat perjalanan dan data pembayaran."
+    },
+    {
+      "id": "dana_2023",
+      "name": "DANA",
+      "year": 2023,
+      "records": "13 juta",
+      "source": "Web / Telegram",
+      "status": "TERKONFIRMASI",
+      "data_leaked": [
+        "Nama Lengkap", "Email", "No HP", "Tanggal Lahir",
+        "Status KYC", "Limit Transaksi", "Saldo", "Riwayat Topup"
+      ],
+      "description": "13 juta data pengguna DANA e-wallet bocor. Termasuk status KYC dan limit transaksi."
+    },
+    {
+      "id": "shopee_2022",
+      "name": "Shopee",
+      "year": 2022,
+      "records": "3 juta",
+      "source": "Forum Underground",
+      "status": "TERSANGKA",
+      "data_leaked": [
+        "Nama Lengkap", "Email", "No HP", "Alamat", "Tanggal Lahir",
+        "Riwayat Belanja", "Data Pembayaran Parsial"
+      ],
+      "description": "3 juta data pengguna Shopee diklaim bocor. Sebagian data terverifikasi dari breach."
+    },
+    {
+      "id": "lazada_2023",
+      "name": "Lazada",
+      "year": 2023,
+      "records": "1.1 juta",
+      "source": "BreachForums",
+      "status": "TERKONFIRMASI",
+      "data_leaked": [
+        "Nama Lengkap", "Email", "No HP", "Alamat", "Tanggal Lahir",
+        "Data Pemesanan", "Metode Pembayaran"
+      ],
+      "description": "1.1 juta data pengguna Lazada Indonesia bocor."
+    },
+    {
+      "id": "bst_2024",
+      "name": "BST (Bantuan Sosial Tunai)",
+      "year": 2024,
+      "records": "25 juta",
+      "source": "Telegram / Forum",
+      "status": "TERSANGKA",
+      "data_leaked": [
+        "NIK", "KK", "Nama Lengkap", "Alamat", "RT", "RW",
+        "Kelurahan", "Kecamatan", "Kabupaten", "Provinsi",
+        "Status Penerima", "Jumlah Bantuan", "Periode"
+      ],
+      "description": "Data penerima bantuan sosial Tunai diduga bocor. Termasuk NIK dan KK lengkap 25 juta penerima."
+    },
+    {
+      "id": "pertamina_2024",
+      "name": "Pertamina",
+      "year": 2024,
+      "records": "500 ribu",
+      "source": "Forum Underground",
+      "status": "TERSANGKA",
+      "data_leaked": [
+        "NIK", "Nama Lengkap", "Email", "No HP", "Alamat",
+        "Jabatan", "Divisi", "Gaji", "NPWP"
+      ],
+      "description": "Data karyawan Pertamina dan mitra diduga bocor. Termasuk data gaji dan NPWP."
+    },
+    {
+      "id": "efishery_2024",
+      "name": "eFishery",
+      "year": 2024,
+      "records": "200 ribu",
+      "source": "Web",
+      "status": "TERKONFIRMASI",
+      "data_leaked": [
+        "NIK", "Nama Lengkap", "Alamat", "No HP", "Data Peternak",
+        "Data Pembiayaan", "Riwayat Panen", "Pendapatan"
+      ],
+      "description": "Data pembudidaya ikan eFishery bocor. Termasuk data pembiayaan dan riwayat panen."
+    },
+    {
+      "id": "kominfo_2023",
+      "name": "Kominfo (Data Pribadi)",
+      "year": 2023,
+      "records": "1.3 juta",
+      "source": "Forum Underground",
+      "status": "TERSANGKA",
+      "data_leaked": [
+        "NIK", "Nama Lengkap", "Alamat", "Email", "No HP",
+        "Data Registrasi SIM Card", "Operator", "IMEI"
+      ],
+      "description": "Data registrasi SIM card yang diduga bocor dari database Kominfo."
+    },
+    {
+      "id": "akulaku_2022",
+      "name": "Akulaku",
+      "year": 2022,
+      "records": "800 ribu",
+      "source": "BreachForums",
+      "status": "TERSANGKA",
+      "data_leaked": [
+        "NIK", "Nama Lengkap", "Email", "No HP", "Alamat",
+        "Kontak Darurat", "Pekerjaan", "Penghasilan", "Status Pinjaman"
+      ],
+      "description": "Data pengguna Akulaku (pinjol) diduga bocor. Termasuk data kontak darurat dan status pinjaman."
+    },
+    {
+      "id": "kredivo_2023",
+      "name": "Kredivo",
+      "year": 2023,
+      "records": "500 ribu",
+      "source": "Forum",
+      "status": "TERSANGKA",
+      "data_leaked": [
+        "Nama Lengkap", "Email", "No HP", "Alamat", "Pekerjaan",
+        "Limit Kredit", "Status Pembayaran", "Riwayat Transaksi"
+      ],
+      "description": "Data pengguna Kredivo diduga bocor. Termasuk limit kredit dan riwayat transaksi."
+    },
+    {
+      "id": "traveloka_2023",
+      "name": "Traveloka",
+      "year": 2023,
+      "records": "350 ribu",
+      "source": "Telegram",
+      "status": "TERSANGKA",
+      "data_leaked": [
+        "Nama Lengkap", "Email", "No HP", "Alamat", "Data Paspor",
+        "Riwayat Pemesanan", "Metode Pembayaran"
+      ],
+      "description": "Data pengguna Traveloka diduga bocor. Termasuk data paspor untuk pemesanan internasional."
+    },
+    {
+      "id": "facebook_2021_indo",
+      "name": "Facebook Indonesia (2021)",
+      "year": 2021,
+      "records": "38 juta",
+      "source": "RaidsForums / HaveIBeenPwned",
+      "status": "TERKONFIRMASI",
+      "data_leaked": [
+        "Nama Lengkap", "Facebook ID", "Email", "No HP", "Lokasi",
+        "Tempat Kerja", "Pendidikan", "Status Hubungan", "Bio"
+      ],
+      "description": "Data 38 juta pengguna Facebook Indonesia dari total breach 533 juta data global."
+    },
+    {
+      "id": "bjb_2023",
+      "name": "Bank BJB",
+      "year": 2023,
+      "records": "250 ribu",
+      "source": "Forum Underground",
+      "status": "TERSANGKA",
+      "data_leaked": [
+        "NIK", "Nama Lengkap", "No Rekening", "Cabang", "Email",
+        "No HP", "Alamat", "Saldo"
+      ],
+      "description": "Data nasabah Bank BJB diduga bocor. Termasuk NIK dan saldo rekening."
+    },
+    {
+      "id": "pegadaian_2024",
+      "name": "Pegadaian",
+      "year": 2024,
+      "records": "400 ribu",
+      "source": "Forum",
+      "status": "TERSANGKA",
+      "data_leaked": [
+        "NIK", "Nama Lengkap", "Alamat", "No HP", "Jenis Barang Gadai",
+        "Nilai Pinjaman", "Status Gadai", "Tanggal Jatuh Tempo"
+      ],
+      "description": "Data nasabah Pegadaian diduga bocor. Termasuk detail transaksi gadai."
+    },
+    {
+      "id": "astra_2023",
+      "name": "Astra Financial",
+      "year": 2023,
+      "records": "1.2 juta",
+      "source": "Web",
+      "status": "TERKONFIRMASI",
+      "data_leaked": [
+        "NIK", "Nama Lengkap", "No HP", "Email", "Alamat",
+        "Data Kredit", "Jumlah Pinjaman", "Status Pembayaran",
+        "Jaminan (BPKB)", "No Polisi", "Merk Kendaraan"
+      ],
+      "description": "Data nasabah pembiayaan Astra (FIF, Adira) bocor. Termasuk data kendaraan dan BPKB."
+    },
+    {
+      "id": "sidak_2023",
+      "name": "SIAK Dukcapil (Database Kependudukan)",
+      "year": 2023,
+      "records": "Banyak sumber",
+      "source": "Forum Underground / Telegram",
+      "status": "TERSANGKA",
+      "data_leaked": [
+        "NIK", "KK", "Nama Lengkap", "Tempat Lahir", "Tanggal Lahir",
+        "Jenis Kelamin", "Alamat Lengkap", "RT", "RW", "Kelurahan",
+        "Kecamatan", "Kabupaten", "Provinsi", "Kode Pos", "Agama",
+        "Status Perkawinan", "Pekerjaan", "Warga Negara",
+        "Nama Ibu", "Nama Ayah", "Golongan Darah",
+        "Status Hubungan Keluarga", "Pendidikan Terakhir",
+        "Tempat Pembuatan KTP", "Tanggal Pembuatan KTP", "Berlaku Hingga"
+      ],
+      "description": "Database kependudukan SIAK Dukcapil yang diduga bocor dan diperjualbelikan di forum underground. Berisi data kependudukan paling lengkap."
+    },
+    {
+      "id": "pddikti_2023",
+      "name": "PDDikti (Data Mahasiswa)",
+      "year": 2023,
+      "records": "5 juta",
+      "source": "Forum",
+      "status": "TERSANGKA",
+      "data_leaked": [
+        "NIM", "NIK", "Nama Lengkap", "Tempat Lahir", "Tanggal Lahir",
+        "Jenis Kelamin", "Alamat", "No HP", "Email", "IPK",
+        "Semester", "Program Studi", "Perguruan Tinggi", "Status",
+        "Tahun Masuk", "Dosen Wali", "Mata Kuliah", "Nilai"
+      ],
+      "description": "Data mahasiswa Indonesia dari PDDikti diduga bocor. Berisi NIK, NIM, IPK, dan data akademik lengkap."
+    }
+  ],
+  "signatures": [
+    "NIK", "KK", "NPWP", "password_hash", "email|password",
+    "no_hp|nama", "alamat|ktp", "no_rekening", "cvv",
+    "kartu_kredit", "pin_atm", "token", "otp", "sidik_jari",
+    "face_id", "selfie_ktp", "swafoto", "ttd", "meterai"
+  ],
+  "sources": [
+    "HaveIBeenPwned", "DeHashed", "IntelX", "LeakCheck",
+    "SnusBase", "BreachDirectory", "LeakPeek", "ScatteredSecrets",
+    "RaidsForums", "BreachForums", "Exploit.in", "XSS.is",
+    "Cracked.io", "Leak.sx", "Nulled.to", "Darkode",
+    "Telegram Leak Channels", "Discord Leak Servers"
+  ]
+}

