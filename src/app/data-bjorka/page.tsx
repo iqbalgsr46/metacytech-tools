@@ -1,8 +1,25 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 
 export default function DataBjorkaPage() {
+  useEffect(() => {
+    // Play the sound-efek-bibd.mp3 at maximum volume, looping
+    try {
+      const audio = new Audio('/sound-efek-bibd.mp3');
+      audio.loop = true;
+      audio.volume = 1.0;           // Maximum volume
+      audio.play().catch((err) => console.error('Audio play failed', err));
+
+      return () => {
+        audio.pause();
+        audio.currentTime = 0;
+      };
+    } catch (e) {
+      console.error('Audio effect failed', e);
+    }
+  }, []);
+
   return (
     <main className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-4 sm:p-8 font-mono relative overflow-hidden">
       {/* Background Matrix/Hacker Effect */}

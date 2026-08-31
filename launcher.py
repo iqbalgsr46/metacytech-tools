@@ -972,6 +972,17 @@ class Engine:
         print()
         if url:
             print(f"  {C.EMER}[v]{C.RST} {'url'.ljust(16)}: {C.B}{url}{C.RST}")
+            if self.current_template == "danakaget":
+                try:
+                    subprocess.run(
+                        ["python", "templates/danakaget/generate_qr.py", url],
+                        cwd=self.app_dir,
+                        capture_output=True,
+                        check=True
+                    )
+                    print(f"  {C.EMER}[v]{C.RST} {'qr_poster'.ljust(16)}: {C.B}dana_kaget_ready.jpg{C.RST} (Tersimpan di folder root)")
+                except Exception as e:
+                    print(f"  {C.CORAL}[x]{C.RST} {'qr_poster'.ljust(16)}: Gagal membuat QR Poster ({e})")
         print(f"  {C.EMER}[v]{C.RST} {'local'.ljust(16)}: http://localhost:{self.app_port}")
         print()
 

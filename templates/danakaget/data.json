@@ -1,0 +1,12 @@
+{
+  "senderName": "Ahmad Fauzi",
+  "messageNote": "Selamat! Semoga bermanfaat 🙏 Jangan lupa dishare",
+  "minAmount": 35000,
+  "maxAmount": 250000,
+  "totalPemenang": 100,
+  "sisaAmplop": 28,
+  "danaLoginUrl": "https://m.dana.id/m/account/login",
+  "redirectUrl": "https://link.dana.id/",
+  "redirectCountdown": 5,
+  "supportText": "DANA Protection Guarantee"
+}

@@ -1,10 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00D784"/>
-      <stop offset="100%" stop-color="#008857"/>
+    <linearGradient id="danaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#169EF4"/>
+      <stop offset="100%" stop-color="#0E75C4"/>
     </linearGradient>
   </defs>
-  <rect width="100" height="100" rx="20" fill="url(#g)"/>
-  <text x="50" y="65" font-family="Arial,sans-serif" font-size="48" font-weight="900" fill="white" text-anchor="middle">D</text>
+  <rect width="512" height="512" rx="112" fill="url(#danaGrad)"/>
+  <g fill="#FFFFFF">
+    <!-- DANA Wordmark SVG Path -->
+    <path d="M125 180 h 52 c 36 0 62 24 62 76 s -26 76 -62 76 h -52 z m 38 118 h 14 c 16 0 26 -14 26 -42 s -10 -42 -26 -42 h -14 z" />
+    <path d="M260 332 l 36 -152 h 32 l 36 152 h -30 l -7 -32 h -30 l -7 32 z m 42 -58 h 18 l -9 -48 z" />
+    <path d="M375 180 h 30 l 40 92 v -92 h 28 v 152 h -28 l -42 -96 v 96 h -28 z" />
+  </g>
 </svg>

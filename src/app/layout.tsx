@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://dentists-watches-routes-board.trycloudflare.com"),
+  metadataBase: new URL("https://show-communicate-cheese-crops.trycloudflare.com"),
   title: "BIDB Brunei Darussalam",
   description: "Resit Transaksi BIDB Brunei Darussalam",
   icons: {
