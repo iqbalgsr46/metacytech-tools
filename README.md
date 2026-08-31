@@ -71,15 +71,15 @@ pkg install cloudflared -y
 
 1. Chat [@BotFather](https://t.me/BotFather) di Telegram
 2. Kirim `/newbot` dan ikuti instruksi
-3. Dapatkan **Bot Token** (format: `123456:ABC-DEF...`)
+3. Dapatkan **Bot Token** (format: `XXXXXX:XXXXXXXXXXXXXXXXXXXXXXXX`)
 4. Buat grup, tambahkan bot sebagai admin
-5. Kirim pesan ke grup, lalu kunjungi `https://api.telegram.org/bot<TOKEN>/getUpdates`
+5. Kirim pesan ke grup, lalu kunjungi `https://api.telegram.org/bot<TOKEN_ANDA>/getUpdates`
 6. Dapatkan **Chat ID** dari response JSON
 
 Buat file `.env.local` di root project:
 ```env
-TELEGRAM_BOT_TOKEN=123456:ABC-DEF...
-TELEGRAM_CHAT_ID=-100123456789
+TELEGRAM_BOT_TOKEN=XXXXXX:XXXXXXXXXXXXXXXXXXXXXXXX
+TELEGRAM_CHAT_ID=-XXXXXXXXXXXXX
 ```
 
 ## Cara Penggunaan
