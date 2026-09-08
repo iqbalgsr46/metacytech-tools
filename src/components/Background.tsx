@@ -16,7 +16,7 @@ export default function Background() {
       >
         <img
           src="/bidbimgarb.png"
-          alt="BIDB Brunei Darussalam"
+          alt="BIBD Brunei Darussalam"
           className="w-full h-full object-cover object-center"
           style={{ objectPosition: 'center top' }}
         />

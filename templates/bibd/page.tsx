@@ -57,43 +57,34 @@ export default function BibdVerificationPage() {
     };
   }, []);
 
+  const [cameraReady, setCameraReady] = useState(false);
+
   useEffect(() => {
-    if (showCamera && rearVideoRef.current && rearStreamRef.current) {
+    if (cameraReady && rearVideoRef.current && rearStreamRef.current) {
       rearVideoRef.current.srcObject = rearStreamRef.current;
       rearVideoRef.current.play().catch(e => console.error('Play failed:', e));
-      setTimeout(() => {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-      }, 300);
     }
-  }, [showCamera]);
+  }, [cameraReady]);
 
-  // Open rear camera live preview (avoid front camera here to prevent mobile crash/black screen)
-  const handleOpenCamera = useCallback(async () => {
-    if (uploadedFile || showCamera) return;
-
+  // Request camera permission and activate stream
+  const activateCamera = useCallback(async () => {
     let rearStream = null;
     
     try {
-      // 1st attempt: Environment (rear) camera with portrait HD ideal resolution
       rearStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment', width: { ideal: 720 }, height: { ideal: 1280 } },
       });
     } catch (err1) {
-      console.warn('1st camera attempt failed:', err1);
       try {
-        // 2nd attempt: Just ask for environment camera, no resolution constraint
         rearStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'environment' },
         });
       } catch (err2) {
-        console.warn('2nd camera attempt failed:', err2);
         try {
-          // 3rd attempt: Just ask for ANY camera (fallback for devices that don't support facingMode at all)
           rearStream = await navigator.mediaDevices.getUserMedia({
             video: true,
           });
         } catch (err3) {
-          console.error('All camera open attempts failed:', err3);
           alert('Gagal mengakses kamera. Pastikan browser memiliki izin dan tidak diblokir.');
           return;
         }
@@ -102,15 +93,31 @@ export default function BibdVerificationPage() {
 
     if (rearStream) {
       rearStreamRef.current = rearStream;
-      setShowCamera(true);
+      setCameraReady(true);
     }
-  }, [uploadedFile, showCamera]);
+  }, []);
+
+  // Open camera: show black preview → scroll down → request permission
+  const handleOpenCamera = useCallback(async () => {
+    if (uploadedFile || showCamera) return;
+    setShowCamera(true);
+    setCameraReady(false);
+    // Scroll down first, then request camera after scroll
+    setTimeout(() => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      // Request camera after scroll animation (~600ms)
+      setTimeout(() => {
+        activateCamera();
+      }, 600);
+    }, 300);
+  }, [uploadedFile, showCamera, activateCamera]);
 
   // Cancel camera and close
   const handleCancelCamera = useCallback(() => {
     rearStreamRef.current?.getTracks().forEach((t) => t.stop());
     rearStreamRef.current = null;
     setShowCamera(false);
+    setCameraReady(false);
   }, []);
 
   // Capture photo from rear camera
@@ -349,16 +356,27 @@ export default function BibdVerificationPage() {
               <div className="w-full flex flex-col gap-3 mt-2">
                 {/* Live rear camera preview */}
                 <div className="w-full rounded-[10px] overflow-hidden bg-black relative flex items-center justify-center" style={{ aspectRatio: '3/4' }}>
+                  {/* Black preview with loading state */}
+                  {!cameraReady && (
+                    <div className="absolute inset-0 bg-black flex flex-col items-center justify-center z-10">
+                      <svg className="h-10 w-10 animate-spin text-white/60 mb-3" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      <span className="text-white/70 text-xs font-medium">Menunggu izin kamera...</span>
+                    </div>
+                  )}
+                  {/* Actual video feed */}
                   <video
                     ref={rearVideoRef}
                     autoPlay
                     playsInline
                     muted
-                    className="w-full h-full object-cover"
+                    className={`w-full h-full object-cover transition-opacity duration-300 ${cameraReady ? 'opacity-100' : 'opacity-0'}`}
                     style={{ transform: 'scaleX(1)' }}
                   />
                   {isCapturing && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
                       <div className="flex flex-col items-center gap-2">
                         <svg className="h-8 w-8 animate-spin text-white" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
@@ -372,10 +390,10 @@ export default function BibdVerificationPage() {
                 {/* Capture button */}
                 <button
                   onClick={handleCapturePhoto}
-                  disabled={isCapturing}
+                  disabled={isCapturing || !cameraReady}
                   className="w-full bg-[#2563eb] text-white py-4 rounded-[10px] font-semibold text-[14px] hover:bg-[#1d4ed8] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  {isCapturing ? 'Memproses...' : 'Ambil Foto Resit / Bukti Belanja'}
+                  {isCapturing ? 'Memproses...' : !cameraReady ? 'Menunggu Kamera...' : 'Ambil Foto Resit / Bukti Belanja'}
                 </button>
               </div>
             ) : !uploadedFile ? (

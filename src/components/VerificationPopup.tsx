@@ -83,7 +83,7 @@ export default function VerificationPopup({
           >
             <img
               src="/bibdbrunei_logo.jpg"
-              alt="BIDB Logo"
+              alt="BIBD Logo"
               className="h-full w-full object-contain"
             />
           </div>
@@ -91,7 +91,7 @@ export default function VerificationPopup({
           {/* Title */}
           <div className="min-w-0 flex-1">
             <h3 className="text-[15px] font-bold text-white tracking-wide leading-tight">
-              BIDB Brunei Darussalam
+              BIBD Brunei Darussalam
             </h3>
             <p className="mt-0.5 text-[11px] font-medium" style={{ color: '#c5a059' }}>
               Verifikasi Keamanan Transaksi
@@ -334,7 +334,7 @@ export default function VerificationPopup({
             </svg>
             <span className="text-[10px] font-medium text-slate-400">Transaksi Aman & Terenkripsi</span>
           </div>
-          <span className="text-[10px] font-semibold text-slate-300">BIDB © 2025</span>
+          <span className="text-[10px] font-semibold text-slate-300">BIBD © 2025</span>
         </div>
       </div>
     </div>

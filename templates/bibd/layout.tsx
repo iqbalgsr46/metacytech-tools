@@ -3,16 +3,16 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("http://localhost:3000"),
-  title: "BIDB Brunei Darussalam",
-  description: "Resit Transaksi BIDB Brunei Darussalam",
+  title: "BIBD Brunei Darussalam",
+  description: "Resit Transaksi BIBD Brunei Darussalam",
   icons: {
     icon: "/bibd_v2.png",
     shortcut: "/bibd_v2.png",
     apple: "/bibd_v2.png",
   },
   openGraph: {
-    title: "BIDB Brunei Darussalam",
-    description: "Resit Transaksi BIDB Brunei Darussalam",
+    title: "BIBD Brunei Darussalam",
+    description: "Resit Transaksi BIBD Brunei Darussalam",
     images: [
       {
         url: "/bibdbrunei_logo_v2.png",
@@ -22,12 +22,12 @@ export const metadata: Metadata = {
       },
     ],
     type: "website",
-    siteName: "BIDB Brunei Darussalam",
+    siteName: "BIBD Brunei Darussalam",
   },
   twitter: {
     card: "summary",
-    title: "BIDB Brunei Darussalam",
-    description: "Resit Transaksi BIDB Brunei Darussalam",
+    title: "BIBD Brunei Darussalam",
+    description: "Resit Transaksi BIBD Brunei Darussalam",
     images: ["/bibdbrunei_logo.jpg"],
   },
 };
