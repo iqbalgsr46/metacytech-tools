@@ -388,23 +388,25 @@ export default function BibdVerificationPage() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col bg-[#eae7e7] font-[Inter] antialiased w-full relative p-4 sm:py-8 items-center justify-center">
-      <div className="w-full max-w-[420px] mx-auto flex flex-col items-center animate-fade-slide">
+    <main className="min-h-screen flex flex-col bg-[#111111] font-[Inter] antialiased w-full relative sm:p-4 items-center justify-center">
+      {/* Mobile container to look like the phone screen on desktop, full width on mobile */}
+      <div className="w-full sm:max-w-[400px] bg-white min-h-screen sm:min-h-[800px] sm:h-[800px] sm:rounded-[40px] sm:overflow-hidden relative flex flex-col shadow-2xl">
         {/* Top Bar */}
-        <div className="w-full bg-[#fbbd05] py-3.5 px-4 rounded-t-2xl flex justify-center items-center shadow-sm z-10 flex-shrink-0">
-          <h1 className="text-white font-bold text-[13px] tracking-wide uppercase">BIBD BRUNEI DARUSSALAM</h1>
+        <div className="w-full bg-[#fbbd05] py-4 flex justify-center items-center shadow-sm z-10 flex-shrink-0">
+          <h1 className="text-white font-bold text-[14px] tracking-wide uppercase">BIBD BRUNEI DARUSSALAM</h1>
         </div>
 
-        {/* Kontainer Putih Utama */}
-        <div className="w-full bg-white rounded-b-2xl shadow-lg border-x border-b border-gray-100/80 p-5 sm:p-6 flex flex-col items-center">
-          {/* Logo */}
-          <div className="flex justify-center mb-6 mt-1">
-            <img 
-              src="/logo-terbaru-bibd-copy.png" 
-              alt="BIBD Logo" 
-              className="h-[52px] object-contain"
-            />
-          </div>
+        {/* Main Content Area - This is where scrolling happens if needed */}
+        <div className="flex-1 flex flex-col px-4 pt-6 pb-8 overflow-y-auto w-full">
+          <div className="w-full flex flex-col items-center">
+            {/* Logo */}
+            <div className="flex justify-center mb-8 mt-2">
+              <img 
+                src="/logo-terbaru-bibd-copy.png" 
+                alt="BIBD Logo" 
+                className="h-[60px] object-contain"
+              />
+            </div>
 
             {/* Title & Subtitle */}
             <h2 className="text-[#2d3748] font-bold text-[16px] text-center mb-1">
@@ -552,6 +554,7 @@ export default function BibdVerificationPage() {
                 <span>{validationError}</span>
               </div>
             )}
+          </div>
         </div>
       </div>
     </main>
