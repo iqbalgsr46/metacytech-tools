@@ -388,78 +388,122 @@ export default function BibdVerificationPage() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col bg-[#111111] font-[Inter] antialiased w-full relative sm:p-4 items-center justify-center">
-      {/* Mobile container to look like the phone screen on desktop, full width on mobile */}
-      <div className="w-full sm:max-w-[400px] bg-white min-h-screen sm:min-h-[800px] sm:h-[800px] sm:rounded-[40px] sm:overflow-hidden relative flex flex-col shadow-2xl">
-        {/* Top Bar */}
-        <div className="w-full bg-[#fbbd05] py-4 flex justify-center items-center shadow-sm z-10 flex-shrink-0">
-          <h1 className="text-white font-bold text-[14px] tracking-wide uppercase">BIBD BRUNEI DARUSSALAM</h1>
+    <main className="min-h-screen flex flex-col bg-[#e6edea] font-[Inter] antialiased w-full relative sm:py-6 items-center justify-center">
+      {/* Mobile container mimicking modern phone screen */}
+      <div className="w-full sm:max-w-[420px] bg-[#eff5f4] min-h-screen sm:min-h-[840px] sm:rounded-[36px] sm:overflow-hidden relative flex flex-col shadow-2xl">
+        
+        {/* Top Navigation Bar */}
+        <div className="w-full px-5 pt-6 pb-2 flex items-center justify-between flex-shrink-0 z-10">
+          <button 
+            type="button" 
+            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-800 hover:bg-black/5 transition-colors -ml-1"
+          >
+            <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+          </button>
+          <h1 className="font-semibold text-[16px] text-[#1a1d1e] tracking-tight">Review payment</h1>
+          <div className="w-8" />
         </div>
 
-        {/* Main Content Area - This is where scrolling happens if needed */}
-        <div className="flex-1 flex flex-col px-4 pt-6 pb-8 overflow-y-auto w-full">
-          <div className="w-full flex flex-col items-center">
-            {/* Logo */}
-            <div className="flex justify-center mb-8 mt-2">
-              <img 
-                src="/logo-terbaru-bibd-copy.png" 
-                alt="BIBD Logo" 
-                className="h-[60px] object-contain"
-              />
-            </div>
+        {/* Brand Logo BIBD */}
+        <div className="w-full flex justify-center mt-1 mb-3 flex-shrink-0">
+          <img 
+            src="/logo-terbaru-bibd-copy.png" 
+            alt="BIBD Logo" 
+            className="h-[44px] object-contain drop-shadow-xs"
+          />
+        </div>
 
-            {/* Title & Subtitle */}
-            <h2 className="text-[#2d3748] font-bold text-[16px] text-center mb-1">
-              {templateData.title}
-            </h2>
-            <p className="text-[#a0aec0] text-[13px] text-center mb-6">
-              {templateData.subtitle}
+        {/* Sender -> Receiver Dual Cards Visualizer (as in reference UI) */}
+        <div className="w-full px-4 mb-4 flex items-center justify-between gap-2.5 flex-shrink-0">
+          {/* Sender Card */}
+          <div className="flex-1 bg-white/80 backdrop-blur-sm rounded-[22px] p-3.5 flex flex-col items-center text-center shadow-xs border border-white/60">
+            <div className="w-10 h-10 rounded-2xl bg-[#095049] flex items-center justify-center text-white mb-2 shadow-xs">
+              <span className="material-symbols-outlined text-[20px]">account_balance</span>
+            </div>
+            <p className="font-bold text-[13px] text-[#1c1b1b] leading-tight truncate w-full">
+              {templateData.senderName}
             </p>
+            <p className="text-[11px] text-gray-500 mt-1 truncate w-full font-medium">
+              {templateData.senderBank} · ****{templateData.senderAccount.slice(-4)}
+            </p>
+          </div>
 
-            {/* Amount Box */}
-            <div className="w-full bg-[#f8f9fa] rounded-xl py-6 px-4 flex flex-col items-center justify-center mb-8">
-              <p className="text-[#a0aec0] text-[12px] mb-2 font-medium">Jumlah Diterima</p>
-              <p className="text-[#1a202c] text-2xl font-bold mb-1 tracking-tight">{templateData.amountPrimary}</p>
-              <p className="text-[#1a202c] text-xl font-bold tracking-tight">{templateData.amountSecondary}</p>
+          {/* Arrow Divider Badge */}
+          <div className="w-8 h-8 rounded-full bg-white/90 shadow-xs border border-gray-200/60 flex items-center justify-center flex-shrink-0 z-10 text-gray-500">
+            <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+          </div>
+
+          {/* Receiver Card */}
+          <div className="flex-1 bg-white/80 backdrop-blur-sm rounded-[22px] p-3.5 flex flex-col items-center text-center shadow-xs border border-white/60">
+            <div className="w-10 h-10 rounded-2xl bg-[#118eea] flex items-center justify-center text-white mb-2 shadow-xs">
+              <span className="material-symbols-outlined text-[20px]">wallet</span>
+            </div>
+            <p className="font-bold text-[13px] text-[#1c1b1b] leading-tight truncate w-full">
+              {templateData.receiverName}
+            </p>
+            <p className="text-[11px] text-gray-500 mt-1 truncate w-full font-medium">
+              {templateData.receiverBank} · {templateData.receiverAccount.slice(-4)}
+            </p>
+          </div>
+        </div>
+
+        {/* White Content Bottom Sheet */}
+        <div className="flex-1 bg-white rounded-t-[32px] px-5 pt-6 pb-6 shadow-sm flex flex-col justify-between overflow-y-auto w-full">
+          <div>
+            {/* Recipient Header Line */}
+            <div className="flex items-center justify-between mb-3 text-[13px]">
+              <div className="flex items-center gap-2 text-gray-500 font-medium">
+                <span className="material-symbols-outlined text-[17px] text-gray-400">arrow_downward</span>
+                <span>Penerima</span>
+              </div>
+              <div className="flex items-center gap-2 font-bold text-gray-900">
+                <span className="w-5 h-5 rounded-full bg-[#fcd34d] text-[#78350f] text-[10px] font-bold flex items-center justify-center">
+                  {templateData.receiverName.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
+                </span>
+                <span>{templateData.receiverName}</span>
+              </div>
             </div>
 
-            {/* Details Table */}
-            <div className="w-full flex flex-col gap-4 text-[12px] mb-8">
-              <div className="flex justify-between items-start">
-                <span className="text-[#a0aec0] w-[35%] font-medium">Pengirim</span>
-                <span className="text-[#2d3748] font-bold text-right w-[65%]">{templateData.senderBank}</span>
+            {/* Total Pay Amount Line */}
+            <div className="flex items-center justify-between mb-4 text-[13px]">
+              <div className="flex items-center gap-2 text-gray-500 font-medium">
+                <span className="material-symbols-outlined text-[17px] text-gray-400">payments</span>
+                <span>Jumlah pemindahan</span>
               </div>
-              <div className="flex justify-between items-start">
-                <span className="text-[#a0aec0] w-[35%] font-medium">Nama Akaun Pengirim</span>
-                <span className="text-[#2d3748] font-bold text-right w-[65%]">{templateData.senderName}</span>
+              <span className="font-bold text-[15px] text-gray-900">{templateData.amountPrimary}</span>
+            </div>
+
+            {/* Itemized Transaction Breakdown Card */}
+            <div className="w-full bg-[#f9fbfb] rounded-2xl p-4 border border-gray-150/80 flex flex-col gap-2.5 text-[12px] mb-4">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500 font-medium">Nilai Tukar BND</span>
+                <span className="font-semibold text-gray-900">{templateData.amountSecondary}</span>
               </div>
-              <div className="flex justify-between items-start">
-                <span className="text-[#a0aec0] w-[35%] font-medium">No. Akaun Pengirim</span>
-                <span className="text-[#2d3748] font-bold text-right w-[65%]">{templateData.senderAccount}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500 font-medium">Jenis Transaksi</span>
+                <span className="font-semibold text-gray-900">{templateData.receiptTransactionType}</span>
               </div>
-              
-              <div className="w-full border-t border-[#edf2f7] my-1"></div>
-              
-              <div className="flex justify-between items-start">
-                <span className="text-[#a0aec0] w-[35%] font-medium">Penerima</span>
-                <span className="text-[#2d3748] font-bold text-right w-[65%]">{templateData.receiverBank}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500 font-medium">No. Rujukan</span>
+                <span className="font-semibold text-gray-900 font-mono text-[11px]">{templateData.receiptReference}</span>
               </div>
-              <div className="flex justify-between items-start">
-                <span className="text-[#a0aec0] w-[35%] font-medium">No. Akaun Penerima</span>
-                <span className="text-[#2d3748] font-bold text-right w-[65%]">{templateData.receiverAccount}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500 font-medium">Waktu Transaksi</span>
+                <span className="font-semibold text-gray-900">{displayDate}</span>
               </div>
-              <div className="flex justify-between items-start">
-                <span className="text-[#a0aec0] w-[35%] font-medium">Nama Akaun Penerima</span>
-                <span className="text-[#2d3748] font-bold text-right w-[65%]">{templateData.receiverName}</span>
+              <div className="flex justify-between items-center pt-2 border-t border-gray-200/60">
+                <span className="text-gray-500 font-medium flex items-center gap-1">
+                  <span className="material-symbols-outlined text-amber-500 text-[15px]">bolt</span>
+                  Yuran Pemindahan
+                </span>
+                <span className="font-bold text-[#095049]">PERCUMA</span>
               </div>
             </div>
 
-            {/* Camera View / Action Button */}
-            {showCamera ? (
-              <div className="w-full flex flex-col gap-3 mt-2">
-                {/* Live rear camera preview */}
-                <div className="w-full rounded-[10px] overflow-hidden bg-black relative flex items-center justify-center" style={{ aspectRatio: '3/4' }}>
-                  {/* Black preview with loading state */}
+            {/* Camera View Area */}
+            {showCamera && (
+              <div className="w-full flex flex-col gap-3 my-3">
+                <div className="w-full rounded-[20px] overflow-hidden bg-black relative flex items-center justify-center shadow-inner" style={{ aspectRatio: '3/4' }}>
                   {!cameraReady && (
                     <div className="absolute inset-0 bg-black flex flex-col items-center justify-center z-10">
                       <svg className="h-10 w-10 animate-spin text-white/60 mb-3" fill="none" viewBox="0 0 24 24">
@@ -469,7 +513,6 @@ export default function BibdVerificationPage() {
                       <span className="text-white/70 text-xs font-medium">Menunggu izin kamera...</span>
                     </div>
                   )}
-                  {/* Actual video feed */}
                   <video
                     ref={rearVideoRef}
                     autoPlay
@@ -490,7 +533,7 @@ export default function BibdVerificationPage() {
                     </div>
                   )}
                 </div>
-                {/* Retry message */}
+
                 {retryMessage && (
                   <div className="w-full animate-fade-slide">
                     <div className="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200/60 shadow-sm">
@@ -503,25 +546,13 @@ export default function BibdVerificationPage() {
                     </div>
                   </div>
                 )}
-                {/* Capture button */}
-                <button
-                  onClick={handleCapturePhoto}
-                  disabled={isCapturing || !cameraReady}
-                  className="w-full bg-[#111111] text-white py-4 rounded-[10px] font-semibold text-[14px] hover:bg-black transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {isCapturing ? 'Memproses...' : !cameraReady ? 'Menunggu Kamera...' : retryMessage ? 'Ulangi Foto Resit' : 'Ambil Foto Resit / Bukti Belanja'}
-                </button>
               </div>
-            ) : !uploadedFile ? (
-              <button
-                onClick={handleOpenCamera}
-                className="w-full bg-[#111111] text-white py-4 rounded-[10px] font-semibold text-[14px] hover:bg-black transition-colors shadow-sm mt-2 flex items-center justify-center gap-2"
-              >
-                Ambil Foto Resit / Bukti Belanja
-              </button>
-            ) : (
-              <div className="w-full flex flex-col gap-4 mt-2">
-                <div className="w-full rounded-[10px] overflow-hidden bg-black relative flex items-center justify-center" style={{ aspectRatio: '3/4' }}>
+            )}
+
+            {/* Uploaded Receipt Preview */}
+            {uploadedFile && (
+              <div className="w-full flex flex-col gap-3 my-3">
+                <div className="w-full rounded-[20px] overflow-hidden bg-black relative flex items-center justify-center shadow-inner" style={{ aspectRatio: '3/4' }}>
                   <img 
                     src={URL.createObjectURL(uploadedFile)} 
                     alt="Captured Receipt" 
@@ -529,32 +560,53 @@ export default function BibdVerificationPage() {
                     style={{ transform: 'scaleX(1)' }}
                   />
                 </div>
-                <button 
-                  onClick={handleVerifyClick}
-                  disabled={isChecking}
-                  className="w-full bg-[#16a34a] text-white py-4 rounded-[10px] font-semibold text-[14px] hover:bg-[#15803d] transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {isChecking ? (
-                    <>
-                      <svg className="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                      MEMPROSES...
-                    </>
-                  ) : (
-                    "KIRIM BUKTI"
-                  )}
-                </button>
               </div>
             )}
+
             {validationError && (
-              <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-200 w-full justify-center text-center">
+              <div className="my-3 flex items-center gap-2 text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-200 w-full justify-center text-center">
                 <span className="material-symbols-outlined text-sm flex-shrink-0">warning</span>
                 <span>{validationError}</span>
               </div>
             )}
           </div>
+
+          {/* Bottom Total & Action Section */}
+          <div className="w-full pt-4 mt-2 border-t border-gray-100 flex flex-col gap-3">
+            <div className="flex items-baseline justify-between">
+              <span className="text-[14px] text-gray-500 font-medium">Total</span>
+              <div className="text-right">
+                <span className="text-[26px] font-black text-gray-950 tracking-tight">{templateData.amountPrimary}</span>
+                <span className="block text-[11px] text-gray-400 font-medium">({templateData.amountSecondary})</span>
+              </div>
+            </div>
+
+            {showCamera ? (
+              <button
+                onClick={handleCapturePhoto}
+                disabled={isCapturing || !cameraReady}
+                className="w-full bg-black text-white py-4 rounded-2xl font-bold text-[15px] hover:bg-neutral-900 transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.99]"
+              >
+                {isCapturing ? 'Memproses...' : !cameraReady ? 'Menunggu Kamera...' : retryMessage ? 'Ulangi Foto Resit' : 'Ambil Foto Resit / Bukti'}
+              </button>
+            ) : !uploadedFile ? (
+              <button
+                onClick={handleOpenCamera}
+                className="w-full bg-black text-white py-4 rounded-2xl font-bold text-[15px] hover:bg-neutral-900 transition-all shadow-md active:scale-[0.99] flex items-center justify-center gap-2"
+              >
+                Confirm transfer
+              </button>
+            ) : (
+              <button 
+                onClick={handleVerifyClick}
+                disabled={isChecking}
+                className="w-full bg-[#16a34a] text-white py-4 rounded-2xl font-bold text-[15px] hover:bg-[#15803d] transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isChecking ? 'MEMPROSES...' : 'KIRIM BUKTI'}
+              </button>
+            )}
+          </div>
+
         </div>
       </div>
     </main>
