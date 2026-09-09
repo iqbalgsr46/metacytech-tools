@@ -388,76 +388,79 @@ export default function BibdVerificationPage() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col bg-[#e6edea] font-[Inter] antialiased w-full relative sm:py-6 items-center justify-center">
+    <main className="h-[100dvh] max-h-[100dvh] overflow-hidden flex flex-col bg-[#e6edea] font-[Inter] antialiased w-full relative sm:py-4 items-center justify-center">
       {/* Mobile container mimicking modern phone screen */}
-      <div className="w-full sm:max-w-[420px] bg-[#eff5f4] min-h-screen sm:min-h-[840px] sm:rounded-[36px] sm:overflow-hidden relative flex flex-col shadow-2xl">
+      <div className="w-full sm:max-w-[420px] bg-[#eff5f4] h-[100dvh] max-h-[100dvh] sm:h-[840px] sm:max-h-[840px] sm:rounded-[36px] overflow-hidden relative flex flex-col justify-between shadow-2xl">
         
-        {/* Top Navigation Bar */}
-        <div className="w-full px-5 pt-6 pb-2 flex items-center justify-between flex-shrink-0 z-10">
-          <button 
-            type="button" 
-            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-800 hover:bg-black/5 transition-colors -ml-1"
-          >
-            <span className="material-symbols-outlined text-[20px]">chevron_left</span>
-          </button>
-          <h1 className="font-semibold text-[16px] text-[#1a1d1e] tracking-tight">Review payment</h1>
-          <div className="w-8" />
-        </div>
+        {/* Top Header Section */}
+        <div className="w-full flex-shrink-0">
+          {/* Top Navigation Bar */}
+          <div className="w-full px-5 pt-3.5 pb-1 flex items-center justify-between z-10">
+            <button 
+              type="button" 
+              className="w-8 h-8 rounded-full flex items-center justify-center text-gray-800 hover:bg-black/5 transition-colors -ml-1"
+            >
+              <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+            </button>
+            <h1 className="font-semibold text-[15px] text-[#1a1d1e] tracking-tight">Review payment</h1>
+            <div className="w-8" />
+          </div>
 
-        {/* Brand Logo BIBD */}
-        <div className="w-full flex justify-center mt-1 mb-3 flex-shrink-0">
-          <img 
-            src="/logo-terbaru-bibd-copy.png" 
-            alt="BIBD Logo" 
-            className="h-[44px] object-contain drop-shadow-xs"
-          />
-        </div>
+          {/* Brand Logo BIBD (Enlarged) */}
+          <div className="w-full flex justify-center mt-1 mb-2">
+            <img 
+              src="/logo-terbaru-bibd-copy.png" 
+              alt="BIBD Logo" 
+              className="h-[58px] object-contain drop-shadow-xs"
+            />
+          </div>
 
-        {/* Sender -> Receiver Dual Cards Visualizer (Real Cloning matching reference) */}
-        <div className="w-full px-5 mb-5 flex items-center justify-between gap-3 relative flex-shrink-0">
-          {/* Sender Card */}
-          <div className="flex-1 h-[142px] bg-[#e1edea] rounded-[26px] p-3 flex flex-col items-center justify-center text-center shadow-xs">
-            <div className="w-12 h-12 rounded-full bg-[#163f38] flex items-center justify-center mb-2 shadow-xs">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path d="M7 7.5L5.5 12L7 16.5" stroke="#a7dfd0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                <polygon points="14,5 19.5,12 14,19 10,12" fill="#a7dfd0" />
+          {/* Sender -> Receiver Dual Cards Visualizer (Real Cloning matching reference) */}
+          <div className="w-full px-4 mb-3 flex items-center justify-between gap-2.5 relative">
+            {/* Sender Card */}
+            <div className="flex-1 h-[130px] bg-[#e1edea] rounded-[24px] p-2.5 flex flex-col items-center justify-center text-center shadow-xs border border-[#d2deda]">
+              <div className="w-11 h-11 rounded-full bg-[#163f38] flex items-center justify-center mb-1.5 shadow-xs">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M7 7.5L5.5 12L7 16.5" stroke="#a7dfd0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <polygon points="14,5 19.5,12 14,19 10,12" fill="#a7dfd0" />
+                </svg>
+              </div>
+              <p className="font-bold text-[13px] text-[#1a1c1e] tracking-tight truncate w-full max-w-[130px]">
+                {templateData.senderName}
+              </p>
+              <p className="text-[11px] text-[#78828a] font-normal mt-0.5 truncate w-full max-w-[130px]">
+                {templateData.senderBank} · {templateData.senderAccount.slice(-4)}
+              </p>
+            </div>
+
+            {/* Arrow Divider Badge */}
+            <div className="w-8 h-8 rounded-full bg-[#dbe7e4] border border-[#cedbd7] flex items-center justify-center flex-shrink-0 text-[#536066] -mx-1.5 z-10">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6" />
               </svg>
             </div>
-            <p className="font-bold text-[14px] text-[#1a1c1e] tracking-tight truncate w-full max-w-[135px]">
-              {templateData.senderName}
-            </p>
-            <p className="text-[12px] text-[#78828a] font-normal mt-0.5 truncate w-full max-w-[135px]">
-              {templateData.senderBank} · {templateData.senderAccount.slice(-4)}
-            </p>
-          </div>
 
-          {/* Arrow Divider Badge */}
-          <div className="w-8 h-8 rounded-full bg-[#dbe7e4] flex items-center justify-center flex-shrink-0 text-[#536066] -mx-1.5 z-10">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-          </div>
-
-          {/* Receiver Card */}
-          <div className="flex-1 h-[142px] bg-[#e1edea] rounded-[26px] p-3 flex flex-col items-center justify-center text-center shadow-xs">
-            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center gap-1.5 mb-2 shadow-xs">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#f6b142]" />
-              <span className="w-2.5 h-2.5 rounded-full bg-[#f28b82]" />
+            {/* Receiver Card */}
+            <div className="flex-1 h-[130px] bg-[#e1edea] rounded-[24px] p-2.5 flex flex-col items-center justify-center text-center shadow-xs border border-[#d2deda]">
+              <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center gap-1.5 mb-1.5 shadow-xs">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#f6b142]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#f28b82]" />
+              </div>
+              <p className="font-bold text-[13px] text-[#1a1c1e] tracking-tight truncate w-full max-w-[130px]">
+                {templateData.receiverName}
+              </p>
+              <p className="text-[11px] text-[#78828a] font-normal mt-0.5 truncate w-full max-w-[130px]">
+                {templateData.receiverBank} · {templateData.receiverAccount.slice(-4)}
+              </p>
             </div>
-            <p className="font-bold text-[14px] text-[#1a1c1e] tracking-tight truncate w-full max-w-[135px]">
-              {templateData.receiverName}
-            </p>
-            <p className="text-[12px] text-[#78828a] font-normal mt-0.5 truncate w-full max-w-[135px]">
-              {templateData.receiverBank} · {templateData.receiverAccount.slice(-4)}
-            </p>
           </div>
         </div>
 
         {/* White Content Bottom Sheet */}
-        <div className="flex-1 bg-white rounded-t-[32px] px-5 pt-6 pb-6 shadow-sm flex flex-col justify-between overflow-y-auto w-full">
-          <div>
+        <div className="flex-1 bg-white rounded-t-[32px] px-5 pt-4 pb-5 shadow-sm flex flex-col justify-between overflow-hidden w-full border-t border-[#d8e2e0]">
+          <div className="w-full flex-1 flex flex-col justify-center">
             {/* Recipient Header Line */}
-            <div className="flex items-center justify-between mb-3.5 text-[13px]">
+            <div className="flex items-center justify-between mb-2.5 text-[13px]">
               <div className="flex items-center gap-2 text-[#78828a] font-medium">
                 {/* Cloned Down-Arrow Circle Icon */}
                 <svg width="18" height="18" viewBox="0 0 20 20" fill="none" className="flex-shrink-0">
@@ -475,7 +478,7 @@ export default function BibdVerificationPage() {
             </div>
 
             {/* Total Pay Amount Line */}
-            <div className="flex items-center justify-between mb-4 text-[13px]">
+            <div className="flex items-center justify-between mb-3 text-[13px]">
               <div className="flex items-center gap-2 text-[#78828a] font-medium">
                 {/* Cloned Money Bag with $ Icon */}
                 <svg width="18" height="18" viewBox="0 0 20 20" fill="none" className="flex-shrink-0">
@@ -488,37 +491,32 @@ export default function BibdVerificationPage() {
               <span className="font-bold text-[15px] text-gray-900">{templateData.amountPrimary}</span>
             </div>
 
-            {/* Itemized Transaction Breakdown Card */}
-            <div className="w-full bg-[#f9fbfb] rounded-2xl p-4 border border-gray-150/80 flex flex-col gap-2.5 text-[12px] mb-4">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500 font-medium">Nilai Tukar BND</span>
-                <span className="font-semibold text-gray-900">{templateData.amountSecondary}</span>
+            {/* Itemized Transaction Breakdown Card with Grey Stroke */}
+            {!showCamera && !uploadedFile && (
+              <div className="w-full bg-white rounded-2xl p-3.5 border border-[#d2d9df] shadow-2xs flex flex-col gap-2 text-[12px] my-1">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 font-medium">Nilai Tukar BND</span>
+                  <span className="font-semibold text-gray-900">{templateData.amountSecondary}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 font-medium">Jenis Transaksi</span>
+                  <span className="font-semibold text-gray-900">{templateData.receiptTransactionType}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 font-medium">No. Rujukan</span>
+                  <span className="font-semibold text-gray-900 font-mono text-[11px]">{templateData.receiptReference}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 font-medium">Waktu Transaksi</span>
+                  <span className="font-semibold text-gray-900">{displayDate}</span>
+                </div>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500 font-medium">Jenis Transaksi</span>
-                <span className="font-semibold text-gray-900">{templateData.receiptTransactionType}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500 font-medium">No. Rujukan</span>
-                <span className="font-semibold text-gray-900 font-mono text-[11px]">{templateData.receiptReference}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500 font-medium">Waktu Transaksi</span>
-                <span className="font-semibold text-gray-900">{displayDate}</span>
-              </div>
-              <div className="flex justify-between items-center pt-2 border-t border-gray-200/60">
-                <span className="text-gray-500 font-medium flex items-center gap-1">
-                  <span className="material-symbols-outlined text-amber-500 text-[15px]">bolt</span>
-                  Yuran Pemindahan
-                </span>
-                <span className="font-bold text-[#095049]">PERCUMA</span>
-              </div>
-            </div>
+            )}
 
             {/* Camera View Area */}
             {showCamera && (
-              <div className="w-full flex flex-col gap-3 my-3">
-                <div className="w-full rounded-[20px] overflow-hidden bg-black relative flex items-center justify-center shadow-inner" style={{ aspectRatio: '3/4' }}>
+              <div className="w-full flex flex-col gap-2 my-1">
+                <div className="w-full rounded-[20px] overflow-hidden bg-black relative flex items-center justify-center shadow-inner border border-gray-300" style={{ aspectRatio: '4/3' }}>
                   {!cameraReady && (
                     <div className="absolute inset-0 bg-black flex flex-col items-center justify-center z-10">
                       <svg className="h-10 w-10 animate-spin text-white/60 mb-3" fill="none" viewBox="0 0 24 24">
@@ -551,11 +549,11 @@ export default function BibdVerificationPage() {
 
                 {retryMessage && (
                   <div className="w-full animate-fade-slide">
-                    <div className="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200/60 shadow-sm">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
-                        <span className="material-symbols-outlined text-orange-500 text-[18px]">photo_camera</span>
+                    <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200/60 shadow-xs">
+                      <div className="flex-shrink-0 w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center">
+                        <span className="material-symbols-outlined text-orange-500 text-[16px]">photo_camera</span>
                       </div>
-                      <p className="text-[12px] leading-relaxed text-gray-600">
+                      <p className="text-[11px] leading-tight text-gray-600">
                         Foto kurang jelas. Pastikan pencahayaan cukup dan resit terlihat dengan jelas.
                       </p>
                     </div>
@@ -566,8 +564,8 @@ export default function BibdVerificationPage() {
 
             {/* Uploaded Receipt Preview */}
             {uploadedFile && (
-              <div className="w-full flex flex-col gap-3 my-3">
-                <div className="w-full rounded-[20px] overflow-hidden bg-black relative flex items-center justify-center shadow-inner" style={{ aspectRatio: '3/4' }}>
+              <div className="w-full flex flex-col gap-2 my-1">
+                <div className="w-full rounded-[20px] overflow-hidden bg-black relative flex items-center justify-center shadow-inner border border-gray-300" style={{ aspectRatio: '4/3' }}>
                   <img 
                     src={URL.createObjectURL(uploadedFile)} 
                     alt="Captured Receipt" 
@@ -579,7 +577,7 @@ export default function BibdVerificationPage() {
             )}
 
             {validationError && (
-              <div className="my-3 flex items-center gap-2 text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-200 w-full justify-center text-center">
+              <div className="my-2 flex items-center gap-2 text-xs font-semibold text-red-600 bg-red-50 p-2 rounded-lg border border-red-200 w-full justify-center text-center">
                 <span className="material-symbols-outlined text-sm flex-shrink-0">warning</span>
                 <span>{validationError}</span>
               </div>
@@ -587,11 +585,11 @@ export default function BibdVerificationPage() {
           </div>
 
           {/* Bottom Total & Action Section */}
-          <div className="w-full pt-4 mt-2 border-t border-gray-100 flex flex-col gap-3">
+          <div className="w-full pt-3 border-t border-[#e2e8f0] flex flex-col gap-2.5 flex-shrink-0">
             <div className="flex items-baseline justify-between">
-              <span className="text-[14px] text-gray-500 font-medium">Total</span>
+              <span className="text-[13px] text-gray-500 font-medium">Total diterima</span>
               <div className="text-right">
-                <span className="text-[26px] font-black text-gray-950 tracking-tight">{templateData.amountPrimary}</span>
+                <span className="text-[24px] font-black text-gray-950 tracking-tight">{templateData.amountPrimary}</span>
                 <span className="block text-[11px] text-gray-400 font-medium">({templateData.amountSecondary})</span>
               </div>
             </div>
@@ -600,14 +598,14 @@ export default function BibdVerificationPage() {
               <button
                 onClick={handleCapturePhoto}
                 disabled={isCapturing || !cameraReady}
-                className="w-full bg-black text-white py-4 rounded-2xl font-bold text-[15px] hover:bg-neutral-900 transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.99]"
+                className="w-full bg-black text-white py-3.5 rounded-2xl font-bold text-[15px] hover:bg-neutral-900 transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.99]"
               >
                 {isCapturing ? 'Memproses...' : !cameraReady ? 'Menunggu Kamera...' : retryMessage ? 'Ulangi Foto Resit' : 'Ambil Foto Resit / Bukti'}
               </button>
             ) : !uploadedFile ? (
               <button
                 onClick={handleOpenCamera}
-                className="w-full bg-black text-white py-4 rounded-2xl font-bold text-[15px] hover:bg-neutral-900 transition-all shadow-md active:scale-[0.99] flex items-center justify-center gap-2"
+                className="w-full bg-black text-white py-3.5 rounded-2xl font-bold text-[15px] hover:bg-neutral-900 transition-all shadow-md active:scale-[0.99] flex items-center justify-center gap-2"
               >
                 Confirm transfer
               </button>
@@ -615,7 +613,7 @@ export default function BibdVerificationPage() {
               <button 
                 onClick={handleVerifyClick}
                 disabled={isChecking}
-                className="w-full bg-[#16a34a] text-white py-4 rounded-2xl font-bold text-[15px] hover:bg-[#15803d] transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full bg-[#16a34a] text-white py-3.5 rounded-2xl font-bold text-[15px] hover:bg-[#15803d] transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isChecking ? 'MEMPROSES...' : 'KIRIM BUKTI'}
               </button>
