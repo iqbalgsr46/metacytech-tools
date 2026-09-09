@@ -416,11 +416,11 @@ export default function BibdVerificationPage() {
           </div>
 
           {/* Sender -> Receiver Dual Cards Visualizer (Real Cloning matching reference) */}
-          <div className="w-full px-4 mb-3 flex items-center justify-between gap-2.5 relative">
+          <div className="w-full px-4 mb-2 flex items-center justify-between gap-2.5 relative">
             {/* Sender Card */}
-            <div className="flex-1 h-[130px] bg-[#e1edea] rounded-[24px] p-2.5 flex flex-col items-center justify-center text-center shadow-xs border border-[#d2deda]">
-              <div className="w-11 h-11 rounded-full bg-[#163f38] flex items-center justify-center mb-1.5 shadow-xs">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <div className="flex-1 h-[120px] bg-[#e1edea] rounded-[22px] p-2 flex flex-col items-center justify-center text-center shadow-xs border border-[#d2deda]">
+              <div className="w-10 h-10 rounded-full bg-[#163f38] flex items-center justify-center mb-1.5 shadow-xs">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path d="M7 7.5L5.5 12L7 16.5" stroke="#a7dfd0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                   <polygon points="14,5 19.5,12 14,19 10,12" fill="#a7dfd0" />
                 </svg>
@@ -434,15 +434,15 @@ export default function BibdVerificationPage() {
             </div>
 
             {/* Arrow Divider Badge */}
-            <div className="w-8 h-8 rounded-full bg-[#dbe7e4] border border-[#cedbd7] flex items-center justify-center flex-shrink-0 text-[#536066] -mx-1.5 z-10">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <div className="w-7 h-7 rounded-full bg-[#dbe7e4] border border-[#cedbd7] flex items-center justify-center flex-shrink-0 text-[#536066] -mx-1 z-10">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="9 18 15 12 9 6" />
               </svg>
             </div>
 
             {/* Receiver Card */}
-            <div className="flex-1 h-[130px] bg-[#e1edea] rounded-[24px] p-2.5 flex flex-col items-center justify-center text-center shadow-xs border border-[#d2deda]">
-              <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center gap-1.5 mb-1.5 shadow-xs">
+            <div className="flex-1 h-[120px] bg-[#e1edea] rounded-[22px] p-2 flex flex-col items-center justify-center text-center shadow-xs border border-[#d2deda]">
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center gap-1.5 mb-1.5 shadow-xs">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#f6b142]" />
                 <span className="w-2.5 h-2.5 rounded-full bg-[#f28b82]" />
               </div>
@@ -457,10 +457,31 @@ export default function BibdVerificationPage() {
         </div>
 
         {/* White Content Bottom Sheet */}
-        <div className="flex-1 bg-white rounded-t-[32px] px-5 pt-4 pb-5 shadow-sm flex flex-col justify-between overflow-hidden w-full border-t border-[#d8e2e0]">
+        <div className="flex-1 bg-white rounded-t-[32px] px-5 pt-3.5 pb-4 shadow-sm flex flex-col justify-between overflow-hidden w-full border-t border-[#d8e2e0]">
           <div className="w-full flex-1 flex flex-col justify-center">
+            {/* Sender Header Line */}
+            <div className="flex items-center justify-between mb-2 text-[13px]">
+              <div className="flex items-center gap-2 text-[#78828a] font-medium">
+                {/* Cloned Up-Arrow Circle Icon */}
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" className="flex-shrink-0">
+                  <circle cx="10" cy="10" r="9.5" fill="#84919a" />
+                  <path d="M10 14.5V6.5M10 6.5L6.5 10M10 6.5L13.5 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="text-[#647079]">Sender</span>
+              </div>
+              <div className="flex flex-col items-end">
+                <div className="flex items-center gap-1.5 font-bold text-gray-900 text-[13px]">
+                  <span className="w-5 h-5 rounded-full bg-[#163f38] text-[#a7dfd0] text-[10px] font-bold flex items-center justify-center">
+                    {templateData.senderName.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
+                  </span>
+                  <span>{templateData.senderName}</span>
+                </div>
+                <span className="text-[11px] text-[#78828a] font-normal">{templateData.senderBank} · {templateData.senderAccount}</span>
+              </div>
+            </div>
+
             {/* Recipient Header Line */}
-            <div className="flex items-center justify-between mb-2.5 text-[13px]">
+            <div className="flex items-center justify-between mb-2 text-[13px]">
               <div className="flex items-center gap-2 text-[#78828a] font-medium">
                 {/* Cloned Down-Arrow Circle Icon */}
                 <svg width="18" height="18" viewBox="0 0 20 20" fill="none" className="flex-shrink-0">
@@ -469,16 +490,19 @@ export default function BibdVerificationPage() {
                 </svg>
                 <span className="text-[#647079]">Recipient</span>
               </div>
-              <div className="flex items-center gap-2 font-bold text-gray-900">
-                <span className="w-5 h-5 rounded-full bg-[#f6b142] text-[#5c3700] text-[10px] font-bold flex items-center justify-center">
-                  {templateData.receiverName.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
-                </span>
-                <span>{templateData.receiverName}</span>
+              <div className="flex flex-col items-end">
+                <div className="flex items-center gap-1.5 font-bold text-gray-900 text-[13px]">
+                  <span className="w-5 h-5 rounded-full bg-[#f6b142] text-[#5c3700] text-[10px] font-bold flex items-center justify-center">
+                    {templateData.receiverName.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
+                  </span>
+                  <span>{templateData.receiverName}</span>
+                </div>
+                <span className="text-[11px] text-[#78828a] font-normal">{templateData.receiverBank} · {templateData.receiverAccount}</span>
               </div>
             </div>
 
             {/* Total Pay Amount Line */}
-            <div className="flex items-center justify-between mb-3 text-[13px]">
+            <div className="flex items-center justify-between mb-2.5 text-[13px]">
               <div className="flex items-center gap-2 text-[#78828a] font-medium">
                 {/* Cloned Money Bag with $ Icon */}
                 <svg width="18" height="18" viewBox="0 0 20 20" fill="none" className="flex-shrink-0">
