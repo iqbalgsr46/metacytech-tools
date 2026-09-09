@@ -460,7 +460,7 @@ export default function BibdVerificationPage() {
         <div className="flex-1 bg-white rounded-t-[32px] px-5 pt-3.5 pb-4 shadow-sm flex flex-col justify-between overflow-hidden w-full border-t border-[#d8e2e0]">
           <div className="w-full flex-1 flex flex-col justify-center">
             {/* Sender Header Line */}
-            <div className="flex items-center justify-between mb-2 text-[13px]">
+            <div className="flex items-center justify-between py-1.5 text-[13px]">
               <div className="flex items-center gap-2 text-[#78828a] font-medium">
                 {/* Cloned Up-Arrow Circle Icon */}
                 <svg width="18" height="18" viewBox="0 0 20 20" fill="none" className="flex-shrink-0">
@@ -469,19 +469,16 @@ export default function BibdVerificationPage() {
                 </svg>
                 <span className="text-[#647079]">Sender</span>
               </div>
-              <div className="flex flex-col items-end">
-                <div className="flex items-center gap-1.5 font-bold text-gray-900 text-[13px]">
-                  <span className="w-5 h-5 rounded-full bg-[#163f38] text-[#a7dfd0] text-[10px] font-bold flex items-center justify-center">
-                    {templateData.senderName.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
-                  </span>
-                  <span>{templateData.senderName}</span>
-                </div>
-                <span className="text-[11px] text-[#78828a] font-normal">{templateData.senderBank} · {templateData.senderAccount}</span>
+              <div className="flex items-center gap-1.5 font-bold text-gray-900 text-[13px]">
+                <span className="w-5 h-5 rounded-full bg-[#e6f4ea] text-[#137333] text-[9.5px] font-bold flex items-center justify-center border border-[#ceead6]">
+                  {templateData.senderName.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
+                </span>
+                <span>{templateData.senderName}</span>
               </div>
             </div>
 
             {/* Recipient Header Line */}
-            <div className="flex items-center justify-between mb-2 text-[13px]">
+            <div className="flex items-center justify-between py-1.5 text-[13px]">
               <div className="flex items-center gap-2 text-[#78828a] font-medium">
                 {/* Cloned Down-Arrow Circle Icon */}
                 <svg width="18" height="18" viewBox="0 0 20 20" fill="none" className="flex-shrink-0">
@@ -490,19 +487,16 @@ export default function BibdVerificationPage() {
                 </svg>
                 <span className="text-[#647079]">Recipient</span>
               </div>
-              <div className="flex flex-col items-end">
-                <div className="flex items-center gap-1.5 font-bold text-gray-900 text-[13px]">
-                  <span className="w-5 h-5 rounded-full bg-[#f6b142] text-[#5c3700] text-[10px] font-bold flex items-center justify-center">
-                    {templateData.receiverName.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
-                  </span>
-                  <span>{templateData.receiverName}</span>
-                </div>
-                <span className="text-[11px] text-[#78828a] font-normal">{templateData.receiverBank} · {templateData.receiverAccount}</span>
+              <div className="flex items-center gap-1.5 font-bold text-gray-900 text-[13px]">
+                <span className="w-5 h-5 rounded-full bg-[#fef3c7] text-[#b45309] text-[9.5px] font-bold flex items-center justify-center border border-[#fde68a]">
+                  {templateData.receiverName.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
+                </span>
+                <span>{templateData.receiverName}</span>
               </div>
             </div>
 
             {/* Total Pay Amount Line */}
-            <div className="flex items-center justify-between mb-2.5 text-[13px]">
+            <div className="flex items-center justify-between py-1.5 text-[13px]">
               <div className="flex items-center gap-2 text-[#78828a] font-medium">
                 {/* Cloned Money Bag with $ Icon */}
                 <svg width="18" height="18" viewBox="0 0 20 20" fill="none" className="flex-shrink-0">
@@ -517,14 +511,23 @@ export default function BibdVerificationPage() {
 
             {/* Itemized Transaction Breakdown Card with Grey Stroke */}
             {!showCamera && !uploadedFile && (
-              <div className="w-full bg-white rounded-2xl p-3.5 border border-[#d2d9df] shadow-2xs flex flex-col gap-2 text-[12px] my-1">
+              <div className="w-full bg-[#fbfcfc] rounded-2xl p-3.5 border border-[#d2d9df] shadow-2xs flex flex-col gap-2 text-[12px] my-1">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 font-medium">Akun Pengirim</span>
+                  <span className="font-semibold text-gray-900 text-right">{templateData.senderBank} · {templateData.senderAccount}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 font-medium">Akun Penerima</span>
+                  <span className="font-semibold text-gray-900 text-right">{templateData.receiverBank} · {templateData.receiverAccount}</span>
+                </div>
+                <div className="w-full h-px bg-gray-200/80 my-0.5" />
                 <div className="flex justify-between items-center">
                   <span className="text-gray-500 font-medium">Nilai Tukar BND</span>
                   <span className="font-semibold text-gray-900">{templateData.amountSecondary}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-500 font-medium">Jenis Transaksi</span>
-                  <span className="font-semibold text-gray-900">{templateData.receiptTransactionType}</span>
+                  <span className="font-semibold text-gray-900">Transfer Internasional</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-500 font-medium">No. Rujukan</span>
