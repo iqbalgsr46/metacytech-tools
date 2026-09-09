@@ -6,7 +6,7 @@
 
 export const REDIRECT_CONFIG = {
   // Link tujuan redirect
-  targetUrl: "/data-bjorka", 
+  targetUrl: "/", 
   
   // Durasi countdown sebelum redirect (detik)
   countdownDuration: 5,
