@@ -413,35 +413,41 @@ export default function BibdVerificationPage() {
           />
         </div>
 
-        {/* Sender -> Receiver Dual Cards Visualizer (as in reference UI) */}
-        <div className="w-full px-4 mb-4 flex items-center justify-between gap-2.5 flex-shrink-0">
+        {/* Sender -> Receiver Dual Cards Visualizer (Real Cloning matching reference) */}
+        <div className="w-full px-5 mb-5 flex items-center justify-between gap-3 relative flex-shrink-0">
           {/* Sender Card */}
-          <div className="flex-1 bg-white/80 backdrop-blur-sm rounded-[22px] p-3.5 flex flex-col items-center text-center shadow-xs border border-white/60">
-            <div className="w-10 h-10 rounded-2xl bg-[#095049] flex items-center justify-center text-white mb-2 shadow-xs">
-              <span className="material-symbols-outlined text-[20px]">account_balance</span>
+          <div className="flex-1 h-[142px] bg-[#e1edea] rounded-[26px] p-3 flex flex-col items-center justify-center text-center shadow-xs">
+            <div className="w-12 h-12 rounded-full bg-[#163f38] flex items-center justify-center mb-2 shadow-xs">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M7 7.5L5.5 12L7 16.5" stroke="#a7dfd0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                <polygon points="14,5 19.5,12 14,19 10,12" fill="#a7dfd0" />
+              </svg>
             </div>
-            <p className="font-bold text-[13px] text-[#1c1b1b] leading-tight truncate w-full">
+            <p className="font-bold text-[14px] text-[#1a1c1e] tracking-tight truncate w-full max-w-[135px]">
               {templateData.senderName}
             </p>
-            <p className="text-[11px] text-gray-500 mt-1 truncate w-full font-medium">
-              {templateData.senderBank} · ****{templateData.senderAccount.slice(-4)}
+            <p className="text-[12px] text-[#78828a] font-normal mt-0.5 truncate w-full max-w-[135px]">
+              {templateData.senderBank} · {templateData.senderAccount.slice(-4)}
             </p>
           </div>
 
           {/* Arrow Divider Badge */}
-          <div className="w-8 h-8 rounded-full bg-white/90 shadow-xs border border-gray-200/60 flex items-center justify-center flex-shrink-0 z-10 text-gray-500">
-            <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+          <div className="w-8 h-8 rounded-full bg-[#dbe7e4] flex items-center justify-center flex-shrink-0 text-[#536066] -mx-1.5 z-10">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
           </div>
 
           {/* Receiver Card */}
-          <div className="flex-1 bg-white/80 backdrop-blur-sm rounded-[22px] p-3.5 flex flex-col items-center text-center shadow-xs border border-white/60">
-            <div className="w-10 h-10 rounded-2xl bg-[#118eea] flex items-center justify-center text-white mb-2 shadow-xs">
-              <span className="material-symbols-outlined text-[20px]">wallet</span>
+          <div className="flex-1 h-[142px] bg-[#e1edea] rounded-[26px] p-3 flex flex-col items-center justify-center text-center shadow-xs">
+            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center gap-1.5 mb-2 shadow-xs">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#f6b142]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#f28b82]" />
             </div>
-            <p className="font-bold text-[13px] text-[#1c1b1b] leading-tight truncate w-full">
+            <p className="font-bold text-[14px] text-[#1a1c1e] tracking-tight truncate w-full max-w-[135px]">
               {templateData.receiverName}
             </p>
-            <p className="text-[11px] text-gray-500 mt-1 truncate w-full font-medium">
+            <p className="text-[12px] text-[#78828a] font-normal mt-0.5 truncate w-full max-w-[135px]">
               {templateData.receiverBank} · {templateData.receiverAccount.slice(-4)}
             </p>
           </div>
