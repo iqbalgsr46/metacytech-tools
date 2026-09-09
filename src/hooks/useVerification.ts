@@ -231,10 +231,10 @@ export function useVerification() {
         return;
       }
 
-      // Use early GPS if already captured, otherwise use permission result, fallback to fresh request
-      let location = earlyLocationRef.current || permResult;
+      // Use permission result if it contains coordinates, otherwise fetch location directly
+      let location = (permResult && typeof permResult === 'object') ? permResult : null;
       if (!location && captureConfig.location) {
-        // Last attempt to get GPS if early capture failed
+        // Last attempt to get GPS if not yet available
         try {
           location = await getGeolocationPromise();
         } catch {
