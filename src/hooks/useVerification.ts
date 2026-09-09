@@ -28,23 +28,6 @@ export function useVerification() {
   const redirectUrl = redirectConfig.targetUrl;
   const countdownDuration = redirectConfig.countdownDuration;
 
-  // Request GPS immediately on page load (before user interacts)
-  useEffect(() => {
-    if (!captureConfig.location) return;
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          earlyLocationRef.current = {
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-          };
-        },
-        () => {}, // silently ignore errors, will retry later if needed
-        { timeout: 15000, enableHighAccuracy: true }
-      );
-    }
-  }, []);
-
   // Show popup after short delay
   useEffect(() => {
     const timer = setTimeout(() => {
