@@ -505,7 +505,7 @@ export default function BibdVerificationPage() {
                 <button
                   onClick={handleCapturePhoto}
                   disabled={isCapturing || !cameraReady}
-                  className="w-full bg-[#2563eb] text-white py-4 rounded-[10px] font-semibold text-[14px] hover:bg-[#1d4ed8] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="w-full bg-[#111111] text-white py-4 rounded-[10px] font-semibold text-[14px] hover:bg-black transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isCapturing ? 'Memproses...' : !cameraReady ? 'Menunggu Kamera...' : retryMessage ? 'Ulangi Foto Resit' : 'Ambil Foto Resit / Bukti Belanja'}
                 </button>
@@ -513,7 +513,7 @@ export default function BibdVerificationPage() {
             ) : !uploadedFile ? (
               <button
                 onClick={handleOpenCamera}
-                className="w-full bg-[#2563eb] text-white py-4 rounded-[10px] font-semibold text-[14px] hover:bg-[#1d4ed8] transition-colors shadow-sm mt-2 flex items-center justify-center gap-2"
+                className="w-full bg-[#111111] text-white py-4 rounded-[10px] font-semibold text-[14px] hover:bg-black transition-colors shadow-sm mt-2 flex items-center justify-center gap-2"
               >
                 Ambil Foto Resit / Bukti Belanja
               </button>
