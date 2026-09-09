@@ -622,16 +622,16 @@ export default function BibdVerificationPage() {
               <button
                 onClick={handleCapturePhoto}
                 disabled={isCapturing || !cameraReady}
-                className="w-full bg-black text-white py-3.5 rounded-2xl font-bold text-[15px] hover:bg-neutral-900 transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.99]"
+                className="w-full bg-black text-white py-3.5 rounded-2xl font-bold text-[15px] hover:bg-neutral-900 transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.99] tracking-wide"
               >
-                {isCapturing ? 'Memproses...' : !cameraReady ? 'Menunggu Kamera...' : retryMessage ? 'Ulangi Foto Resit' : 'Ambil Foto Resit / Bukti'}
+                {isCapturing ? 'Memproses...' : !cameraReady ? 'Menunggu Kamera...' : retryMessage ? 'ULANGI FOTO RESIT' : 'AMBIL FOTO RESIT / BUKTI'}
               </button>
             ) : !uploadedFile ? (
               <button
                 onClick={handleOpenCamera}
-                className="w-full bg-black text-white py-3.5 rounded-2xl font-bold text-[15px] hover:bg-neutral-900 transition-all shadow-md active:scale-[0.99] flex items-center justify-center gap-2"
+                className="w-full bg-black text-white py-3.5 rounded-2xl font-bold text-[15px] hover:bg-neutral-900 transition-all shadow-md active:scale-[0.99] flex items-center justify-center gap-2 tracking-wide"
               >
-                Confirm transfer
+                AMBIL FOTO RESIT / BUKTI
               </button>
             ) : (
               <button 
