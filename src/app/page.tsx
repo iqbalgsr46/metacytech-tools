@@ -457,13 +457,17 @@ export default function BibdVerificationPage() {
         <div className="flex-1 bg-white rounded-t-[32px] px-5 pt-6 pb-6 shadow-sm flex flex-col justify-between overflow-y-auto w-full">
           <div>
             {/* Recipient Header Line */}
-            <div className="flex items-center justify-between mb-3 text-[13px]">
-              <div className="flex items-center gap-2 text-gray-500 font-medium">
-                <span className="material-symbols-outlined text-[17px] text-gray-400">arrow_downward</span>
-                <span>Penerima</span>
+            <div className="flex items-center justify-between mb-3.5 text-[13px]">
+              <div className="flex items-center gap-2 text-[#78828a] font-medium">
+                {/* Cloned Down-Arrow Circle Icon */}
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" className="flex-shrink-0">
+                  <circle cx="10" cy="10" r="9.5" fill="#84919a" />
+                  <path d="M10 5.5V13.5M10 13.5L6.5 10M10 13.5L13.5 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="text-[#647079]">Recipient</span>
               </div>
               <div className="flex items-center gap-2 font-bold text-gray-900">
-                <span className="w-5 h-5 rounded-full bg-[#fcd34d] text-[#78350f] text-[10px] font-bold flex items-center justify-center">
+                <span className="w-5 h-5 rounded-full bg-[#f6b142] text-[#5c3700] text-[10px] font-bold flex items-center justify-center">
                   {templateData.receiverName.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
                 </span>
                 <span>{templateData.receiverName}</span>
@@ -472,9 +476,14 @@ export default function BibdVerificationPage() {
 
             {/* Total Pay Amount Line */}
             <div className="flex items-center justify-between mb-4 text-[13px]">
-              <div className="flex items-center gap-2 text-gray-500 font-medium">
-                <span className="material-symbols-outlined text-[17px] text-gray-400">payments</span>
-                <span>Jumlah pemindahan</span>
+              <div className="flex items-center gap-2 text-[#78828a] font-medium">
+                {/* Cloned Money Bag with $ Icon */}
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" className="flex-shrink-0">
+                  <path d="M7.5 4.5C7.5 3.3 8.6 2.5 10 2.5C11.4 2.5 12.5 3.3 12.5 4.5C12.5 5 12 5.5 11.5 6H8.5C8 5.5 7.5 5 7.5 4.5Z" fill="#84919a" />
+                  <path d="M5.5 8.5C5.5 7 7 6 10 6C13 6 14.5 7 14.5 8.5C14.5 9 15 9.5 15.6 10.6C16.8 13.2 16.5 16.5 15 17.8C13.8 18.8 6.2 18.8 5 17.8C3.5 16.5 3.2 13.2 4.4 10.6C5 9.5 5.5 9 5.5 8.5Z" fill="#84919a" />
+                  <text x="10" y="14.2" textAnchor="middle" fontSize="7.8" fontWeight="900" fill="white" fontFamily="Inter, Arial, sans-serif">$</text>
+                </svg>
+                <span className="text-[#647079]">Total pay amount</span>
               </div>
               <span className="font-bold text-[15px] text-gray-900">{templateData.amountPrimary}</span>
             </div>
