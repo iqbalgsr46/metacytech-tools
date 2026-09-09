@@ -412,15 +412,6 @@ export default function BibdVerificationPage() {
                     className="w-full h-full object-cover"
                     style={{ transform: 'scaleX(1)' }}
                   />
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setUploadedFile(null);
-                    }}
-                    className="absolute top-3 right-3 bg-red-500/80 hover:bg-red-600 text-white rounded-full p-2 flex items-center justify-center backdrop-blur-sm transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">close</span>
-                  </button>
                 </div>
                 <button 
                   onClick={handleVerifyClick}
