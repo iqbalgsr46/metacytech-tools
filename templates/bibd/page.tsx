@@ -412,11 +412,12 @@ export default function BibdVerificationPage() {
           <div className="w-full px-4 mb-2 flex items-center justify-between gap-2.5 relative">
             {/* Sender Card */}
             <div className="flex-1 h-[120px] bg-[#e1edea] rounded-[22px] p-2 flex flex-col items-center justify-center text-center shadow-xs border border-[#d2deda]">
-              <div className="w-10 h-10 rounded-full bg-[#163f38] flex items-center justify-center mb-1.5 shadow-xs">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path d="M7 7.5L5.5 12L7 16.5" stroke="#a7dfd0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                  <polygon points="14,5 19.5,12 14,19 10,12" fill="#a7dfd0" />
-                </svg>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center mb-1.5 shadow-xs overflow-hidden">
+                <img 
+                  src="/bibd-icon.png" 
+                  alt="BIBD" 
+                  className="w-full h-full object-cover rounded-full"
+                />
               </div>
               <p className="font-bold text-[13px] text-[#1a1c1e] tracking-tight truncate w-full max-w-[130px]">
                 {templateData.senderName}
