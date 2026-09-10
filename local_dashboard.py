@@ -919,21 +919,14 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             trigger_shutdown(0.3)
 
 
-GLOBAL_HTTPD = None
-
-def trigger_shutdown(delay=0.4):
-    def _shutdown():
+def trigger_shutdown(delay=0.5):
+    """Force exit setelah delay agar HTTP response sempat terkirim ke browser."""
+    def _force_exit():
         time.sleep(delay)
-        global GLOBAL_HTTPD
-        if GLOBAL_HTTPD:
-            try:
-                GLOBAL_HTTPD.shutdown()
-                return
-            except Exception:
-                pass
         os._exit(0)
 
-    t = threading.Thread(target=_shutdown, daemon=True)
+    t = threading.Thread(target=_force_exit)
+    t.daemon = False  # non-daemon agar tidak dimatikan sebelum sempat jalan
     t.start()
 
 
@@ -956,11 +949,8 @@ if __name__ == '__main__':
     webbrowser.open(f"http://localhost:{PORT}")
 
     with QuietServer(("", PORT), DashboardHandler) as httpd:
-        GLOBAL_HTTPD = httpd
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
             print("\nDashboard ditutup.")
             sys.exit(0)
-
-    sys.exit(0)
