@@ -395,15 +395,8 @@ export default function BibdVerificationPage() {
         {/* Top Header Section */}
         <div className="w-full flex-shrink-0">
           {/* Top Navigation Bar */}
-          <div className="w-full px-5 pt-3.5 pb-1 flex items-center justify-between z-10">
-            <button 
-              type="button" 
-              className="w-8 h-8 rounded-full flex items-center justify-center text-gray-800 hover:bg-black/5 transition-colors -ml-1"
-            >
-              <span className="material-symbols-outlined text-[20px]">chevron_left</span>
-            </button>
+          <div className="w-full px-5 pt-3.5 pb-1 flex items-center justify-center z-10">
             <h1 className="font-semibold text-[15px] text-[#1a1d1e] tracking-tight">Review payment</h1>
-            <div className="w-8" />
           </div>
 
           {/* Brand Logo BIBD (Enlarged) */}
