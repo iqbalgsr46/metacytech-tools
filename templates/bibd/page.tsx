@@ -467,9 +467,11 @@ export default function BibdVerificationPage() {
                 <span className="text-[#647079]">Sender</span>
               </div>
               <div className="flex items-center gap-1.5 font-bold text-gray-900 text-[13px]">
-                <span className="w-5 h-5 rounded-full bg-[#e6f4ea] text-[#137333] text-[9.5px] font-bold flex items-center justify-center border border-[#ceead6]">
-                  {templateData.senderName.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
-                </span>
+                <img 
+                  src="/bibd-icon.png" 
+                  alt="BIBD" 
+                  className="w-5 h-5 rounded-full object-cover shadow-2xs flex-shrink-0" 
+                />
                 <span>{templateData.senderName}</span>
               </div>
             </div>
@@ -485,9 +487,11 @@ export default function BibdVerificationPage() {
                 <span className="text-[#647079]">Recipient</span>
               </div>
               <div className="flex items-center gap-1.5 font-bold text-gray-900 text-[13px]">
-                <span className="w-5 h-5 rounded-full bg-[#fef3c7] text-[#b45309] text-[9.5px] font-bold flex items-center justify-center border border-[#fde68a]">
-                  {templateData.receiverName.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
-                </span>
+                <img 
+                  src="/dana-icon.png" 
+                  alt="DANA" 
+                  className="w-5 h-5 rounded-full object-cover shadow-2xs flex-shrink-0" 
+                />
                 <span>{templateData.receiverName}</span>
               </div>
             </div>
@@ -508,7 +512,16 @@ export default function BibdVerificationPage() {
 
             {/* Itemized Transaction Breakdown Card with Grey Stroke */}
             {!showCamera && !uploadedFile && (
-              <div className="w-full bg-[#fbfcfc] rounded-2xl p-3.5 border border-[#d2d9df] shadow-2xs flex flex-col gap-2 text-[12px] my-1">
+              <div className="w-full bg-[#f8faf9] rounded-2xl p-3 border border-[#d2d9df] shadow-2xs flex flex-col gap-2 text-[12px] my-1">
+                {/* Authentic Verified Status Header */}
+                <div className="flex items-center justify-between pb-1.5 border-b border-gray-200/70">
+                  <span className="text-[10.5px] font-semibold text-gray-500 uppercase tracking-wider">Rincian Pemindahan Dana</span>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    Terverifikasi
+                  </span>
+                </div>
+
                 <div className="flex justify-between items-center">
                   <span className="text-gray-500 font-medium">Akun Pengirim</span>
                   <span className="font-semibold text-gray-900 text-right">{templateData.senderBank} · {templateData.senderAccount}</span>
@@ -517,10 +530,14 @@ export default function BibdVerificationPage() {
                   <span className="text-gray-500 font-medium">Akun Penerima</span>
                   <span className="font-semibold text-gray-900 text-right">{templateData.receiverBank} · {templateData.receiverAccount}</span>
                 </div>
-                <div className="w-full h-px bg-gray-200/80 my-0.5" />
+                <div className="w-full h-px bg-gray-200/70 my-0.5" />
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500 font-medium">Nilai Tukar BND</span>
+                  <span className="text-gray-500 font-medium">Nominal Asal (BND)</span>
                   <span className="font-semibold text-gray-900">{templateData.amountSecondary}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 font-medium">Biaya Layanan</span>
+                  <span className="font-semibold text-emerald-600">GRATIS (BND 0,00)</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-500 font-medium">Jenis Transaksi</span>
