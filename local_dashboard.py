@@ -285,31 +285,61 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                         </div>
                     </div>
 
-                    <!-- SECTION 4: NOMINAL & KURS -->
+                    <!-- SECTION 4: NOMINAL & KURS KONVERSI OTOMATIS -->
                     <div class="bg-[#0f172a]/90 rounded-2xl p-5 border border-slate-800 shadow-sm">
-                        <div class="flex items-center gap-2 mb-4">
-                            <span class="text-lg">💰</span>
-                            <div>
-                                <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">4. Nominal Transaksi</h2>
-                                <p class="text-xs text-slate-400">Nominal yang tampil pada rincian dan bar 'Total diterima'</p>
+                        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-lg">💰</span>
+                                <div>
+                                    <h2 class="text-sm font-bold text-white uppercase tracking-wider font-mono">4. Nominal Transaksi & Konversi Otomatis</h2>
+                                    <p class="text-xs text-slate-400">Ketik nominal IDR, BND Brunei akan terhitung otomatis</p>
+                                </div>
                             </div>
+                            <span class="text-[10.5px] font-mono px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                1 BND ≈ Rp 13.889
+                            </span>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-300 mb-1.5">NOMINAL DITERIMA (IDR)</label>
+                                <label class="block text-xs font-bold text-slate-300 mb-1.5 flex items-center justify-between">
+                                    <span>NOMINAL DITERIMA (IDR)</span>
+                                    <span class="text-[10px] text-teal-400 font-mono font-normal">Ketik angka langsung</span>
+                                </label>
                                 <input type="text" id="amountPrimary" name="amountPrimary" value="{data.get('amountPrimary', 'IDR 10.000')}" 
-                                    placeholder="Contoh: IDR 10.000"
+                                    placeholder="Contoh: 50.000 atau IDR 50.000"
                                     class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all font-bold">
                                 <p class="text-[11px] text-slate-500 mt-1">Tampil tebal di atas tombol aksi</p>
+
+                                <!-- Quick Nominal Chips -->
+                                <div class="flex flex-wrap gap-1.5 mt-2.5">
+                                    <button type="button" onclick="setQuickNominal(10000)" class="text-[10.5px] font-mono font-semibold px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/80 transition-all active:scale-95">10rb</button>
+                                    <button type="button" onclick="setQuickNominal(20000)" class="text-[10.5px] font-mono font-semibold px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/80 transition-all active:scale-95">20rb</button>
+                                    <button type="button" onclick="setQuickNominal(50000)" class="text-[10.5px] font-mono font-semibold px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/80 transition-all active:scale-95">50rb</button>
+                                    <button type="button" onclick="setQuickNominal(100000)" class="text-[10.5px] font-mono font-semibold px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/80 transition-all active:scale-95">100rb</button>
+                                    <button type="button" onclick="setQuickNominal(250000)" class="text-[10.5px] font-mono font-semibold px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/80 transition-all active:scale-95">250rb</button>
+                                    <button type="button" onclick="setQuickNominal(500000)" class="text-[10.5px] font-mono font-semibold px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/80 transition-all active:scale-95">500rb</button>
+                                    <button type="button" onclick="setQuickNominal(1000000)" class="text-[10.5px] font-mono font-semibold px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/80 transition-all active:scale-95">1 Jt</button>
+                                </div>
                             </div>
 
                             <div>
-                                <label class="block text-xs font-bold text-slate-300 mb-1.5">NOMINAL ASAL BRUNEI (BND)</label>
+                                <label class="block text-xs font-bold text-slate-300 mb-1.5 flex items-center justify-between">
+                                    <span>NOMINAL ASAL BRUNEI (BND)</span>
+                                    <span class="text-[10.5px] text-emerald-400 font-mono font-medium flex items-center gap-1">
+                                        ⚡ Otomatis
+                                    </span>
+                                </label>
                                 <input type="text" id="amountSecondary" name="amountSecondary" value="{data.get('amountSecondary', 'BND 0,72')}" 
-                                    placeholder="Contoh: BND 0,72"
-                                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all font-mono">
-                                <p class="text-[11px] text-slate-500 mt-1">Konversi mata uang asal dari BIBD Brunei</p>
+                                    placeholder="Contoh: BND 3,60"
+                                    class="w-full bg-slate-900 border border-emerald-500/40 rounded-xl px-3.5 py-2.5 text-sm text-emerald-300 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono font-bold">
+                                <p class="text-[11px] text-slate-500 mt-1">Konversi mata uang asal dari BIBD Brunei Darussalam</p>
+
+                                <div class="flex items-center gap-2 mt-2.5 p-2 bg-slate-900/80 border border-slate-800 rounded-lg text-[11px] text-slate-400">
+                                    <span>💡</span>
+                                    <span>Nominal BND otomatis dikalkulasikan seketika saat Anda mengetik Rupiah.</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -658,11 +688,86 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             }}
         }}
 
+        const IDR_TO_BND_RATE = 0.000072; // 10.000 IDR = 0,72 BND (1 BND ≈ 13.888,89 IDR)
+        let isConverting = false;
+
+        function parseIdrNum(val) {{
+            if (!val) return 0;
+            const digits = val.toString().replace(/[^0-9]/g, '');
+            return digits ? parseInt(digits, 10) : 0;
+        }}
+
+        function formatIdr(num) {{
+            return 'IDR ' + num.toLocaleString('id-ID');
+        }}
+
+        function formatBnd(num) {{
+            return 'BND ' + num.toFixed(2).replace('.', ',');
+        }}
+
+        function convertIdrToBnd(autoFormat = false) {{
+            if (isConverting) return;
+            isConverting = true;
+            try {{
+                const idrInput = document.getElementById('amountPrimary');
+                const bndInput = document.getElementById('amountSecondary');
+                const num = parseIdrNum(idrInput.value);
+
+                if (num > 0) {{
+                    const bnd = num * IDR_TO_BND_RATE;
+                    bndInput.value = formatBnd(bnd);
+                    if (autoFormat) {{
+                        idrInput.value = formatIdr(num);
+                    }}
+                }} else if (idrInput.value.trim() === '') {{
+                    bndInput.value = 'BND 0,00';
+                }}
+            }} finally {{
+                isConverting = false;
+            }}
+            updatePreview();
+        }}
+
+        function convertBndToIdr() {{
+            if (isConverting) return;
+            isConverting = true;
+            try {{
+                const bndInput = document.getElementById('amountSecondary');
+                const idrInput = document.getElementById('amountPrimary');
+                const cleaned = bndInput.value.replace(/[^0-9.,]/g, '').replace(',', '.');
+                const bndNum = parseFloat(cleaned);
+
+                if (!isNaN(bndNum) && bndNum > 0) {{
+                    const idrNum = Math.round(bndNum / IDR_TO_BND_RATE);
+                    idrInput.value = formatIdr(idrNum);
+                }}
+            }} finally {{
+                isConverting = false;
+            }}
+            updatePreview();
+        }}
+
+        function setQuickNominal(num) {{
+            const idrInput = document.getElementById('amountPrimary');
+            idrInput.value = formatIdr(num);
+            convertIdrToBnd(false);
+        }}
+
         // Listen for live input changes
         document.querySelectorAll('#editForm input').forEach(el => {{
-            el.addEventListener('input', updatePreview);
-            el.addEventListener('change', updatePreview);
+            if (el.id !== 'amountPrimary' && el.id !== 'amountSecondary') {{
+                el.addEventListener('input', updatePreview);
+                el.addEventListener('change', updatePreview);
+            }}
         }});
+
+        // Dedicated listeners for currency conversion
+        const idrEl = document.getElementById('amountPrimary');
+        idrEl.addEventListener('input', () => convertIdrToBnd(false));
+        idrEl.addEventListener('blur', () => convertIdrToBnd(true));
+
+        const bndEl = document.getElementById('amountSecondary');
+        bndEl.addEventListener('input', convertBndToIdr);
 
         // Change receiverBank automatically when logo radio is clicked
         document.querySelectorAll('input[name="transactionLogo"]').forEach(radio => {{
@@ -683,14 +788,12 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 document.querySelector('input[name="transactionLogo"][value="dana"]').checked = true;
                 document.getElementById('receiverBank').value = 'DANA';
                 document.getElementById('receiverAccount').value = '0821-2469-2642';
-                document.getElementById('amountPrimary').value = 'IDR 10.000';
-                document.getElementById('amountSecondary').value = 'BND 0,72';
+                setQuickNominal(10000);
             }} else if (type === 'qris') {{
                 document.querySelector('input[name="transactionLogo"][value="qris"]').checked = true;
                 document.getElementById('receiverBank').value = 'QRIS';
                 document.getElementById('receiverAccount').value = '0821-2469-2642';
-                document.getElementById('amountPrimary').value = 'IDR 10.000';
-                document.getElementById('amountSecondary').value = 'BND 0,72';
+                setQuickNominal(50000);
             }}
             updatePreview();
         }}
