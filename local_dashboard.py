@@ -12,6 +12,7 @@ import os
 import sys
 import webbrowser
 import threading
+import time
 
 PORT = 8080
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -447,7 +448,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                             class="w-full sm:flex-1 py-3.5 px-6 rounded-xl bg-gradient-to-r from-teal-400 via-emerald-500 to-teal-500 hover:opacity-95 text-black font-extrabold text-sm tracking-wide uppercase transition-all shadow-lg shadow-teal-500/20 active:scale-[0.98] flex items-center justify-center gap-2">
                             <span>💾</span> SIMPAN & TERAPKAN KE APLIKASI
                         </button>
-                        <button type="button" onclick="window.close()" 
+                        <button type="button" onclick="cancelDashboard()" 
                             class="w-full sm:w-auto py-3.5 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs uppercase tracking-wider transition-all border border-slate-700">
                             Batal
                         </button>
@@ -816,6 +817,15 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             }}
         }}
 
+        async function cancelDashboard() {{
+            if (confirm('Batal edit dan langsung lanjutkan proses ke terminal?')) {{
+                try {{
+                    await fetch('/cancel', {{ method: 'POST' }});
+                }} catch (e) {{}}
+                window.close();
+            }}
+        }}
+
         // Handle Save
         document.getElementById('editForm').addEventListener('submit', async (e) => {{
             e.preventDefault();
@@ -837,14 +847,17 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 if (res.ok) {{
                     setTimeout(() => {{
                         window.close();
-                    }}, 2000);
+                    }}, 1200);
                 }} else {{
-                    alert('Gagal menyimpan perubahan ke data.json');
+                    const err = await res.json().catch(() => ({{}}));
+                    alert('Gagal menyimpan perubahan: ' + (err.message || 'Terjadi kesalahan'));
                     document.getElementById('saveOverlay').classList.add('hidden');
                 }}
             }} catch (err) {{
-                alert('Koneksi ke server dashboard terputus.');
-                document.getElementById('saveOverlay').classList.add('hidden');
+                // Server exiting quickly after saving can cause fetch disconnect; treated as success
+                setTimeout(() => {{
+                    window.close();
+                }}, 1000);
             }}
         }});
 
@@ -861,28 +874,67 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_POST(self):
         if self.path == '/save':
-            content_length = int(self.headers['Content-Length'])
+            content_length = int(self.headers.get('Content-Length', 0))
             post_data = self.rfile.read(content_length)
 
             try:
                 new_data = json.loads(post_data.decode('utf-8'))
                 save_data(new_data)
 
+                resp = json.dumps({"status": "success"}).encode('utf-8')
                 self.send_response(200)
-                self.send_header('Content-type', 'application/json')
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Content-Length', str(len(resp)))
+                self.send_header('Connection', 'close')
                 self.end_headers()
-                self.wfile.write(json.dumps({{"status": "success"}}).encode('utf-8'))
+                self.wfile.write(resp)
+                self.wfile.flush()
 
-                # Matikan server dashboard secara halus setelah menyimpan
-                def kill_server():
-                    os._exit(0)
-                threading.Timer(1.0, kill_server).start()
+                print("\n  [+] Perubahan data berhasil disimpan dari dashboard!")
+                print("  [+] Menutup dashboard editor dan melanjutkan proses...")
+                trigger_shutdown(0.4)
 
             except Exception as e:
+                err_body = json.dumps({"status": "error", "message": str(e)}).encode('utf-8')
                 self.send_response(500)
-                self.send_header('Content-type', 'application/json')
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Content-Length', str(len(err_body)))
+                self.send_header('Connection', 'close')
                 self.end_headers()
-                self.wfile.write(json.dumps({{"status": "error", "message": str(e)}}).encode('utf-8'))
+                self.wfile.write(err_body)
+                self.wfile.flush()
+
+        elif self.path == '/cancel':
+            resp = json.dumps({"status": "cancelled"}).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', str(len(resp)))
+            self.send_header('Connection', 'close')
+            self.end_headers()
+            self.wfile.write(resp)
+            self.wfile.flush()
+
+            print("\n  [*] Edit dibatalkan dari dashboard.")
+            print("  [*] Melanjutkan proses di terminal...")
+            trigger_shutdown(0.3)
+
+
+GLOBAL_HTTPD = None
+
+def trigger_shutdown(delay=0.4):
+    def _shutdown():
+        time.sleep(delay)
+        global GLOBAL_HTTPD
+        if GLOBAL_HTTPD:
+            try:
+                GLOBAL_HTTPD.shutdown()
+                return
+            except Exception:
+                pass
+        os._exit(0)
+
+    t = threading.Thread(target=_shutdown, daemon=True)
+    t.start()
 
 
 class QuietServer(socketserver.TCPServer):
@@ -904,8 +956,11 @@ if __name__ == '__main__':
     webbrowser.open(f"http://localhost:{PORT}")
 
     with QuietServer(("", PORT), DashboardHandler) as httpd:
+        GLOBAL_HTTPD = httpd
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
             print("\nDashboard ditutup.")
             sys.exit(0)
+
+    sys.exit(0)
