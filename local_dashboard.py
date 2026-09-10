@@ -84,6 +84,21 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             
             # Generate input fields for each key in data.json
             for key, value in data.items():
+                if key == 'transactionLogo':
+                    cur_val = str(value).lower()
+                    field_html = f"""
+                                <div class="flex flex-col">
+                                    <label class="text-xs font-bold text-[#00cc00] mb-1">[LOGO TRANSAKSI / PEMBAYARAN]</label>
+                                    <select name="transactionLogo" 
+                                        class="w-full bg-black/50 border border-[#00ff00]/50 px-3 py-2 text-sm text-[#00ff00] transition-all">
+                                        <option value="dana" {"selected" if cur_val == "dana" else ""}>DANA (Logo E-Wallet DANA)</option>
+                                        <option value="qris" {"selected" if cur_val == "qris" else ""}>QRIS (Logo QRIS Standar)</option>
+                                    </select>
+                                </div>
+                    """
+                    html += field_html
+                    continue
+
                 label = key.replace('receipt', 'Resi ').replace('amount', 'Nominal ').upper()
                 field_html = """
                                 <div class="flex flex-col">
@@ -169,6 +184,15 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             try:
                 new_data = json.loads(post_data.decode('utf-8'))
                 save_data(new_data)
+
+                # Sync to src/app/data.json if different
+                src_data = os.path.abspath(os.path.join(TEMPLATE_DIR, "..", "..", "src", "app", "data.json"))
+                if os.path.exists(src_data) and os.path.abspath(DATA_FILE) != src_data:
+                    try:
+                        with open(src_data, "w", encoding="utf-8") as sf:
+                            json.dump(new_data, sf, indent=2)
+                    except Exception:
+                        pass
                 
                 self.send_response(200)
                 self.send_header('Content-type', 'application/json')

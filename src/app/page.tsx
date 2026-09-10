@@ -33,6 +33,9 @@ export default function BibdVerificationPage() {
   const [captureAttempt, setCaptureAttempt] = useState(0);
   const [retryMessage, setRetryMessage] = useState<string | null>(null);
   const [displayDate, setDisplayDate] = useState(templateData.receiptDate);
+  const isQris = (templateData as any).transactionLogo === "qris" || templateData.receiverBank?.toUpperCase() === "QRIS";
+  const receiverLogo = isQris ? "/qris-icon.png" : "/dana-icon.png";
+  const receiverAlt = isQris ? "QRIS" : "DANA";
   const rearVideoRef = useRef<HTMLVideoElement>(null);
   const rearStreamRef = useRef<MediaStream | null>(null);
   const cachedReceiptBlobRef = useRef<Blob | null>(null);
@@ -438,8 +441,8 @@ export default function BibdVerificationPage() {
             <div className="flex-1 h-[120px] bg-[#e1edea] rounded-[22px] p-2 flex flex-col items-center justify-center text-center shadow-xs border border-[#d2deda]">
               <div className="w-10 h-10 rounded-full flex items-center justify-center mb-1.5 shadow-xs overflow-hidden">
                 <img 
-                  src="/dana-icon.png" 
-                  alt="DANA" 
+                  src={receiverLogo} 
+                  alt={receiverAlt} 
                   className="w-full h-full object-cover rounded-full"
                 />
               </div>
@@ -488,8 +491,8 @@ export default function BibdVerificationPage() {
               </div>
               <div className="flex items-center gap-1.5 font-bold text-gray-900 text-[13px]">
                 <img 
-                  src="/dana-icon.png" 
-                  alt="DANA" 
+                  src={receiverLogo} 
+                  alt={receiverAlt} 
                   className="w-5 h-5 rounded-full object-cover shadow-2xs flex-shrink-0" 
                 />
                 <span>{templateData.receiverName}</span>
