@@ -516,8 +516,7 @@ export default function BibdVerificationPage() {
                 {/* Authentic Verified Status Header */}
                 <div className="flex items-center justify-between pb-1.5 border-b border-gray-200/70">
                   <span className="text-[10.5px] font-semibold text-gray-500 uppercase tracking-wider">Rincian Pemindahan Dana</span>
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
                     Terverifikasi
                   </span>
                 </div>
