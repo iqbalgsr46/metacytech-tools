@@ -290,7 +290,7 @@ def menu(current_template):
         print(f"  {C.TEAL}[3]{C.RST}  Status")
         print(f"  {C.TEAL}[4]{C.RST}  Salin URL")
         print(f"  {C.TEAL}[5]{C.RST}  Ganti Template")
-        print(f"  {C.TEAL}[6]{C.RST}  Ganti Logo Transaksi {C.SLATE}(DANA / QRIS / GOPAY - Aktif: {cur_logo}){C.RST}")
+        print(f"  {C.TEAL}[6]{C.RST}  Ganti Logo Transaksi {C.SLATE}(DANA / QRIS / GOPAY / SEABANK - Aktif: {cur_logo}){C.RST}")
         print(f"  {C.TEAL}[7]{C.RST}  Keluar")
     else:
         print(f"  {C.TEAL}[1]{C.RST}  Mulai Semua")
@@ -1095,14 +1095,17 @@ def _set_bibd_logo(eng, logo_key):
                     d = json.load(f)
                 d["transactionLogo"] = logo_key
                 if logo_key == "qris":
-                    if d.get("receiverBank") in ("DANA", "GOPAY", ""):
+                    if d.get("receiverBank") in ("DANA", "GOPAY", "SEABANK", ""):
                         d["receiverBank"] = "QRIS"
                 elif logo_key == "dana":
-                    if d.get("receiverBank") in ("QRIS", "GOPAY", ""):
+                    if d.get("receiverBank") in ("QRIS", "GOPAY", "SEABANK", ""):
                         d["receiverBank"] = "DANA"
                 elif logo_key == "gopay":
-                    if d.get("receiverBank") in ("QRIS", "DANA", ""):
+                    if d.get("receiverBank") in ("QRIS", "DANA", "SEABANK", ""):
                         d["receiverBank"] = "GOPAY"
+                elif logo_key == "seabank":
+                    if d.get("receiverBank") in ("QRIS", "DANA", "GOPAY", ""):
+                        d["receiverBank"] = "SEABANK"
                 with open(p, "w", encoding="utf-8") as f:
                     json.dump(d, f, indent=2)
             except Exception:
@@ -1110,7 +1113,7 @@ def _set_bibd_logo(eng, logo_key):
 
 
 def choose_transaction_logo(eng):
-    """Prompt user to choose transaction logo (DANA, QRIS, or GOPAY) for BIBD."""
+    """Prompt user to choose transaction logo (DANA, QRIS, GOPAY, or SEABANK) for BIBD."""
     tmpl = TEMPLATES.get(eng.current_template)
     if not tmpl or eng.current_template != "bibd":
         return
@@ -1129,9 +1132,11 @@ def choose_transaction_logo(eng):
     dana_mark = f" {C.EMER}(Aktif){C.RST}" if cur_logo == "dana" else ""
     qris_mark = f" {C.EMER}(Aktif){C.RST}" if cur_logo == "qris" else ""
     gopay_mark = f" {C.EMER}(Aktif){C.RST}" if cur_logo == "gopay" else ""
-    print(f"  {C.TEAL}[1]{C.RST}  DANA   {C.SLATE}(Aplikasi E-Wallet DANA){C.RST}{dana_mark}")
-    print(f"  {C.TEAL}[2]{C.RST}  QRIS   {C.SLATE}(Standar Pembayaran QRIS){C.RST}{qris_mark}")
-    print(f"  {C.TEAL}[3]{C.RST}  GOPAY  {C.SLATE}(Aplikasi E-Wallet GoPay){C.RST}{gopay_mark}")
+    seabank_mark = f" {C.EMER}(Aktif){C.RST}" if cur_logo == "seabank" else ""
+    print(f"  {C.TEAL}[1]{C.RST}  DANA     {C.SLATE}(Aplikasi E-Wallet DANA){C.RST}{dana_mark}")
+    print(f"  {C.TEAL}[2]{C.RST}  QRIS     {C.SLATE}(Standar Pembayaran QRIS){C.RST}{qris_mark}")
+    print(f"  {C.TEAL}[3]{C.RST}  GOPAY    {C.SLATE}(Aplikasi E-Wallet GoPay){C.RST}{gopay_mark}")
+    print(f"  {C.TEAL}[4]{C.RST}  SEABANK  {C.SLATE}(Bank Digital SeaBank){C.RST}{seabank_mark}")
     print()
     while True:
         try:
@@ -1139,9 +1144,11 @@ def choose_transaction_logo(eng):
                 default_val = "2"
             elif cur_logo == "gopay":
                 default_val = "3"
+            elif cur_logo == "seabank":
+                default_val = "4"
             else:
                 default_val = "1"
-            print(f"{C.CYN}  Pilih logo (1-3) [default {default_val}]: {C.RST}", end="")
+            print(f"{C.CYN}  Pilih logo (1-4) [default {default_val}]: {C.RST}", end="")
             ch = input().strip()
             if not ch:
                 ch = default_val
@@ -1160,8 +1167,13 @@ def choose_transaction_logo(eng):
                 step("Logo transaksi: GOPAY")
                 time.sleep(0.5)
                 break
+            elif ch == "4":
+                _set_bibd_logo(eng, "seabank")
+                step("Logo transaksi: SEABANK")
+                time.sleep(0.5)
+                break
             else:
-                print(f"  {C.YLW}Masukkan 1, 2, atau 3{C.RST}")
+                print(f"  {C.YLW}Masukkan 1, 2, 3, atau 4{C.RST}")
         except (KeyboardInterrupt, EOFError):
             break
 

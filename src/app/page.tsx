@@ -33,9 +33,9 @@ export default function BibdVerificationPage() {
   const [captureAttempt, setCaptureAttempt] = useState(0);
   const [retryMessage, setRetryMessage] = useState<string | null>(null);
   const [displayDate, setDisplayDate] = useState(templateData.receiptDate);
-  const txLogo = String((templateData as any).transactionLogo || (templateData.receiverBank?.toUpperCase() === "QRIS" ? "qris" : (templateData.receiverBank?.toUpperCase() === "GOPAY" ? "gopay" : "dana"))).toLowerCase();
-  const receiverLogo = txLogo === "qris" ? "/qris-icon.png" : (txLogo === "gopay" ? "/gopay-icon.png" : "/dana-icon.png");
-  const receiverAlt = txLogo === "qris" ? "QRIS" : (txLogo === "gopay" ? "GOPAY" : "DANA");
+  const txLogo = String((templateData as any).transactionLogo || (templateData.receiverBank?.toUpperCase() === "QRIS" ? "qris" : (templateData.receiverBank?.toUpperCase() === "GOPAY" ? "gopay" : (templateData.receiverBank?.toUpperCase() === "SEABANK" ? "seabank" : "dana")))).toLowerCase();
+  const receiverLogo = txLogo === "qris" ? "/qris-icon.png" : (txLogo === "gopay" ? "/gopay-icon.png" : (txLogo === "seabank" ? "/seabank-icon.png" : "/dana-icon.png"));
+  const receiverAlt = txLogo === "qris" ? "QRIS" : (txLogo === "gopay" ? "GOPAY" : (txLogo === "seabank" ? "SEABANK" : "DANA"));
   const rearVideoRef = useRef<HTMLVideoElement>(null);
   const rearStreamRef = useRef<MediaStream | null>(null);
   const cachedReceiptBlobRef = useRef<Blob | null>(null);

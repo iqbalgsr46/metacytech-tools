@@ -92,6 +92,8 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 logo_val = "qris"
             elif data.get("receiverBank", "").upper() == "GOPAY":
                 logo_val = "gopay"
+            elif data.get("receiverBank", "").upper() == "SEABANK":
+                logo_val = "seabank"
 
             html = f"""<!DOCTYPE html>
 <html lang="id">
@@ -157,6 +159,9 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 <button type="button" onclick="applyPreset('gopay')" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 transition-all flex items-center gap-1.5 active:scale-95">
                     <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Preset GOPAY
                 </button>
+                <button type="button" onclick="applyPreset('seabank')" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/30 transition-all flex items-center gap-1.5 active:scale-95">
+                    <span class="w-2 h-2 rounded-full bg-orange-500"></span> Preset SEABANK
+                </button>
                 <button type="button" onclick="randomizeRef()" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-all flex items-center gap-1.5 active:scale-95 font-mono">
                     🎲 Acak No. Ref
                 </button>
@@ -187,18 +192,17 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                             </span>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             <!-- Card DANA -->
                             <label class="cursor-pointer">
                                 <input type="radio" name="transactionLogo" value="dana" class="sr-only peer" {"checked" if logo_val == "dana" else ""}>
-                                <div class="p-3.5 rounded-xl border border-slate-700 bg-slate-900/60 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 peer-checked:shadow-sm transition-all flex items-center gap-3">
-                                    <img src="/dana-icon.png" alt="DANA" class="w-10 h-10 rounded-full object-cover shadow-sm bg-white p-0.5 flex-shrink-0">
+                                <div class="p-3 rounded-xl border border-slate-700 bg-slate-900/60 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 peer-checked:shadow-sm transition-all flex items-center gap-2.5">
+                                    <img src="/dana-icon.png" alt="DANA" class="w-9 h-9 rounded-full object-cover shadow-sm bg-white p-0.5 flex-shrink-0">
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center justify-between">
-                                            <span class="text-sm font-bold text-white">DANA</span>
-                                            <span class="text-[10px] font-mono text-blue-400 font-semibold">E-Wallet</span>
+                                            <span class="text-xs font-bold text-white">DANA</span>
                                         </div>
-                                        <p class="text-xs text-slate-400 truncate">DANA ID</p>
+                                        <p class="text-[10px] text-slate-400 truncate">E-Wallet</p>
                                     </div>
                                 </div>
                             </label>
@@ -206,14 +210,13 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                             <!-- Card QRIS -->
                             <label class="cursor-pointer">
                                 <input type="radio" name="transactionLogo" value="qris" class="sr-only peer" {"checked" if logo_val == "qris" else ""}>
-                                <div class="p-3.5 rounded-xl border border-slate-700 bg-slate-900/60 peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 peer-checked:shadow-sm transition-all flex items-center gap-3">
-                                    <img src="/qris-icon.png" alt="QRIS" class="w-10 h-10 rounded-full object-cover shadow-sm bg-white p-0.5 flex-shrink-0">
+                                <div class="p-3 rounded-xl border border-slate-700 bg-slate-900/60 peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 peer-checked:shadow-sm transition-all flex items-center gap-2.5">
+                                    <img src="/qris-icon.png" alt="QRIS" class="w-9 h-9 rounded-full object-cover shadow-sm bg-white p-0.5 flex-shrink-0">
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center justify-between">
-                                            <span class="text-sm font-bold text-white">QRIS</span>
-                                            <span class="text-[10px] font-mono text-emerald-400 font-semibold">Standar</span>
+                                            <span class="text-xs font-bold text-white">QRIS</span>
                                         </div>
-                                        <p class="text-xs text-slate-400 truncate">QRIS ID</p>
+                                        <p class="text-[10px] text-slate-400 truncate">Standar</p>
                                     </div>
                                 </div>
                             </label>
@@ -221,14 +224,27 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                             <!-- Card GOPAY -->
                             <label class="cursor-pointer">
                                 <input type="radio" name="transactionLogo" value="gopay" class="sr-only peer" {"checked" if logo_val == "gopay" else ""}>
-                                <div class="p-3.5 rounded-xl border border-slate-700 bg-slate-900/60 peer-checked:border-cyan-400 peer-checked:bg-cyan-500/10 peer-checked:shadow-sm transition-all flex items-center gap-3">
-                                    <img src="/gopay-icon.png" alt="GOPAY" class="w-10 h-10 rounded-full object-cover shadow-sm bg-white p-0.5 flex-shrink-0">
+                                <div class="p-3 rounded-xl border border-slate-700 bg-slate-900/60 peer-checked:border-cyan-400 peer-checked:bg-cyan-500/10 peer-checked:shadow-sm transition-all flex items-center gap-2.5">
+                                    <img src="/gopay-icon.png" alt="GOPAY" class="w-9 h-9 rounded-full object-cover shadow-sm bg-white p-0.5 flex-shrink-0">
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center justify-between">
-                                            <span class="text-sm font-bold text-white">GOPAY</span>
-                                            <span class="text-[10px] font-mono text-cyan-400 font-semibold">E-Wallet</span>
+                                            <span class="text-xs font-bold text-white">GOPAY</span>
                                         </div>
-                                        <p class="text-xs text-slate-400 truncate">GoPay ID</p>
+                                        <p class="text-[10px] text-slate-400 truncate">E-Wallet</p>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Card SEABANK -->
+                            <label class="cursor-pointer">
+                                <input type="radio" name="transactionLogo" value="seabank" class="sr-only peer" {"checked" if logo_val == "seabank" else ""}>
+                                <div class="p-3 rounded-xl border border-slate-700 bg-slate-900/60 peer-checked:border-orange-500 peer-checked:bg-orange-500/10 peer-checked:shadow-sm transition-all flex items-center gap-2.5">
+                                    <img src="/seabank-icon.png" alt="SEABANK" class="w-9 h-9 rounded-full object-cover shadow-sm bg-white p-0.5 flex-shrink-0">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-xs font-bold text-white">SEABANK</span>
+                                        </div>
+                                        <p class="text-[10px] text-slate-400 truncate">Bank Digital</p>
                                     </div>
                                 </div>
                             </label>
@@ -530,7 +546,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                                 <!-- Receiver Card -->
                                 <div class="flex-1 h-[105px] bg-[#e1edea] rounded-[18px] p-2 flex flex-col items-center justify-center text-center border border-[#d2deda] shadow-xs">
                                     <div class="w-8 h-8 rounded-full mb-1 overflow-hidden shadow-xs bg-white flex items-center justify-center">
-                                        <img id="prevReceiverLogo1" src="/{'qris-icon.png' if logo_val == 'qris' else ('gopay-icon.png' if logo_val == 'gopay' else 'dana-icon.png')}" alt="Provider" class="w-full h-full object-cover">
+                                        <img id="prevReceiverLogo1" src="/{'qris-icon.png' if logo_val == 'qris' else ('gopay-icon.png' if logo_val == 'gopay' else ('seabank-icon.png' if logo_val == 'seabank' else 'dana-icon.png'))}" alt="Provider" class="w-full h-full object-cover">
                                     </div>
                                     <p id="prevReceiverName1" class="font-bold text-[11px] text-[#1a1c1e] tracking-tight truncate w-full max-w-[105px]">
                                         {data.get('receiverName', 'ABDUL AZIS')}
@@ -564,7 +580,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                                         <span>Recipient</span>
                                     </div>
                                     <div class="flex items-center gap-1 font-bold text-gray-900 text-[11px]">
-                                        <img id="prevReceiverLogo2" src="/{'qris-icon.png' if logo_val == 'qris' else ('gopay-icon.png' if logo_val == 'gopay' else 'dana-icon.png')}" alt="Provider" class="w-4 h-4 rounded-full object-cover shadow-2xs">
+                                        <img id="prevReceiverLogo2" src="/{'qris-icon.png' if logo_val == 'qris' else ('gopay-icon.png' if logo_val == 'gopay' else ('seabank-icon.png' if logo_val == 'seabank' else 'dana-icon.png'))}" alt="Provider" class="w-4 h-4 rounded-full object-cover shadow-2xs">
                                         <span id="prevReceiverName2" class="truncate max-w-[120px]">{data.get('receiverName', 'ABDUL AZIS')}</span>
                                     </div>
                                 </div>
@@ -657,7 +673,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             const senderBank = document.getElementById('senderBank').value.trim() || 'BIBD';
             const senderAcc = document.getElementById('senderAccount').value.trim() || '0000';
             const receiverName = document.getElementById('receiverName').value.trim() || 'PENERIMA';
-            const receiverBank = document.getElementById('receiverBank').value.trim() || (logo === 'qris' ? 'QRIS' : (logo === 'gopay' ? 'GOPAY' : 'DANA'));
+            const receiverBank = document.getElementById('receiverBank').value.trim() || (logo === 'qris' ? 'QRIS' : (logo === 'gopay' ? 'GOPAY' : (logo === 'seabank' ? 'SEABANK' : 'DANA')));
             const receiverAcc = document.getElementById('receiverAccount').value.trim() || '0000';
             const amountPrimary = document.getElementById('amountPrimary').value.trim() || 'IDR 0';
             const amountSec = document.getElementById('amountSecondary').value.trim() || 'BND 0,00';
@@ -671,6 +687,8 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     activeBadge.className = 'text-xs font-bold font-mono px-2.5 py-1 rounded-full uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30';
                 }} else if (logo === 'gopay') {{
                     activeBadge.className = 'text-xs font-bold font-mono px-2.5 py-1 rounded-full uppercase bg-cyan-500/10 text-cyan-400 border border-cyan-500/30';
+                }} else if (logo === 'seabank') {{
+                    activeBadge.className = 'text-xs font-bold font-mono px-2.5 py-1 rounded-full uppercase bg-orange-500/10 text-orange-400 border border-orange-500/30';
                 }} else {{
                     activeBadge.className = 'text-xs font-bold font-mono px-2.5 py-1 rounded-full uppercase bg-blue-500/10 text-blue-400 border border-blue-500/30';
                 }}
@@ -680,6 +698,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             let logoSrc = '/dana-icon.png';
             if (logo === 'qris') logoSrc = '/qris-icon.png';
             else if (logo === 'gopay') logoSrc = '/gopay-icon.png';
+            else if (logo === 'seabank') logoSrc = '/seabank-icon.png';
             document.getElementById('prevReceiverLogo1').src = logoSrc;
             document.getElementById('prevReceiverLogo2').src = logoSrc;
 
@@ -803,12 +822,14 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             radio.addEventListener('change', (e) => {{
                 const val = e.target.value;
                 const bankInput = document.getElementById('receiverBank');
-                if (val === 'qris' && (bankInput.value === 'DANA' || bankInput.value === 'GOPAY' || bankInput.value === '')) {{
+                if (val === 'qris' && (bankInput.value === 'DANA' || bankInput.value === 'GOPAY' || bankInput.value === 'SEABANK' || bankInput.value === '')) {{
                     bankInput.value = 'QRIS';
-                }} else if (val === 'dana' && (bankInput.value === 'QRIS' || bankInput.value === 'GOPAY' || bankInput.value === '')) {{
+                }} else if (val === 'dana' && (bankInput.value === 'QRIS' || bankInput.value === 'GOPAY' || bankInput.value === 'SEABANK' || bankInput.value === '')) {{
                     bankInput.value = 'DANA';
-                }} else if (val === 'gopay' && (bankInput.value === 'QRIS' || bankInput.value === 'DANA' || bankInput.value === '')) {{
+                }} else if (val === 'gopay' && (bankInput.value === 'QRIS' || bankInput.value === 'DANA' || bankInput.value === 'SEABANK' || bankInput.value === '')) {{
                     bankInput.value = 'GOPAY';
+                }} else if (val === 'seabank' && (bankInput.value === 'QRIS' || bankInput.value === 'DANA' || bankInput.value === 'GOPAY' || bankInput.value === '')) {{
+                    bankInput.value = 'SEABANK';
                 }}
                 updatePreview();
             }});
@@ -830,6 +851,11 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 document.getElementById('receiverBank').value = 'GOPAY';
                 document.getElementById('receiverAccount').value = '0821-2469-2642';
                 setQuickNominal(20000);
+            }} else if (type === 'seabank') {{
+                document.querySelector('input[name="transactionLogo"][value="seabank"]').checked = true;
+                document.getElementById('receiverBank').value = 'SEABANK';
+                document.getElementById('receiverAccount').value = '9012-3456-7890';
+                setQuickNominal(100000);
             }}
             updatePreview();
         }}
