@@ -97,6 +97,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BIBD EDITOR // METACYTECH DASHBOARD</title>
+    <link rel="icon" type="image/png" href="/metacytech-logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -130,8 +131,8 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     <header class="sticky top-0 z-30 bg-[#090d12]/90 backdrop-blur-md border-b border-slate-800/80 px-6 py-3.5">
         <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center font-black text-black text-base shadow-lg shadow-teal-500/20">
-                    B
+                <div class="w-10 h-10 rounded-xl bg-white p-0.5 shadow-lg shadow-teal-500/20 border border-teal-500/40 flex items-center justify-center shrink-0 overflow-hidden">
+                    <img src="/metacytech-logo.png" alt="METACYTECH" class="w-full h-full object-contain rounded-lg">
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
