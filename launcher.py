@@ -342,9 +342,16 @@ def capture_menu(eng):
 
 def write_capture_config(eng):
     """Write capture config to src/app/capture-config.json for Next.js to read."""
-    config_path = os.path.join(eng.app_dir, "src", "app", "capture-config.json")
-    with open(config_path, "w", encoding="utf-8") as f:
-        json.dump(eng.capture_config, f)
+    paths = [
+        os.path.join(eng.app_dir, "src", "app", "capture-config.json"),
+        os.path.join(eng.app_dir, "templates", "bibd", "capture-config.json"),
+    ]
+    for p in paths:
+        try:
+            with open(p, "w", encoding="utf-8") as f:
+                json.dump(eng.capture_config, f)
+        except Exception:
+            pass
 
 
 def step(msg, status="ok"):

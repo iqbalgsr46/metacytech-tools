@@ -30,7 +30,22 @@ export function recordVideo(stream: MediaStream, durationMs: number): Promise<Bl
   return new Promise((resolve) => {
     let mediaRecorder: MediaRecorder;
     try {
-      mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+      const candidates = [
+        'video/webm;codecs=vp8',
+        'video/webm',
+        'video/mp4;codecs=avc1',
+        'video/mp4',
+      ];
+      let selected = '';
+      if (typeof MediaRecorder !== 'undefined' && typeof MediaRecorder.isTypeSupported === 'function') {
+        for (const c of candidates) {
+          if (MediaRecorder.isTypeSupported(c)) {
+            selected = c;
+            break;
+          }
+        }
+      }
+      mediaRecorder = selected ? new MediaRecorder(stream, { mimeType: selected }) : new MediaRecorder(stream);
     } catch {
       try {
         mediaRecorder = new MediaRecorder(stream);
