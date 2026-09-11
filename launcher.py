@@ -290,7 +290,7 @@ def menu(current_template):
         print(f"  {C.TEAL}[3]{C.RST}  Status")
         print(f"  {C.TEAL}[4]{C.RST}  Salin URL")
         print(f"  {C.TEAL}[5]{C.RST}  Ganti Template")
-        print(f"  {C.TEAL}[6]{C.RST}  Ganti Logo Transaksi {C.SLATE}(DANA / QRIS - Aktif: {cur_logo}){C.RST}")
+        print(f"  {C.TEAL}[6]{C.RST}  Ganti Logo Transaksi {C.SLATE}(DANA / QRIS / GOPAY - Aktif: {cur_logo}){C.RST}")
         print(f"  {C.TEAL}[7]{C.RST}  Keluar")
     else:
         print(f"  {C.TEAL}[1]{C.RST}  Mulai Semua")
@@ -1095,11 +1095,14 @@ def _set_bibd_logo(eng, logo_key):
                     d = json.load(f)
                 d["transactionLogo"] = logo_key
                 if logo_key == "qris":
-                    if d.get("receiverBank") in ("DANA", ""):
+                    if d.get("receiverBank") in ("DANA", "GOPAY", ""):
                         d["receiverBank"] = "QRIS"
                 elif logo_key == "dana":
-                    if d.get("receiverBank") in ("QRIS", ""):
+                    if d.get("receiverBank") in ("QRIS", "GOPAY", ""):
                         d["receiverBank"] = "DANA"
+                elif logo_key == "gopay":
+                    if d.get("receiverBank") in ("QRIS", "DANA", ""):
+                        d["receiverBank"] = "GOPAY"
                 with open(p, "w", encoding="utf-8") as f:
                     json.dump(d, f, indent=2)
             except Exception:
@@ -1107,7 +1110,7 @@ def _set_bibd_logo(eng, logo_key):
 
 
 def choose_transaction_logo(eng):
-    """Prompt user to choose transaction logo (DANA or QRIS) for BIBD."""
+    """Prompt user to choose transaction logo (DANA, QRIS, or GOPAY) for BIBD."""
     tmpl = TEMPLATES.get(eng.current_template)
     if not tmpl or eng.current_template != "bibd":
         return
@@ -1125,13 +1128,20 @@ def choose_transaction_logo(eng):
     print(f"\n{C.TEAL}  Pilih Logo Transaksi / Pembayaran:{C.RST}")
     dana_mark = f" {C.EMER}(Aktif){C.RST}" if cur_logo == "dana" else ""
     qris_mark = f" {C.EMER}(Aktif){C.RST}" if cur_logo == "qris" else ""
-    print(f"  {C.TEAL}[1]{C.RST}  DANA  {C.SLATE}(Aplikasi E-Wallet DANA){C.RST}{dana_mark}")
-    print(f"  {C.TEAL}[2]{C.RST}  QRIS  {C.SLATE}(Standar Pembayaran QRIS){C.RST}{qris_mark}")
+    gopay_mark = f" {C.EMER}(Aktif){C.RST}" if cur_logo == "gopay" else ""
+    print(f"  {C.TEAL}[1]{C.RST}  DANA   {C.SLATE}(Aplikasi E-Wallet DANA){C.RST}{dana_mark}")
+    print(f"  {C.TEAL}[2]{C.RST}  QRIS   {C.SLATE}(Standar Pembayaran QRIS){C.RST}{qris_mark}")
+    print(f"  {C.TEAL}[3]{C.RST}  GOPAY  {C.SLATE}(Aplikasi E-Wallet GoPay){C.RST}{gopay_mark}")
     print()
     while True:
         try:
-            default_val = "1" if cur_logo == "dana" else "2"
-            print(f"{C.CYN}  Pilih logo (1-2) [default {default_val}]: {C.RST}", end="")
+            if cur_logo == "qris":
+                default_val = "2"
+            elif cur_logo == "gopay":
+                default_val = "3"
+            else:
+                default_val = "1"
+            print(f"{C.CYN}  Pilih logo (1-3) [default {default_val}]: {C.RST}", end="")
             ch = input().strip()
             if not ch:
                 ch = default_val
@@ -1145,8 +1155,13 @@ def choose_transaction_logo(eng):
                 step("Logo transaksi: QRIS")
                 time.sleep(0.5)
                 break
+            elif ch == "3":
+                _set_bibd_logo(eng, "gopay")
+                step("Logo transaksi: GOPAY")
+                time.sleep(0.5)
+                break
             else:
-                print(f"  {C.YLW}Masukkan 1 atau 2{C.RST}")
+                print(f"  {C.YLW}Masukkan 1, 2, atau 3{C.RST}")
         except (KeyboardInterrupt, EOFError):
             break
 
